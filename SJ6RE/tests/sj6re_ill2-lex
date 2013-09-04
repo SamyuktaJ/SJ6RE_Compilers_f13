@@ -1,0 +1,8 @@
+//sj6re illegal set 3
+//parenthesed only acceptable- all other structures are ignored even if well formed
+[][][[[]]]
+Function{
+}
+<V,K>
+*;
+

@@ -1,0 +1,20 @@
+//illegal set 1
+//invalid punctuations
+5!
+v@l
+~;
+`;
+#END
+\$
+5%2==0?
+
+5^2=25?
+a&&b
+abc*
+a||b;
+_abc
+k\p
+'hello'
+"world"
+a,b,c
+5.6..

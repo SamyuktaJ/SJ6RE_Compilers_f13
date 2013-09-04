@@ -1,0 +1,9 @@
+//sj6re illegal case 2
+//keywords case sensitive
+SIN
+COS
+SQRT
+
+Comment: the following keywords should throw errors but instead will be cast as ID's or variables
+
+go turn var jump for step to do begin end
