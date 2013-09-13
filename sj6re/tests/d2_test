@@ -1,0 +1,36 @@
+//sj6re_legal-lex extended for testing D2
+//ALL comments are acceptable following 2 forward slashes
+BEGIN sin 30.5 END
+BEGIN BEGIN BEGIN begin //last will be variable
+TO DO abc
+GO TO STEP FOR step 
+JUMP 10+2
+VAR x=
+y=5555555555;
+//35.8
+zzzz yyy xx w
+TURN 360 50 100
+TURN50
+JUMP END
+//abc=10
+TO(sin(+5*cos 30.5 -sqrt 100)
+//last parentheses not well formed
+>=
+5/6==1;
+76.9
+10824907146103591358-35-6031;;;;;;
+PROCEDURE abc[hi,bye]
+{
+IF (hi>0)
+THEN TURN -45;
+ELSE GO bye;
+}
+PROCEDURE xyz ( )
+{
+REPEAT 10 [ FD 10 RT 36 ];
+}                            
+IF ( a AND b)
+{!c;}
+FD 100
+RT 90
+FD FD

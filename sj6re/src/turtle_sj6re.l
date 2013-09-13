@@ -5,11 +5,10 @@
 #include "math.h"
 %}
 
-COMP_OP ["<"|">"|"<="|">="|"!="|"=="]
 LOGIC_OP ["&"|"&&"|"AND"|"|"|"||"|"OR"|"!"|"NOT"]
 ID [a-z][a-z0-9]*
-KEYWORDS_ONE_ARG ["forward"|"fd"|"back"|"bk"|"left"|"lt"|"right"|"rt"|"setx"|"sety"|"setheading"|"seth"|"label"|"setlabelheight"|"setwidth"|"setcolor"]
-ws [[:space:]]*[\t]*
+KEYWORDS_ONE_ARG [FORWARD|FD|BACK|"BK"|"LEFT"|"LT"|"RIGHT"|RT|"SETX"|"SETY"|"SETHEADING"|"SETH"|"LABEL"|"SETLABELHEIGHT"|"SETWIDTH"|"SETCOLOR"]
+ws {[:space:]}*{\t}*
 %%
 
 \/\/.*          ;
@@ -30,18 +29,59 @@ sin             return SIN;
 cos             return COS;
 sqrt            return SQRT;
 
-[KEYWORDS_ONE_ARG][[:space:]]*[0-9]+	printf("legal DRAW COMMAND, %s \t",yytext);
-
-REPEAT[ws][0-9]+[\[][[ws].]*[\]]	printf("REPEAT");
-
-PROCEDURE[ws][ID][ws][\(][ws][[ID]*[ws][","]*[ws]]*[ws][\)]	printf("Procedure");
-
-IF		{printf("IF");//return IF;
+"FORWARD"|"FD"|"BACK"|"BK"|"LEFT"|"LT"|"RIGHT"|"RT"|"SETX"|"SETY"|"SETHEADING"|"SETH"|"LABEL"|"SETLABELHEIGHT"|"SETWIDTH"|"SETCOLOR"	{//printf("DRAWING KEYWORD \n");
+			return KEYWORD;
 		}
-THEN		{printf("THEN");//return THEN;
+
+"PENUP"|"PU"|"PENDOWN"|"PD"|"CLEARSCREEN"|"CS"|"HIDETURTLE"|"HT"|"SHOWTURTLE"|"ST"|"HOME"|"PRINT"|"POS"|"HEADING"	{ 	//printf("TURTLE CONTROL and MANIPULATION \n");
+			return KEYWORD;
 		}
-ELSE		{printf("ELSE");//return ELSE;
+
+"TOWARDS LIST"|"RANDOM"|"ARC"|"FILL"|"FILLED" { 	//printf("OTHER COMMANDS \n");
+			return KEYWORD;
 		}
+
+
+"&"|"&&"|"AND"|"|"|"||"|"OR"|"!"|"NOT"	{	printf("LOGIC OPERATOR \n");
+			return LOGIC_OP;
+		}
+
+REPEAT		{	//printf("REPEAT\n");
+			return REPEAT;
+		}
+
+WHILE		{	//printf("WHILE\n");
+			return WHILE;
+		}
+
+PROCEDURE	{	//printf("PROCEDURE\n");
+			return PROCEDURE;
+		}
+
+IF		{	//printf("IF\n");
+			return IF;
+		}
+THEN		{	//printf("THEN\n");
+			return THEN;
+		}
+ELSE		{	//printf("ELSE\n");
+			return ELSE;
+		}
+
+"<"|"<="|">"|">="|"!="|"=="	{
+			printf("Comparison Operator, %s \t \n", yytext);
+			return COMP_OP;
+		}
+\{		{//printf("Begin Block \n");
+		return BEG_BLOCK;}
+"["		{//printf("Begin List \n");
+		return BEG_LIST;}
+\}		{//printf("End Block \n");
+		return END_BLOCK;}
+"]"		{//printf("End List \n"); 
+		return END_LIST;}
+","		{//printf("COMMA \n");
+		return COMMA;}
 
 ;               return SEMICOLON;
 \+              return PLUS;
@@ -53,9 +93,10 @@ ELSE		{printf("ELSE");//return ELSE;
 =               return ASSIGN;
 
 
-ID             { yylval.n = lookup(yytext); 
+[a-z][a-z0-9]*             { yylval.n = lookup(yytext); 
                   if (yylval.n==NULL)
 		    yylval.n = insert(yytext);
+		printf("ID \n");
                   return ID;
 		}
     
