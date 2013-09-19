@@ -25,23 +25,10 @@
 #define CLOSE 280
 #define ASSIGN 281
 
-#define KEYWORD 300
-#define IF 301
-#define THEN 302
-#define ELSE 303
-#define PROCEDURE 304
-#define REPEAT 305
-#define WHILE 306
 
-#define COMP_OP 350
-#define COMMA 351
-#define LOGIC_OP 352
-#define BEG_BLOCK 353
-#define END_BLOCK 354
-#define BEG_LIST 355
-#define END_LIST 356
+
 typedef union YYSTYPE
 { int i; node *n; double d;}
         YYSTYPE;
-YYSTYPE yylval;
+extern YYSTYPE yylval;
 

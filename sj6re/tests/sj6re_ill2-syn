@@ -1,0 +1,28 @@
+//Illegal 2
+//errors in expressions , terms, factors or atomic
+
+//VAR x;VAR y;
+\n
+x= --y--x+-(-y/x-)y/y/y-y +x;//badly formed expr
+y=------x; //missing parentheses
+new=sincossqrt30;//missing whitespace which is not a problem for other keywords
+
+x=x + + + + x;//missing parentheses
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+hi=-sqrt sin cos +30;//missing parentheses

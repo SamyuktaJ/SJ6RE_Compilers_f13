@@ -1,0 +1,11 @@
+//Illegal 0
+//Incorrect declaration form;
+
+//VAR a;//legal form
+a=b+c;
+VAR c;//declaration after stmtlist has started considered to be after end of prog.
+VAR ABC;//caps not allowed
+VAR a1;//alphanumeric not allowed
+VAR sin;//keyword as ID not allowed
+VAR x //not terminated by semicolon
+VAR x=a; //initialization not allowed at declaration
