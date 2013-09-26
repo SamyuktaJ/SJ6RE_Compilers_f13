@@ -63,7 +63,7 @@ then: THEN;
 then:;
 stmt: exec_array;
 
-stmt: WHILE{printf("{");} OPEN catomic CLOSE {printf("\n");} beg_block{printf("}{exit} ifelse \n");} stmtlist end_block {printf("loop \n closepath \n ");};
+stmt: WHILE{printf("{");} OPEN catomic CLOSE {printf("\n {}{exit} ifelse \n");} exec_array {printf("\n }loop \n closepath \n ");};
 stmt: PROCEDURE ID {printf("/proc%s",$2->symbol);} exec_array {printf("def \n ");};
 stmt: CALL ID proc_list SEMICOLON {printf("proc%s \n closepath \n ",$2->symbol);};
 
@@ -99,8 +99,8 @@ catomic: OPEN condition CLOSE;
 catomic: condition;
 
 exec_array: beg_block stmtlist end_block;
-beg_block: BEG_BLOCK {printf("{");};
-end_block: END_BLOCK {printf("}");};
+beg_block: BEG_BLOCK {printf(" { \n");};
+end_block: END_BLOCK {printf(" }");};
 
 proc_list:;
 proc_list: atomic proc_list;

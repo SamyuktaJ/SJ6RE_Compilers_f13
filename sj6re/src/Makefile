@@ -7,14 +7,14 @@ eins.ps: eins.tlt turtle
 lex.yy.o:  lex.yy.c turtle.tab.h symtab.h
 	gcc -c lex.yy.c
 
-lex.yy.c: turtle.l
-	flex turtle.l
+lex.yy.c: turtle_sj6re.l
+	flex turtle_sj6re.l
 	
 turtle.tab.h: turtle.y
-	bison -d turtle.y
+	bison -d turtle.y 
 	
 turtle.tab.c: turtle.y
-	bison -d turtle.y
+	bison -d turtle.y 
 	
 turtle.tab.o: turtle.tab.c symtab.h
 	gcc -c turtle.tab.c

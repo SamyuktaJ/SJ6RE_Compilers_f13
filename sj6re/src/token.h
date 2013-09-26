@@ -25,7 +25,28 @@
 #define CLOSE 280
 #define ASSIGN 281
 
+#define REPEAT 301
+#define WHILE 302
+#define PROCEDURE 303
+#define IF 304
+#define ELSE 305
+#define THEN 306
+#define COMP_OP_lt 307
+#define COMP_OP_le 308
+#define COMP_OP_gt 309
+#define COMP_OP_ge 310
+#define COMP_OP_ne 311 
+#define COMP_OP_eq 312
+#define BEG_BLOCK 313
+#define END_BLOCK 314
+#define BEG_LIST 315
+#define END_LIST 316
 
+#define COMMA 317
+#define LOGIC_OP 318
+#define PARAM 319
+#define CALL 320
+#define KEYWORD 330
 
 typedef union YYSTYPE
 { int i; node *n; double d;}

@@ -1,10 +1,8 @@
 
 %{
 #include "symtab.h"
-//#include "token.h"
-#include "turtle.tab.h"
+#include "token.h"
 #include "math.h"
-
 %}
 
 LOGIC_OP ["&"|"&&"|"AND"|"|"|"||"|"OR"|"!"|"NOT"]
@@ -44,7 +42,7 @@ sqrt            return SQRT;
 		}
 
 
-"&"|"&&"|"AND"|"|"|"||"|"OR"|"!"|"NOT"	{	//printf("LOGIC OPERATOR \n");
+"&"|"&&"|"AND"|"|"|"||"|"OR"|"!"|"NOT"	{	printf("LOGIC OPERATOR \n");
 			return LOGIC_OP;
 		}
 
@@ -70,40 +68,9 @@ ELSE		{	//printf("ELSE\n");
 			return ELSE;
 		}
 
-PARAM		{       return PARAM;
-		}
-CALL		{	
-			return CALL;
-		}
-
-"<"		{
-			//printf("Comparison Operator, %s \t \n", yytext);
-			return COMP_OP_lt;
-		}
-
-"<="		{
-			//printf("Comparison Operator, %s \t \n", yytext);
-			return COMP_OP_le;
-		}
-
-">"		{
-			//printf("Comparison Operator, %s \t \n", yytext);
-			return COMP_OP_gt;
-		}
-
-">="		{
-			//printf("Comparison Operator, %s \t \n", yytext);
-			return COMP_OP_ge;
-		}
-
-"!="		{
-			//printf("Comparison Operator, %s \t \n", yytext);
-			return COMP_OP_ne;
-		}
-
-"=="		{
-			//printf("Comparison Operator, %s \t \n", yytext);
-			return COMP_OP_eq;
+"<"|"<="|">"|">="|"!="|"=="	{
+			printf("Comparison Operator, %s \t \n", yytext);
+			return COMP_OP;
 		}
 \{		{//printf("Begin Block \n");
 		return BEG_BLOCK;}
@@ -126,10 +93,10 @@ CALL		{
 =               return ASSIGN;
 
 
-[a-z][a-z0-9]*  { yylval.n = lookup(yytext); 
+[a-z][a-z0-9]*             { yylval.n = lookup(yytext); 
                   if (yylval.n==NULL)
 		    yylval.n = insert(yytext);
-		//printf("ID \n");
+		printf("ID \n");
                   return ID;
 		}
     

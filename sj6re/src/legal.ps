@@ -1,0 +1,35 @@
+%!PS Adobe
+
+newpath 
+ 0 0 moveto
+/tlta 0 def
+/tltb 0 def
+/tltc 0 def
+/tltd 0 def
+/tltsum 0 def
+/tltdiff 0 def
+/tltavg 0 def
+5 /tlta exch store
+3.300000 /tltb exch store
+tlta /tltc exch store
+tlta tltb add tltc add tltd add /tltsum exch store
+tltsum tltcount div /tltavg exch store
+tltavg tltcount mul /tltsumtwo exch store
+tltsumtwo 2 div 25 sqrt add 0 rlineto
+tlta tltb add tltc add tltd 4.000000 div add /tltavgtwo exch store
+0 neg 0 rmoveto
+tltsum tltsum mul tltsum 30 sqrt cos sin div add /tltweirdvar exch store
+4 neg neg neg neg neg /tltx exch store
+90 neg sin sin /tlty exch store
+2 3 2 div add /tlthi exch store
+30 cos rotate
+tlta tltb add tltc 3.000000 div add /tltabc exch store
+400 0 rmoveto
+0 cos sqrt rotate
+30 sin 30 sin mul 30 cos 30 cos mul add 2 div 100 sqrt tltabc { /tlti exch store
+20 neg 0 rmoveto
+} for
+tltabc rotate
+Begin Block 
+End Block 
+FOUND BRACESstroke

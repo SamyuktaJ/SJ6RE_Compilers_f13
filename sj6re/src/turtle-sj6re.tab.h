@@ -79,9 +79,7 @@
      END_LIST = 297,
      COMMA = 298,
      LOGIC_OP = 299,
-     KEYWORD = 300,
-     PARAM = 301,
-     CALL = 302
+     KEYWORD = 300
    };
 #endif
 
@@ -92,12 +90,12 @@ typedef union YYSTYPE
 {
 
 /* Line 2068 of yacc.c  */
-#line 6 "turtle.y"
+#line 6 "turtle-sj6re.y"
  int i; node *n; double d;
 
 
 /* Line 2068 of yacc.c  */
-#line 101 "turtle.tab.h"
+#line 99 "turtle-sj6re.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
