@@ -1,0 +1,16 @@
+//ILLEGAL 1
+//Statement errors
+
+//VAR x;
+x=-y //no terminating semicolon
+
+FOR x=a+b*c/d;//wrong terminating semicolon 
+STEP 1/2/12/1-(sin cos sqrt a);//should not work but does if previous errors removed
+
+TO 2
+DO BEGIN GO 3 END //missing semicolon
+
+GO BEGIN //incorrect form of use, missing closing end
+
+BEGIN TURN sincossqrt 30; END//bad usage
+

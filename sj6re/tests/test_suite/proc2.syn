@@ -1,0 +1,41 @@
+//functions calling each other
+//complex calls
+
+VAR i;
+VAR p;
+VAR q;
+VAR r;
+VAR j;
+PROCEDURE space{
+TURN 90;
+JUMP 50;
+TURN 270;
+}
+//spiral
+PROCEDURE abc{
+	FOR i=PARAM
+	STEP -1
+	TO 0
+	DO GO 10;
+	CALL def;
+}
+
+PROCEDURE def{
+JUMP 5;
+}
+CALL space;
+CALL abc 10;
+CALL space;
+CALL abc 5;
+CALL abc -2;//shouldn't draw anything but valid call
+CALL space 10 20 30;//space accepts no arguments
+CALL abc;//null argument to abc which accepts arguments
+CALL space;
+CALL abc 2.35;//float 
+p=45;
+q=4;
+r=2;
+CALL space;
+CALL abc (SQRT(SIN p* SIN p+ COS p* COS p)*1 +1);
+CALL space (1);
+CALL abc (3*(2+(SQRT(COS(SIN 90)/2)/3))+1.0);

@@ -1,0 +1,81 @@
+VAR a;
+VAR b;
+VAR c;
+VAR d;
+PROCEDURE polyhelper
+{
+	sides=PARAM;
+	angle=((sides-2)*180/sides);
+}
+PROCEDURE drawpoly
+{
+	temp=PARAM;
+	length=PARAM;
+	CALL polyhelper temp;
+	WHILE(temp>0)
+	{
+		CALL line length;
+		TURN angle;
+		temp=temp-1;
+	}
+}
+
+PROCEDURE line
+{
+GO PARAM;
+}
+
+PROCEDURE psychedelic
+{
+	sideno=PARAM;
+	len=PARAM;
+	temp=len;
+	rep=1;//initialize
+	WHILE(temp>0)
+	{
+		IF((temp-4)>=1)
+		THEN
+		{
+			rep=rep+1;
+			temp=temp-4;
+		}
+		ELSE
+		{
+			//no change to rep
+		}
+	}
+	FOR i=1
+	STEP 1
+	TO rep
+	DO 
+	BEGIN 
+		CALL drawpoly sideno len;
+		len=len-4;
+		CALL reorient 2;
+	END
+
+}
+PROCEDURE reorient
+{
+	step=PARAM;
+	JUMP step;
+	TURN 90;
+	JUMP step;
+	TURN 270;
+
+}
+
+CALL reorient 10;
+CALL drawpoly 4 SQRT(400);
+JUMP 25;
+CALL drawpoly 5 20;
+JUMP 25;
+CALL drawpoly 10 10;
+CALL reorient 20;
+CALL psychedelic 3 30;
+CALL reorient 50;
+a=4;
+b=5;
+
+CALL psychedelic b a*b;
+CALL psychedelic c d;//no values assigned to c or d

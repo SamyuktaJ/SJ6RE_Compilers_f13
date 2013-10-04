@@ -1,0 +1,12 @@
+VAR i;
+
+i=4;
+JUMP 100;
+WHILE(i>0)
+BEGIN GO 50;i=i-1; END //single block for all purposes
+i=5;
+JUMP 100;
+WHILE((i=i-1)>0)
+GO 50;
+//single line whiles should work without curly braces
+//Won't accept i=i-1 in condition

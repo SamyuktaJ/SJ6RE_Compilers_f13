@@ -1,0 +1,25 @@
+//Recursive function
+VAR i;
+VAR p;
+VAR q;
+JUMP 80;
+TURN 90;
+JUMP 80;
+//spiral
+PROCEDURE spiral{
+p= PARAM;
+i= PARAM;
+GO p;
+TURN 90;
+GO p;
+TURN 90;
+p=p-10;
+i=i-1;
+WHILE(i>0)
+{
+CALL spiral p i;
+}
+}
+
+CALL spiral 100 10;
+

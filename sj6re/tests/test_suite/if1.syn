@@ -1,0 +1,30 @@
+//IF CLAUSE SIMPLE FORMS
+VAR abc;
+
+abc=4;
+
+// If condition
+IF(abc>=0) {
+    GO 40;
+    TURN 90;
+    GO 40;
+    TURN 90;
+    GO 40;
+    TURN 90;
+    GO 40;
+    TURN 90;
+    //abc=abc-1;
+    //GO 80;
+}
+//If Else
+IF(1)
+{GO 10;}
+ELSE
+{JUMP 10;
+GO 10;}
+
+//If then else
+IF(abc>=0)
+THEN{ GO 10; JUMP 10; GO 10;}
+
+ELSE{ GO 5; JUMP 10; GO 5;}

@@ -1,0 +1,33 @@
+//IF CLAUSE COMPLEX FORMS
+VAR abc;
+
+abc=4;
+p=2;
+
+//Nested If condition
+IF(abc>=0) {
+    IF(p==2)
+	{JUMP 80;}
+    GO 40;
+    TURN 90;
+    GO 40;
+    TURN 90;
+    GO 40;
+    TURN 90;
+    GO 40;
+    TURN 90;
+    //abc=abc-1;
+    //GO 80;
+}
+
+ //single line without curly braces allowed acc to spec handed out in first class
+IF(1)
+{GO 10;}
+ELSE
+GO 50;
+
+IF(p<0)
+THEN GO 60;
+ELSE {TURN 90; GO 60;}
+
+

@@ -1,0 +1,13 @@
+VAR abc;
+
+//simple while
+//staircase?
+i=0;
+TURN 90;
+WHILE(i<20) {
+    GO 20;
+    TURN 270;
+    GO 15;
+    TURN 90;
+    i=i+1;
+}

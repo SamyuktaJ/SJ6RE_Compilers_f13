@@ -1,0 +1,24 @@
+VAR i;
+VAR p;
+VAR q;
+JUMP 80;
+TURN 90;
+JUMP 80;
+//spiral
+PROCEDURE spiral{
+p= PARAM;
+GO p;
+TURN 90;
+GO p;
+TURN 90;
+}
+
+CALL spiral 100;
+q=90;
+i=9;
+WHILE(i>0)
+{
+CALL spiral q;
+q=q-10;
+i=i-1;
+}

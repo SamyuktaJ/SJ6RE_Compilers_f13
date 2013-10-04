@@ -1,0 +1,20 @@
+VAR abc;
+
+//nested whiles
+
+i=0;// WORKS WITHOUT DECL
+TURN 90;
+
+WHILE(i<20) {
+    JUMP 20;
+    TURN 270;
+	abc=4;
+	WHILE(abc>0)
+	{    	GO 5;
+    		TURN 90;
+    		abc=abc-1;
+	}
+    TURN 90;
+    i=i+1;
+}
+
