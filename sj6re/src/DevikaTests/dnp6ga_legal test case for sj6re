@@ -1,0 +1,42 @@
+
+// Comment- test case legal
+
+
+VAR a;
+VAR b;
+VAR c;
+VAR d;
+
+TURN 180;
+JUMP 100;
+TURN -180;
+JUMP 80;
+
+d = 300;
+b = (a+ 10.1) * c ;
+a = a / 50;
+
+FOR j=1 STEP 1 TO 100 - cos(90) DO
+BEGIN
+  
+  JUMP a * 10 + 20 ;
+  GO b / sin(30) ;
+  a = sqrt(c * b) + sin(cos(b));
+  TURN a;
+END
+IF( a < b) THEN
+{
+   WHILE( i == 3) 
+  {
+    CALL p 10 10 10;
+  }
+}
+else
+{
+   a = a + 100;
+}
+PROCEDURE p{
+TURN sin(90);
+a = a - 1;
+}
+

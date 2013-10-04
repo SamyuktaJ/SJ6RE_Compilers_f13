@@ -36,6 +36,6 @@ p=45;
 q=4;
 r=2;
 CALL space;
-CALL abc (SQRT(SIN p* SIN p+ COS p* COS p)*1 +1);
+CALL abc (sqrt(sin p* sin p+ cos p* cos p)*1 +1);
 CALL space (1);
-CALL abc (3*(2+(SQRT(COS(SIN 90)/2)/3))+1.0);
+CALL abc (3*(2+(sqrt(cos(sin 90)/2)/3))+1.0);

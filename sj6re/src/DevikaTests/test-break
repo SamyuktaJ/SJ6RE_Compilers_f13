@@ -1,0 +1,63 @@
+IF a == b THEN{
+PARAM = 90;
+}
+IF( a < 4)THEN{
+VAR x;
+}
+
+IF (c) THEN {10 = c};
+IF( a < b) { 
+IF ( i > j) THEN 
+   }
+FOR i = 1 STEP 1 TO n DO:
+IF( a < b) THEN
+  IF( a < b ) THEN
+            c = 1 +2 ;
+  ELSE( a  )
+
+IF(PARAM > PARAM)THEN
+{
+TURN PARAM;
+GO PARAM;
+}
+IF((a + b) == c) THEN{}
+
+WHILE(1) {
+IF( a + a) THEN
+{
+  c = c + 1;
+}
+}
+CALL proc();
+PROCEDURE {
+
+}
+IF ( {c = 1;} <= 2) THEN{}
+
+CALL p a+b sin(90) {
+TURN 100;
+
+};
+
+CALL 2.3 3 3 3;
+IF( c < 10)
+    c = -1;
+ELSE 
+    c = 10;
+
+IF( ( c + 1 < r )) THEN {}
+
+WHILE  ((c <  10) )
+{
+  WHILE( c < 10)
+  BEGIN
+     a = 1;
+  END
+}
+
+PROCEDURE a ()
+BEGIN
+a = 1;
+END
+
+PROCEDURE a 100 (100) PARAM 10.1

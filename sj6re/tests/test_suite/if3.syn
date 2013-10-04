@@ -1,7 +1,7 @@
 //If then else complex nesting
 IF(abc>=0)
 {p=abc-1;
-	IF(p<(SQRT abc))
+	IF(p<(sqrt abc))
 	{}
 	ELSE
 	{ GO 10; JUMP 10; GO 10; p=0;}
@@ -11,7 +11,7 @@ IF(abc>=0)
 	{GO 40; 
 	TURN 90; 
 	GO 40;
-	IF(p+SIN abc>=0) 
+	IF(p+sin abc>=0) 
 	{JUMP 100;}
 	ELSE{}
 	}	

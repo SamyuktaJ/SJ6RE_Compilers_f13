@@ -1,0 +1,15 @@
+VAR a;
+c = 1.2 + sin(cos(90));
+BEGIN
+term = 2 2 2;
+IF(a < == b) THEN{
+c = 1;
+}
+else
+   c = 2 - 3;
+FOR ( i = 1 TO n ) DO
+    i = i++ ;
+    c = c +/ 3;
+    k = --a + b;
+END
+

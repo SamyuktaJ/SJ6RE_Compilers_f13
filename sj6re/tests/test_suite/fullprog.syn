@@ -66,7 +66,7 @@ PROCEDURE reorient
 }
 
 CALL reorient 10;
-CALL drawpoly 4 SQRT(400);
+CALL drawpoly 4 sqrt(400);
 JUMP 25;
 CALL drawpoly 5 20;
 JUMP 25;

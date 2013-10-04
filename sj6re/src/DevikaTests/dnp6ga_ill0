@@ -1,0 +1,29 @@
+VAR x;
+VAR y;
+IF a == b THEN{
+PARAM = 90;
+}
+
+CALL proc();
+PROCEDURE {
+
+}
+
+IF( a < 4)THEN{
+VAR x;
+}
+c = 2 + sin(90) * 10;
+IF (c) THEN {10 = c};
+CALL 2.3 3 3 3;
+IF( c < 10)
+    c = -1;
+ELSE 
+    c = 10;
+
+WHILE  ((c <  10) )
+{
+  WHILE( c < 10)
+  BEGIN
+     a = 1;
+  END
+}
