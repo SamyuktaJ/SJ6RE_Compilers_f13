@@ -1,0 +1,9 @@
+TEST CASE 				EXPECTED RESULT			ACTUAL RESULT
+
+dnp6ga_break				PASS				FAIL
+dnp6ga_ill0				FAIL				FAIL
+dnp6ga_ill1				FAIL				FAIL
+dnp6ga_ill2				FAIL				FAIL
+dnp6ga_ill3				FAIL				FAIL
+dnp6ga_legal test case for sj6re	PASS				FAIL
+test-break				PASS				FAIL

@@ -31,7 +31,8 @@ IF( a < b) THEN
     CALL p 10 10 10;
   }
 }
-else
+ELSE
+//else
 {
    a = a + 100;
 }
