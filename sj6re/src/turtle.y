@@ -64,7 +64,7 @@ then:;
 stmt: exec_array;
 
 stmt: WHILE{printf("{");} OPEN bool CLOSE {printf("\n {}{exit} ifelse \n");} exec_array {printf("\n }loop \n closepath \n ");};
-stmt: PROCEDURE ID {printf("/proc%s",$2->symbol);} exec_array {printf("def \n ");};
+stmt: PROCEDURE ID {printf("/proc%s",$2->symbol);}arg_list exec_array {printf("def \n ");};
 stmt: CALL ID proc_list SEMICOLON {printf("proc%s \n closepath \n ",$2->symbol);};
 
 expr: expr PLUS term { printf("add ");};
@@ -107,6 +107,9 @@ end_block: END_BLOCK {printf(" }");};
 
 proc_list:;
 proc_list: proc_list expr;
+
+arg_list:;
+arg_list:OPEN proc_list CLOSE;
 
 
 %%

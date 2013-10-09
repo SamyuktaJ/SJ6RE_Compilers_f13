@@ -35,7 +35,7 @@ TURN 100;
 IF( ( c + 1 < r )) THEN {}
 
 //Wrong syntax for procedure fixed
-PROCEDURE a { //()
+PROCEDURE a (){
 BEGIN
 a = 1;
 END
