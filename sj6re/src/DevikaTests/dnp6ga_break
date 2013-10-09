@@ -1,11 +1,13 @@
 IF( a < b) { 
-IF ( i > j) THEN 
+IF ( i > j) THEN {}//new {}
    }
-FOR i = 1 STEP 1 TO n DO:
-IF( a < b) THEN
-  IF( a < b ) THEN
-            c = 1 +2 ;
-  ELSE( a  )
+//FOR i = 1 STEP 1 TO n DO:
+//block1
+//FOR i = 1 STEP 1 TO n DO
+//IF( a < b) THEN
+//  IF( a < b ) THEN
+//            c = 1 +2 ;
+//  ELSE( a  )
 
 IF(PARAM > PARAM)THEN
 {
@@ -21,21 +23,23 @@ IF( a + a) THEN
 }
 }
 
-IF ( {c = 1;} <= 2) THEN{}
+//wrong syntax
+//IF ( {c = 1;} <= 2) THEN{}
 
-CALL p a+b sin(90) {
+CALL p a+b sin(90);//new ; {
 TURN 100;
 
-};
+//};
 
 
 IF( ( c + 1 < r )) THEN {}
 
-
-PROCEDURE a ()
+//Wrong syntax for procedure fixed
+PROCEDURE a { //()
 BEGIN
 a = 1;
 END
-
-PROCEDURE a 100 (100) PARAM 10.1
+}
+//PROCEDURE 
+CALL a 100 (100) PARAM 10.1;//Added semicolon
 
