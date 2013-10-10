@@ -103,7 +103,7 @@ catomic: condition;
 
 array: beg_block stmtlist end_block;
 exec_array: {printf("{");}stmt{printf("}");};
-exec_array:array;
+exec_array:array;//extra step added
 beg_block: BEG_BLOCK {printf(" { \n");};
 end_block: END_BLOCK {printf(" }");};
 
