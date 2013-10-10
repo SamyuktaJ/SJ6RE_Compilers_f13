@@ -1,12 +1,12 @@
 IF( a < b) { 
-IF ( i > j) THEN {}//new {}
+IF ( i > j) THEN {} //new {} 
    }
 //FOR i = 1 STEP 1 TO n DO:
 //block1
-//FOR i = 1 STEP 1 TO n DO
-//IF( a < b) THEN
-//  IF( a < b ) THEN
-//            c = 1 +2 ;
+FOR i = 1 STEP 1 TO n DO
+IF( a < b) THEN
+  IF( a < b ) THEN
+            c = 1 +2 ;
 //  ELSE( a  )
 
 IF(PARAM > PARAM)THEN
@@ -17,7 +17,8 @@ GO PARAM;
 IF((a + b) == c) THEN{}
 
 WHILE(1) {
-IF( a + a) THEN
+//not sure if this shud work IF( a + a) THEN
+IF((a+a))
 {
   c = c + 1;
 }
@@ -35,7 +36,7 @@ TURN 100;
 IF( ( c + 1 < r )) THEN {}
 
 //Wrong syntax for procedure fixed
-PROCEDURE a (){
+PROCEDURE a (m, n ){
 BEGIN
 a = 1;
 END
