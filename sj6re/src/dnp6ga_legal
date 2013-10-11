@@ -1,0 +1,35 @@
+IF( a < b) { 
+IF ( i > j) THEN {}  
+   }
+FOR i = 1 STEP 1 TO n DO
+IF( a < b) THEN
+ { IF( a < b ) THEN
+          {  c = 1 +2 ;}
+}
+IF(PARAM > PARAM)THEN
+{
+TURN PARAM;
+GO PARAM;
+}
+IF((a + b) == c) THEN{}
+
+WHILE(1) {
+IF((a+a))
+{
+  c = c + 1;
+}
+}
+
+CALL p (a+b) sin(90);
+TURN 100;
+
+IF(c + 1 < r ) THEN {}
+
+PROCEDURE a (m, n){
+BEGIN
+a = 1;
+END
+}
+
+CALL a 100 (100) PARAM 10.1;
+

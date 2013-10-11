@@ -60,10 +60,10 @@ stmt: IF OPEN bool CLOSE then exec_array {printf("if \n closepath \n ");};
 stmt: IF OPEN bool CLOSE then exec_array ELSE exec_array { printf("ifelse \n closepath \n ");};
 then: THEN;
 then:;
-//stmt: exec_array; //causes 4 shift reduce , was array 
+stmt: exec_array; //causes 4 shift reduce , was array 
 
-stmt: WHILE{printf("{");}OPEN bool CLOSE{printf("\n {}{exit} ifelse \n");} exec_array {printf("\n }loop \n closepath \n ");};
-stmt: PROCEDURE ID {printf("/proc%s \t {",$2->symbol);}arg_list exec_array {printf("}def \n ");};
+stmt: WHILE{printf("{");}OPEN bool CLOSE{printf("\n {}{exit} ifelse \n");} BEG_BLOCK stmtlist END_BLOCK {printf("\n }loop \n closepath \n ");};
+stmt: PROCEDURE ID {printf("/proc%s \t {",$2->symbol);}arg_list BEG_BLOCK stmtlist END_BLOCK {printf("}def \n ");};
 //stmt: PROCEDURE ID {printf("/proc%s",$2->symbol);} exec_array {printf("def \n ");};
 stmt: CALL ID proc_list SEMICOLON {printf("proc%s \n closepath \n ",$2->symbol);};
 
@@ -103,7 +103,7 @@ condition: expr COMP_OP_eq expr {printf("eq \n");};
 //catomic: OPEN condition CLOSE;
 //catomic: condition;
 bool: condition;//was catomic;
-bool: atomic;//expr also works
+bool: atomic;//expr also works but gives shift reduce
 
 exec_array: beg_block stmtlist end_block;
 beg_block: BEG_BLOCK {printf(" { \n");};
@@ -115,6 +115,7 @@ arg_list:;
 arg_list:OPEN args CLOSE;
 args: factor COMMA args;
 args: factor;
+args: ;
 
 
 

@@ -1,9 +1,19 @@
 TEST CASE 				EXPECTED RESULT			ACTUAL RESULT
 
-dnp6ga_break				PASS				FAIL
+dnp6ga_break				PASS				PASS
 dnp6ga_ill0				FAIL				FAIL
 dnp6ga_ill1				FAIL				FAIL
 dnp6ga_ill2				FAIL				FAIL
 dnp6ga_ill3				FAIL				FAIL
 dnp6ga_legal test case for sj6re	PASS				PASS (else keyword was small case)
-test-break				PASS				FAIL
+test-break				PASS				PASS
+
+NOTE: For this grammar:
+	MUST have {} in IF-ELSE, WHILE, PROCEDURE (No other forms of brackets valid).
+	Conditionals in IF-ELSE and WHILE accept booleans and conditions(2 expr separated by operator)
+	Conditionals must be logically, validly nested - ((a)) or more parentheses won't work
+							 ((a+b)<c) is valid.
+	Conditionals must be enclosed in () not any other form of brackets.
+	Normal block of code enclosed by {} is valid.
+	Procedures can be defined with comma separated arguments enclosed in parentheses.
+	Do NOT add parentheses if no arguments must be passed.
