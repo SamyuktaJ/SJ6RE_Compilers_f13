@@ -41,7 +41,6 @@ decllist: decllist decl;
 
 decl: VAR ID SEMICOLON { printf("/tlt%s 0 def\n",$2->symbol);} ;
 
-
 stmtlist: ;
 stmtlist: stmtlist stmt ;
 
@@ -57,15 +56,21 @@ stmt: FOR ID ASSIGN expr
 	     stmt {printf("} for\n");};
 
 stmt: COPEN stmtlist CCLOSE;	 
-stmt: IF OPEN catomic CLOSE then exec_array {printf("if \n closepath \n ");};
-stmt: IF OPEN catomic CLOSE then exec_array ELSE exec_array { printf("ifelse \n closepath \n ");};
+stmt: IF OPEN bool CLOSE then exec_array {printf("if \n closepath \n ");};
+stmt: IF OPEN bool CLOSE then exec_array ELSE exec_array { printf("ifelse \n closepath \n ");};
 then: THEN;
 then:;
-stmt: exec_array;
+//stmt: exec_array; //causes 4 shift reduce , was array 
 
-stmt: WHILE{printf("{");} OPEN catomic CLOSE {printf("\n {}{exit} ifelse \n");} exec_array {printf("\n }loop \n closepath \n ");};
-stmt: PROCEDURE ID {printf("/proc%s",$2->symbol);} exec_array {printf("def \n ");};
+stmt: WHILE{printf("{");}OPEN bool CLOSE{printf("\n {}{exit} ifelse \n");} exec_array {printf("\n }loop \n closepath \n ");};
+stmt: PROCEDURE ID {printf("/proc%s \t {",$2->symbol);}arg_list exec_array {printf("}def \n ");};
+//stmt: PROCEDURE ID {printf("/proc%s",$2->symbol);} exec_array {printf("def \n ");};
 stmt: CALL ID proc_list SEMICOLON {printf("proc%s \n closepath \n ",$2->symbol);};
+
+//stmt: IF OPEN catomic CLOSE then exec_array {printf("if \n closepath \n ");};
+//stmt: IF OPEN catomic CLOSE then exec_array ELSE exec_array { printf("ifelse \n closepath \n ");};
+//stmt: WHILE{printf("{");} OPEN catomic CLOSE {printf("\n {}{exit} ifelse \n");} exec_array {printf("\n }loop \n closepath \n ");};
+//stmt: PROCEDURE ID {printf("/proc%s",$2->symbol);} exec_array {printf("def \n ");};
 
 expr: expr PLUS term { printf("add ");};
 expr: expr MINUS term { printf("sub ");};
@@ -95,15 +100,22 @@ condition: expr COMP_OP_gt expr {printf("gt \n");};
 condition: expr COMP_OP_ge expr {printf("ge \n");};
 condition: expr COMP_OP_ne expr {printf("ne \n");};
 condition: expr COMP_OP_eq expr {printf("eq \n");};
-catomic: OPEN condition CLOSE;
-catomic: condition;
+//catomic: OPEN condition CLOSE;
+//catomic: condition;
+bool: condition;//was catomic;
+bool: atomic;//expr also works
 
 exec_array: beg_block stmtlist end_block;
 beg_block: BEG_BLOCK {printf(" { \n");};
 end_block: END_BLOCK {printf(" }");};
 
 proc_list:;
-proc_list: atomic proc_list;
+proc_list: factor proc_list;//was atomic instead of expr
+arg_list:;
+arg_list:OPEN args CLOSE;
+args: factor COMMA args;
+args: factor;
+
 
 
 %%
