@@ -57,14 +57,15 @@ stmt: FOR ID ASSIGN expr
 	     stmt {printf("} for\n");};
 
 stmt: COPEN stmtlist CCLOSE;	 
-stmt: IF OPEN catomic CLOSE then exec_array {printf("if \n closepath \n ");};
-stmt: IF OPEN catomic CLOSE then exec_array ELSE exec_array { printf("ifelse \n closepath \n ");};
+stmt: IF OPEN bool CLOSE then exec_array {printf("if \n closepath \n ");};
+stmt: IF OPEN bool CLOSE then exec_array ELSE exec_array { printf("ifelse \n closepath \n ");};
 then: THEN;
 then:;
-stmt: exec_array;
+//stmt: exec_array; //causes 4 shift reduce , was array 
 
-stmt: WHILE{printf("{");} OPEN catomic CLOSE {printf("\n {}{exit} ifelse \n");} exec_array {printf("\n }loop \n closepath \n ");};
-stmt: PROCEDURE ID {printf("/proc%s",$2->symbol);} exec_array {printf("def \n ");};
+stmt: WHILE{printf("{");}OPEN bool CLOSE{printf("\n {}{exit} ifelse \n");} exec_array {printf("\n }loop \n closepath \n ");};
+stmt: PROCEDURE ID {printf("/proc%s \t {",$2->symbol);}arg_list exec_array {printf("}def \n ");};
+//stmt: PROCEDURE ID {printf("/proc%s",$2->symbol);} exec_array {printf("def \n ");};
 stmt: CALL ID proc_list SEMICOLON {printf("proc%s \n closepath \n ",$2->symbol);};
 
 expr: expr PLUS term { printf("add ");};
@@ -89,21 +90,31 @@ atomic: FLOAT {printf("%f ",$1);};
 atomic: ID {printf("tlt%s ", $1->symbol);};
 atomic: PARAM;
 
+bool: catomic;//was condition;
+bool: atomic;//expr also works
 condition: expr COMP_OP_lt expr {printf("lt \n");};
 condition: expr COMP_OP_le expr {printf("le \n");};
 condition: expr COMP_OP_gt expr {printf("gt \n");};
 condition: expr COMP_OP_ge expr {printf("ge \n");};
 condition: expr COMP_OP_ne expr {printf("ne \n");};
 condition: expr COMP_OP_eq expr {printf("eq \n");};
-catomic: OPEN condition CLOSE;
+catomic: OPEN catomic CLOSE;//OPEN condition CLOSE didnt allow nesting
 catomic: condition;
 
-exec_array: beg_block stmtlist end_block;
+
+exec_array: beg_block stmtlist end_block;//was array
+//exec_array: {printf("{");}stmt{printf("}");};
+//exec_array:array;//extra step added
 beg_block: BEG_BLOCK {printf(" { \n");};
 end_block: END_BLOCK {printf(" }");};
 
 proc_list:;
-proc_list: atomic proc_list;
+proc_list: proc_list expr;//was atomic instead of expr
+
+arg_list:;
+arg_list:OPEN args CLOSE;
+args: factor COMMA args;
+args: factor;
 
 
 %%
