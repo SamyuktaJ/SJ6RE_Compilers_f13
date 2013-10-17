@@ -52,6 +52,8 @@ void yyerror(const char *msg); // standard error-handling routine
     List<Stmt*> *stmtList;
     List<VarDecl*> *varList;
     List<Decl*> *declList;
+	ClassDecl *classDecl;//new
+	InterfaceDecl *interfaceDecl;
 }
 
 
@@ -93,6 +95,8 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <fDecl>     FnDecl FnHeader
 %type <stmtList>  StmtList
 %type <stmt>      StmtBlock
+	%type <classDecl>	  ClassDecl /*new block*/
+	%type <interfaceDecl>	  InterfaceDecl
 %%
 /* Rules
  * -----
@@ -109,58 +113,70 @@ Program   :    DeclList            {
                                       // if no errors, advance to next phase
                                       if (ReportError::NumErrors() == 0) 
                                           program->Print(0);
-                                    }
-          ;
+                                    };
 
 DeclList  :    DeclList Decl        { ($$=$1)->Append($2); }
           |    Decl                 { ($$ = new List<Decl*>)->Append($1); };
 
 Decl      :    VarDecl              { $$=$1; }
           |    FnDecl               { $$=$1; }
-;
+	  |    ClassDecl            { $$=$1;/*new*/ }
+	  |    InterfaceDecl        { $$=$1;/*new*/ };
 
-VarDecl   :    Variable ';'         { $$=$1; }
-; 
+VarDecl   :    Variable ';'         { $$=$1; }; 
 
-Variable   :   Type T_Identifier    { $$ = new VarDecl(new Identifier(@2, $2), $1); }
-;
+Variable  :    Type T_Identifier    { $$ = new VarDecl(new Identifier(@2, $2), $1); };
 
 Type      :    T_Int                { $$ = Type::intType; }
           |    T_Bool               { $$ = Type::boolType; }
           |    T_String             { $$ = Type::stringType; }
           |    T_Double             { $$ = Type::doubleType; }
           |    T_Identifier         { $$ = new NamedType(new Identifier(@1,$1)); }
-          |    Type T_Dims          { $$ = new ArrayType(Join(@1, @2), $1); }
-;
+          |    Type T_Dims          { $$ = new ArrayType(Join(@1, @2), $1); };
 
-FnDecl    :    FnHeader StmtBlock   { ($$=$1)->SetFunctionBody($2); }
-;
+FnDecl    :    FnHeader StmtBlock   { ($$=$1)->SetFunctionBody($2); };
 
 FnHeader  :    Type T_Identifier '(' Formals ')'  
                                     { $$ = new FnDecl(new Identifier(@2, $2), $1, $4); }
           |    T_Void T_Identifier '(' Formals ')' 
-                                    { $$ = new FnDecl(new Identifier(@2, $2), Type::voidType, $4); }
-;
+                                    { $$ = new FnDecl(new Identifier(@2, $2), Type::voidType, $4); };
 
 Formals   :    FormalList           { $$ = $1; }
-          |    /* empty */          { $$ = new List<VarDecl*>; }
-;
+          |    /* empty */          { $$ = new List<VarDecl*>; };
 
 FormalList:    FormalList ',' Variable  
                                     { ($$=$1)->Append($3); }
-          |    Variable             { ($$ = new List<VarDecl*>)->Append($1); }
-;
+          |    Variable             { ($$ = new List<VarDecl*>)->Append($1); };
+
+//ClassDecl :    T_Class T_Identifier ClassOptions ClassBody { $$= new ClassDecl(new Identifier(@2, $2),$1,$3,$4);/*new*/ };
+ClassDecl :    T_Class T_Identifier ClassParent ClassInterface '{' Field '}' { $$= new ClassDecl(new Identifier(@2, $2),$3,$4,$6);/*new*/ };
+//ClassOptions:  ClassParent ClassInterface 
+	  |    /* empty */;
+//ClassParent:  T_Extends T_Identifier { $$ = new ClassDecl(new Identifier(@2,$2));/*new*/ }
+	  |	/*empty*/ { $$= NULL; };
+ClassParent:  T_Extends T_Identifier { $$ = new NamedType(new Identifier(@2,$2));/*new*/ }
+	  |	/*empty*/ { $$= NULL; };
+
+ClassInterface: T_Implements InterfaceList { $$= new InterfaceDecl(new Identifier(@2,$2)); /*new*/ }
+	  |	/*empty*/;
+InterfaceList:  InterfaceList ',' T_Identifier { ($$=$1)->Append($3); /*new*/}
+	  |	T_Identifier { ($$= new List<Decl*>)->Append($1); /*new*/};
+//ClassBody :	'{' Field '}' {$$= new List<VarDecl*>->Append($2);};
+Field	  :	Field VarDecl {($$= $1)->Append($2);}
+	  |	Field FnDecl {($$= $1)->Append($2);}
+	  |	/*empty*/;
+
+
+InterfaceDecl : ;
+
 
 StmtBlock :    '{' VarDecls StmtList '}' 
-                                    { $$ = new StmtBlock($2, $3); }
-;
+                                    { $$ = new StmtBlock($2, $3); };
 
 VarDecls  : VarDecls VarDecl     { ($$=$1)->Append($2); }
-          | /* empty*/           { $$ = new List<VarDecl*>; }
-;
+          | /* empty*/           { $$ = new List<VarDecl*>; };
 
-StmtList  : /* empty, add your grammar */  { $$ = new List<Stmt*>; }
-;
+StmtList  : /* empty, add your grammar */  { $$ = new List<Stmt*>; };
 
 %%
 
