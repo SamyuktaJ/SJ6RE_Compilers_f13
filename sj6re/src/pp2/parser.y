@@ -164,7 +164,9 @@ ClassParent:  T_Extends T_Identifier 	{ $$ = new NamedType(new Identifier(@2,$2)
 	  |	/*empty*/ { $$= NULL; };
 
 //ClassInterface: T_Implements InterfaceList	 { ($$= new List<NamedType*)>->Append(@2,$2); /*new*/}  |	/*empty*/	{ $$=new List<NamedType*>; };
-ClassInterface: T_Implements InterfaceList	 { ($$= new List<NamedType*>)->Append(@2,$2); /*new*/ }
+ClassInterface: T_Implements InterfaceList	 { $$= new List<NamedType*>;
+						   for(int i=0; i<$2->NumElements(); i++)
+						   $$->Append(new NamedType($2->Nth(i))); /*new n th element of Interface list($2)*/ }
 	  |	/*empty*/	{ $$=new List<NamedType*>; };
 
 InterfaceList:  InterfaceList ',' T_Identifier	 { ($$=$1)->Append(new Identifier(@3,$3)); /*new*/}
