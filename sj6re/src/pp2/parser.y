@@ -47,13 +47,18 @@ void yyerror(const char *msg); // standard error-handling routine
     Decl *decl;
     VarDecl *var;
     FnDecl *fDecl;
+	ClassDecl *classDecl;//new
+	InterfaceDecl *interfaceDecl;
+	
     Type *type;
     Stmt *stmt;
+	NamedType *namedType;
+
     List<Stmt*> *stmtList;
     List<VarDecl*> *varList;
     List<Decl*> *declList;
-	ClassDecl *classDecl;//new
-	InterfaceDecl *interfaceDecl;
+	List<Identifier*> *identifierList;
+	List<NamedType*> *namedTypeList;
 }
 
 
@@ -87,8 +92,8 @@ void yyerror(const char *msg); // standard error-handling routine
  * of the union named "declList" which is of type List<Decl*>.
  * pp2: You'll need to add many of these of your own.
  */
-%type <declList>  DeclList 
-%type <decl>      Decl
+%type <declList>  DeclList 	FieldO/*new*/
+%type <decl>      Decl	Field/*new*/
 %type <type>      Type 
 %type <var>       Variable VarDecl
 %type <varList>   Formals FormalList VarDecls
@@ -97,6 +102,10 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <stmt>      StmtBlock
 	%type <classDecl>	  ClassDecl /*new block*/
 	%type <interfaceDecl>	  InterfaceDecl
+
+	%type <identifierList>	  InterfaceList
+	%type <namedType>	  ClassParent
+	%type <namedTypeList>	  ClassInterface	
 %%
 /* Rules
  * -----
@@ -148,24 +157,22 @@ FormalList:    FormalList ',' Variable
                                     { ($$=$1)->Append($3); }
           |    Variable             { ($$ = new List<VarDecl*>)->Append($1); };
 
-//ClassDecl :    T_Class T_Identifier ClassOptions ClassBody { $$= new ClassDecl(new Identifier(@2, $2),$1,$3,$4);/*new*/ };
-ClassDecl :    T_Class T_Identifier ClassParent ClassInterface '{' Field '}' { $$= new ClassDecl(new Identifier(@2, $2),$3,$4,$6);/*new*/ };
-//ClassOptions:  ClassParent ClassInterface 
-	  |    /* empty */;
-//ClassParent:  T_Extends T_Identifier { $$ = new ClassDecl(new Identifier(@2,$2));/*new*/ }
-	  |	/*empty*/ { $$= NULL; };
-ClassParent:  T_Extends T_Identifier { $$ = new NamedType(new Identifier(@2,$2));/*new*/ }
+
+ClassDecl :    T_Class T_Identifier ClassParent ClassInterface '{' FieldO '}' { $$= new ClassDecl(new Identifier(@2, $2),$3,$4,$6);/*new*/ };
+
+ClassParent:  T_Extends T_Identifier 	{ $$ = new NamedType(new Identifier(@2,$2));/*new*/ }
 	  |	/*empty*/ { $$= NULL; };
 
-ClassInterface: T_Implements InterfaceList { $$= new InterfaceDecl(new Identifier(@2,$2)); /*new*/ }
-	  |	/*empty*/;
-InterfaceList:  InterfaceList ',' T_Identifier { ($$=$1)->Append($3); /*new*/}
-	  |	T_Identifier { ($$= new List<Decl*>)->Append($1); /*new*/};
-//ClassBody :	'{' Field '}' {$$= new List<VarDecl*>->Append($2);};
-Field	  :	Field VarDecl {($$= $1)->Append($2);}
-	  |	Field FnDecl {($$= $1)->Append($2);}
-	  |	/*empty*/;
+//ClassInterface: T_Implements InterfaceList	 { ($$= new List<NamedType*)>->Append(@2,$2); /*new*/}  |	/*empty*/	{ $$=new List<NamedType*>; };
+ClassInterface: T_Implements InterfaceList	 { ($$= new List<NamedType*>)->Append(@2,$2); /*new*/ }
+	  |	/*empty*/	{ $$=new List<NamedType*>; };
 
+InterfaceList:  InterfaceList ',' T_Identifier	 { ($$=$1)->Append(new Identifier(@3,$3)); /*new*/}
+	  |	T_Identifier 	{ ($$= new List<Identifier*>)->Append(new Identifier(@1,$1)); /*new*/};
+Field	  :	VarDecl	 {($$= $1);/*->Append($2);*/}
+	  |	FnDecl	 {($$= $1);/*->Append($2); Removed Field*/};
+FieldO	  :	FieldO Field	{($$=$1)->Append($2);}
+	  |	/*empty*/	{$$=new List<Decl*>;};
 
 InterfaceDecl : ;
 
