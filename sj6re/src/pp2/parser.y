@@ -92,14 +92,14 @@ void yyerror(const char *msg); // standard error-handling routine
  * of the union named "declList" which is of type List<Decl*>.
  * pp2: You'll need to add many of these of your own.
  */
-%type <declList>  DeclList 	FieldO/*new*/
-%type <decl>      Decl	Field/*new*/
+%type <declList>  DeclList 	FieldO/*new*/	PrototypeO/**/
+%type <decl>      Decl	Field/*new*/	Prototype/**/
 %type <type>      Type 
 %type <var>       Variable VarDecl
 %type <varList>   Formals FormalList VarDecls
 %type <fDecl>     FnDecl FnHeader
 %type <stmtList>  StmtList
-%type <stmt>      StmtBlock
+%type <stmt>      StmtBlock	Stmt/**/
 	%type <classDecl>	  ClassDecl /*new block*/
 	%type <interfaceDecl>	  InterfaceDecl
 
@@ -143,6 +143,7 @@ Type      :    T_Int                { $$ = Type::intType; }
           |    T_Identifier         { $$ = new NamedType(new Identifier(@1,$1)); }
           |    Type T_Dims          { $$ = new ArrayType(Join(@1, @2), $1); };
 
+/* ================================================================*/
 FnDecl    :    FnHeader StmtBlock   { ($$=$1)->SetFunctionBody($2); };
 
 FnHeader  :    Type T_Identifier '(' Formals ')'  
@@ -156,8 +157,7 @@ Formals   :    FormalList           { $$ = $1; }
 FormalList:    FormalList ',' Variable  
                                     { ($$=$1)->Append($3); }
           |    Variable             { ($$ = new List<VarDecl*>)->Append($1); };
-
-
+/* ================================================================*/
 ClassDecl :    T_Class T_Identifier ClassParent ClassInterface '{' FieldO '}' { $$= new ClassDecl(new Identifier(@2, $2),$3,$4,$6);/*new*/ };
 
 ClassParent:  T_Extends T_Identifier 	{ $$ = new NamedType(new Identifier(@2,$2));/*new*/ }
@@ -168,24 +168,33 @@ ClassInterface: T_Implements InterfaceList	 { $$= new List<NamedType*>;
 						   for(int i=0; i<$2->NumElements(); i++)
 						   $$->Append(new NamedType($2->Nth(i))); /*new n th element of Interface list($2)*/ }
 	  |	/*empty*/	{ $$=new List<NamedType*>; };
-
 InterfaceList:  InterfaceList ',' T_Identifier	 { ($$=$1)->Append(new Identifier(@3,$3)); /*new*/}
 	  |	T_Identifier 	{ ($$= new List<Identifier*>)->Append(new Identifier(@1,$1)); /*new*/};
 Field	  :	VarDecl	 {($$= $1);/*->Append($2);*/}
 	  |	FnDecl	 {($$= $1);/*->Append($2); Removed Field*/};
 FieldO	  :	FieldO Field	{($$=$1)->Append($2);}
 	  |	/*empty*/	{$$=new List<Decl*>;};
+/* ================================================================*/
+InterfaceDecl:	T_Interface T_Identifier '{' PrototypeO '}' { $$  = new InterfaceDecl(new Identifier(@2,$2) ,$4);};
+PrototypeO:	PrototypeO Prototype	{ ($$ = $1)->Append($2); }
+          |    /*empty*/                { $$ = new List<Decl*>; };
 
-InterfaceDecl : ;
-
-
-StmtBlock :    '{' VarDecls StmtList '}' 
-                                    { $$ = new StmtBlock($2, $3); };
-
+Prototype :    Type T_Identifier '(' Formals ')' ';' {  $$ = new FnDecl(new Identifier(@2, $2), $1, $4); }
+/*          |    Type T_Identifier '(' error ')' ';' { $$ = new FormalsError(); }*/
+          |    T_Void T_Identifier '(' Formals ')' ';' { $$ = new FnDecl( new Identifier(@2, $2),new Type(*Type::voidType), $4);}
+/*          |    T_Void T_Identifier '(' error ')' ';' { $$ = new FormalsError(); };*/;
+/* ================================================================*/
 VarDecls  : VarDecls VarDecl     { ($$=$1)->Append($2); }
-          | /* empty*/           { $$ = new List<VarDecl*>; };
+          | VarDecl              { $$ = new List<VarDecl*>; };
 
-StmtList  : /* empty, add your grammar */  { $$ = new List<Stmt*>; };
+StmtList  : StmtList Stmt	 { ($$=$1)->Append($2); }
+	  | Stmt		 { ($$ = new List<Stmt*>)->Append($1); };
+StmtBlock :    '{' VarDecls StmtList '}' { $$ = new StmtBlock($2, $3); }
+          |    '{' VarDecls '}'       { $$ = new StmtBlock($2, new List<Stmt*>); }
+          |    '{' StmtList '}'       { $$ = new StmtBlock(new List<VarDecl*>, $2);}
+          |    '{' '}'                { $$ = new StmtBlock(new List<VarDecl*>,new List<Stmt*>);};
+
+Stmt	  : ;
 
 %%
 
