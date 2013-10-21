@@ -136,6 +136,35 @@ void yyerror(const char *msg); // standard error-handling routine
 	%type <lvalue>    LValue
 	%type <stmt>      ElseO
 
+/* Associate the 'else' porition of if statements with the nearest (innermost)
+ * 'if' porition.
+ */
+%nonassoc NoElse
+%nonassoc T_Else
+
+%right '='
+%left  T_Or
+%left  T_And
+%left  T_Equal
+%left  T_NotEqual
+%left  '<'
+%left  T_LessEqual
+%left  '>'
+%left  T_GreaterEqual
+%left  '-'
+%left  '+'
+%left  '/'
+%left  '%'
+%left  '*'
+%right '!'
+%left  '.'
+%left  '['
+%left  ']'
+%left  T_Dims
+%left  T_Increment
+%left  T_Decrement
+
+
 /* ================================================================*/
 
 
@@ -230,7 +259,7 @@ StmtBlock :    '{' VarDecls StmtList '}' { $$ = new StmtBlock($2, $3); }
 /* ================================================================*/
 ExprS	  :	Expr	{ $$=$1;}
 	  |	/*empty*/	{ $$=new EmptyExpr;};
-Stmt	  :	ExprS		{ $$=$1;}
+Stmt	  :	ExprS ';'	{ $$=$1;}
 	  |	IfStmt		{ $$=$1;}
 	  |	WhileStmt	{ $$=$1;}
 	  |	ForStmt		{ $$=$1;}
