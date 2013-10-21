@@ -139,7 +139,7 @@ typedef union YYSTYPE
     Decl *decl;
     VarDecl *var;
     FnDecl *fDecl;
-	ClassDecl *classDecl;//new
+	ClassDecl *classDecl;//new //@ different indent level
 	InterfaceDecl *interfaceDecl;
 	
     Type *type;

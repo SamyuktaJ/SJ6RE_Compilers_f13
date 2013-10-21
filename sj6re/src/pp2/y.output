@@ -1,3 +1,12 @@
+Nonterminals useless in grammar
+
+   SwitchStmt
+   Case
+   CaseP
+   Default
+   DefaultO
+
+
 Terminals unused in grammar
 
    T_Increment
@@ -5,6 +14,22 @@ Terminals unused in grammar
    T_Switch
    T_Case
    T_Default
+   ':'
+
+
+Rules useless in grammar
+
+  104 SwitchStmt: T_Switch '(' Expr ')' '{' CaseP DefaultO '}'
+
+  105 Case: T_Case T_IntConstant ':' StmtList
+
+  106 CaseP: CaseP Case
+  107      | Case
+
+  108 Default: T_Default ':' StmtList
+
+  109 DefaultO: Default
+  110         | /* empty */
 
 
 Grammar
@@ -43,7 +68,7 @@ Grammar
    21 FormalList: FormalList ',' Variable
    22           | Variable
 
-   23 ClassDecl: T_Class T_Identifier ClassParent ClassInterface '{' FieldO '}'
+   23 ClassDecl: T_Class T_Identifier ClassParent ClassInterface '{' FieldList '}'
 
    24 ClassParent: T_Extends T_Identifier
    25            | /* empty */
@@ -57,13 +82,13 @@ Grammar
    30 Field: VarDecl
    31      | FnDecl
 
-   32 FieldO: FieldO Field
-   33       | /* empty */
+   32 FieldList: FieldList Field
+   33          | /* empty */
 
-   34 InterfaceDecl: T_Interface T_Identifier '{' PrototypeO '}'
+   34 InterfaceDecl: T_Interface T_Identifier '{' PrototypeList '}'
 
-   35 PrototypeO: PrototypeO Prototype
-   36           | /* empty */
+   35 PrototypeList: PrototypeList Prototype
+   36              | /* empty */
 
    37 Prototype: Type T_Identifier '(' Formals ')' ';'
    38          | T_Void T_Identifier '(' Formals ')' ';'
@@ -165,6 +190,7 @@ $end (0) 0
 '-' (45) 64 68
 '.' (46) 93 96
 '/' (47) 66
+':' (58)
 ';' (59) 8 37 38 49 86 87 88 91
 '<' (60) 69
 '=' (61) 57
@@ -218,83 +244,83 @@ NoElse (297)
 
 Nonterminals, with rules where they appear
 
-$accept (61)
+$accept (62)
     on left: 0
-Program (62)
+Program (63)
     on left: 1, on right: 0
-DeclList (63)
+DeclList (64)
     on left: 2 3, on right: 1 2
-Decl (64)
+Decl (65)
     on left: 4 5 6 7, on right: 2 3
-VarDecl (65)
+VarDecl (66)
     on left: 8, on right: 4 30 39 40
-Variable (66)
+Variable (67)
     on left: 9, on right: 8 21 22
-Type (67)
+Type (68)
     on left: 10 11 12 13 14 15, on right: 9 15 17 37 81
-FnDecl (68)
+FnDecl (69)
     on left: 16, on right: 5 31
-FnHeader (69)
+FnHeader (70)
     on left: 17 18, on right: 16
-Formals (70)
+Formals (71)
     on left: 19 20, on right: 17 18 37 38
-FormalList (71)
+FormalList (72)
     on left: 21 22, on right: 19 21
-ClassDecl (72)
+ClassDecl (73)
     on left: 23, on right: 6
-ClassParent (73)
+ClassParent (74)
     on left: 24 25, on right: 23
-ClassInterface (74)
+ClassInterface (75)
     on left: 26 27, on right: 23
-InterfaceList (75)
+InterfaceList (76)
     on left: 28 29, on right: 26 28
-Field (76)
+Field (77)
     on left: 30 31, on right: 32
-FieldO (77)
+FieldList (78)
     on left: 32 33, on right: 23 32
-InterfaceDecl (78)
+InterfaceDecl (79)
     on left: 34, on right: 7
-PrototypeO (79)
+PrototypeList (80)
     on left: 35 36, on right: 34 35
-Prototype (80)
+Prototype (81)
     on left: 37 38, on right: 35
-VarDecls (81)
+VarDecls (82)
     on left: 39 40, on right: 39 43 44
-StmtList (82)
+StmtList (83)
     on left: 41 42, on right: 41 43 45
-StmtBlock (83)
+StmtBlock (84)
     on left: 43 44 45 46, on right: 16 56
-ExprS (84)
+ExprS (85)
     on left: 47 48, on right: 49 86 87
-Stmt (85)
+Stmt (86)
     on left: 49 50 51 52 53 54 55 56, on right: 41 42 82 84 85 86
-Expr (86)
+Expr (87)
     on left: 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74
     75 76 77 78 79 80 81, on right: 47 57 62 63 64 65 66 67 68 69 70
     71 72 73 74 75 76 77 81 84 85 86 89 90 93 94 96
-ElseO (87)
+ElseO (88)
     on left: 82 83, on right: 84
-IfStmt (88)
+IfStmt (89)
     on left: 84, on right: 50
-WhileStmt (89)
+WhileStmt (90)
     on left: 85, on right: 51
-ForStmt (90)
+ForStmt (91)
     on left: 86, on right: 52
-ReturnStmt (91)
+ReturnStmt (92)
     on left: 87, on right: 54
-BreakStmt (92)
+BreakStmt (93)
     on left: 88, on right: 53
-ExprPC (93)
+ExprPC (94)
     on left: 89 90, on right: 89 91 97
-PrintStmt (94)
+PrintStmt (95)
     on left: 91, on right: 55
-LValue (95)
+LValue (96)
     on left: 92 93 94, on right: 57 59
-Call (96)
+Call (97)
     on left: 95 96, on right: 61
-Actuals (97)
+Actuals (98)
     on left: 97 98, on right: 95 96
-Constant (98)
+Constant (99)
     on left: 99 100 101 102 103, on right: 58
 
 
@@ -360,14 +386,14 @@ state 5
 
 state 6
 
-   23 ClassDecl: T_Class . T_Identifier ClassParent ClassInterface '{' FieldO '}'
+   23 ClassDecl: T_Class . T_Identifier ClassParent ClassInterface '{' FieldList '}'
 
     T_Identifier  shift, and go to state 20
 
 
 state 7
 
-   34 InterfaceDecl: T_Interface . T_Identifier '{' PrototypeO '}'
+   34 InterfaceDecl: T_Interface . T_Identifier '{' PrototypeList '}'
 
     T_Identifier  shift, and go to state 21
 
@@ -482,7 +508,7 @@ state 19
 
 state 20
 
-   23 ClassDecl: T_Class T_Identifier . ClassParent ClassInterface '{' FieldO '}'
+   23 ClassDecl: T_Class T_Identifier . ClassParent ClassInterface '{' FieldList '}'
 
     T_Extends  shift, and go to state 30
 
@@ -493,7 +519,7 @@ state 20
 
 state 21
 
-   34 InterfaceDecl: T_Interface T_Identifier . '{' PrototypeO '}'
+   34 InterfaceDecl: T_Interface T_Identifier . '{' PrototypeList '}'
 
     '{'  shift, and go to state 32
 
@@ -626,7 +652,7 @@ state 30
 
 state 31
 
-   23 ClassDecl: T_Class T_Identifier ClassParent . ClassInterface '{' FieldO '}'
+   23 ClassDecl: T_Class T_Identifier ClassParent . ClassInterface '{' FieldList '}'
 
     T_Implements  shift, and go to state 76
 
@@ -637,11 +663,11 @@ state 31
 
 state 32
 
-   34 InterfaceDecl: T_Interface T_Identifier '{' . PrototypeO '}'
+   34 InterfaceDecl: T_Interface T_Identifier '{' . PrototypeList '}'
 
-    $default  reduce using rule 36 (PrototypeO)
+    $default  reduce using rule 36 (PrototypeList)
 
-    PrototypeO  go to state 78
+    PrototypeList  go to state 78
 
 
 state 33
@@ -1173,15 +1199,15 @@ state 76
 
 state 77
 
-   23 ClassDecl: T_Class T_Identifier ClassParent ClassInterface . '{' FieldO '}'
+   23 ClassDecl: T_Class T_Identifier ClassParent ClassInterface . '{' FieldList '}'
 
     '{'  shift, and go to state 122
 
 
 state 78
 
-   34 InterfaceDecl: T_Interface T_Identifier '{' PrototypeO . '}'
-   35 PrototypeO: PrototypeO . Prototype
+   34 InterfaceDecl: T_Interface T_Identifier '{' PrototypeList . '}'
+   35 PrototypeList: PrototypeList . Prototype
 
     T_Void        shift, and go to state 123
     T_Bool        shift, and go to state 2
@@ -2009,11 +2035,11 @@ state 121
 
 state 122
 
-   23 ClassDecl: T_Class T_Identifier ClassParent ClassInterface '{' . FieldO '}'
+   23 ClassDecl: T_Class T_Identifier ClassParent ClassInterface '{' . FieldList '}'
 
-    $default  reduce using rule 33 (FieldO)
+    $default  reduce using rule 33 (FieldList)
 
-    FieldO  go to state 159
+    FieldList  go to state 159
 
 
 state 123
@@ -2025,7 +2051,7 @@ state 123
 
 state 124
 
-   34 InterfaceDecl: T_Interface T_Identifier '{' PrototypeO '}' .
+   34 InterfaceDecl: T_Interface T_Identifier '{' PrototypeList '}' .
 
     $default  reduce using rule 34 (InterfaceDecl)
 
@@ -2041,9 +2067,9 @@ state 125
 
 state 126
 
-   35 PrototypeO: PrototypeO Prototype .
+   35 PrototypeList: PrototypeList Prototype .
 
-    $default  reduce using rule 35 (PrototypeO)
+    $default  reduce using rule 35 (PrototypeList)
 
 
 state 127
@@ -2793,8 +2819,8 @@ state 158
 
 state 159
 
-   23 ClassDecl: T_Class T_Identifier ClassParent ClassInterface '{' FieldO . '}'
-   32 FieldO: FieldO . Field
+   23 ClassDecl: T_Class T_Identifier ClassParent ClassInterface '{' FieldList . '}'
+   32 FieldList: FieldList . Field
 
     T_Void        shift, and go to state 1
     T_Bool        shift, and go to state 2
@@ -3034,7 +3060,7 @@ state 171
 
 state 172
 
-   23 ClassDecl: T_Class T_Identifier ClassParent ClassInterface '{' FieldO '}' .
+   23 ClassDecl: T_Class T_Identifier ClassParent ClassInterface '{' FieldList '}' .
 
     $default  reduce using rule 23 (ClassDecl)
 
@@ -3055,9 +3081,9 @@ state 174
 
 state 175
 
-   32 FieldO: FieldO Field .
+   32 FieldList: FieldList Field .
 
-    $default  reduce using rule 32 (FieldO)
+    $default  reduce using rule 32 (FieldList)
 
 
 state 176

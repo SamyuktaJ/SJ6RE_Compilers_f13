@@ -47,7 +47,7 @@ void yyerror(const char *msg); // standard error-handling routine
     Decl *decl;
     VarDecl *var;
     FnDecl *fDecl;
-	ClassDecl *classDecl;//new
+	ClassDecl *classDecl;//new //@ different indent level
 	InterfaceDecl *interfaceDecl;
 	
     Type *type;
@@ -111,14 +111,14 @@ void yyerror(const char *msg); // standard error-handling routine
  * of the union named "declList" which is of type List<Decl*>.
  * pp2: You'll need to add many of these of your own.
  */
-%type <declList>  DeclList 	FieldO/*new*/	PrototypeO/**/
+%type <declList>  DeclList 	FieldList/*new*/	PrototypeList/**/
 %type <decl>      Decl	Field/*new*/	Prototype/**/
 %type <type>      Type 
 %type <var>       Variable VarDecl
 %type <varList>   Formals FormalList VarDecls
 %type <fDecl>     FnDecl FnHeader
 %type <stmtList>  StmtList
-%type <stmt>      StmtBlock	Stmt/**/
+%type <stmt>      StmtBlock	Stmt/**/	ElseO/**/
 	%type <classDecl>	  ClassDecl /*new block*/
 	%type <interfaceDecl>	  InterfaceDecl
 
@@ -134,11 +134,14 @@ void yyerror(const char *msg); // standard error-handling routine
 	%type <exprList>  ExprPC	Actuals
 	%type <printStmt> PrintStmt
 	%type <lvalue>    LValue
-	%type <stmt>      ElseO
 
-/* Associate the 'else' porition of if statements with the nearest (innermost)
- * 'if' porition.
- */
+	%type <caseStmt>  Case
+	%type <caseList>  CaseP
+	%type <defaultStmt> Default DefaultO
+	%type <switchStmt> SwitchStmt
+
+
+/* Associate 'else' with the nearest  'if' porition. */
 %nonassoc NoElse
 %nonassoc T_Else
 
@@ -221,7 +224,7 @@ FormalList:    FormalList ',' Variable
                                     { ($$=$1)->Append($3); }
           |    Variable             { ($$ = new List<VarDecl*>)->Append($1); };
 /* ================================================================*/
-ClassDecl :    T_Class T_Identifier ClassParent ClassInterface '{' FieldO '}' { $$= new ClassDecl(new Identifier(@2, $2),$3,$4,$6);/*new*/ };
+ClassDecl :    T_Class T_Identifier ClassParent ClassInterface '{' FieldList '}' { $$= new ClassDecl(new Identifier(@2, $2),$3,$4,$6);/*new*/ };
 
 ClassParent:  T_Extends T_Identifier 	{ $$ = new NamedType(new Identifier(@2,$2));/*new*/ }
 	  |	/*empty*/ { $$= NULL; };
@@ -233,19 +236,17 @@ ClassInterface: T_Implements InterfaceList	 { $$= new List<NamedType*>;
 	  |	/*empty*/	{ $$=new List<NamedType*>; };
 InterfaceList:  InterfaceList ',' T_Identifier	 { ($$=$1)->Append(new Identifier(@3,$3)); /*new*/}
 	  |	T_Identifier 	{ ($$= new List<Identifier*>)->Append(new Identifier(@1,$1)); /*new*/};
-Field	  :	VarDecl	 {($$= $1);/*->Append($2);*/}
-	  |	FnDecl	 {($$= $1);/*->Append($2); Removed Field*/};
-FieldO	  :	FieldO Field	{($$=$1)->Append($2);}
+Field	  :	VarDecl	 {($$= $1);}
+	  |	FnDecl	 {($$= $1);};
+FieldList	  :	FieldList Field	{($$=$1)->Append($2);}
 	  |	/*empty*/	{$$=new List<Decl*>;};
 /* ================================================================*/
-InterfaceDecl:	T_Interface T_Identifier '{' PrototypeO '}' { $$  = new InterfaceDecl(new Identifier(@2,$2) ,$4);};
-PrototypeO:	PrototypeO Prototype	{ ($$ = $1)->Append($2); }
+InterfaceDecl:	T_Interface T_Identifier '{' PrototypeList '}' { $$  = new InterfaceDecl(new Identifier(@2,$2) ,$4);};
+PrototypeList:	PrototypeList Prototype	{ ($$ = $1)->Append($2); }
           |    /*empty*/                { $$ = new List<Decl*>; };
 
 Prototype :    Type T_Identifier '(' Formals ')' ';' {  $$ = new FnDecl(new Identifier(@2, $2), $1, $4); }
-/*          |    Type T_Identifier '(' error ')' ';' { $$ = new FormalsError(); }*/
-          |    T_Void T_Identifier '(' Formals ')' ';' { $$ = new FnDecl( new Identifier(@2, $2),new Type(*Type::voidType), $4);}
-/*          |    T_Void T_Identifier '(' error ')' ';' { $$ = new FormalsError(); };*/;
+          |    T_Void T_Identifier '(' Formals ')' ';' { $$ = new FnDecl( new Identifier(@2, $2),new Type(*Type::voidType), $4);};
 /* ================================================================*/
 VarDecls  : VarDecls VarDecl     { ($$=$1)->Append($2); }
           | VarDecl              { $$ = new List<VarDecl*>; };
@@ -332,6 +333,17 @@ Constant  :    T_IntConstant        { $$ = new IntConstant(@1, $1); }
 
 
 /* ================================================================*/
+
+SwitchStmt :   T_Switch '(' Expr ')' '{' CaseP DefaultO '}' { $$ = new SwitchStmt($3, $6, $7); };
+Case      :    T_Case T_IntConstant ':' StmtList { $$ = new Case(new IntConstant(@2, $2), $4);};
+
+CaseP     :    CaseP Case           { ($$ = $1)->Append($2); }
+          |    Case                 { ($$ = new List<Case*>)->Append($1); };
+
+Default   :    T_Default ':' StmtList  { $$ = new Default($3); };
+
+DefaultO  :    Default              { $$ = $1; }
+          |                         { $$ = NULL; };
 
 /* ================================================================*/
 
