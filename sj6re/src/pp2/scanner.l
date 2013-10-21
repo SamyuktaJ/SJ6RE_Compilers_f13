@@ -104,6 +104,9 @@ SINGLE_COMMENT    ("//"[^\n]*)
 "ReadLine"          { return T_ReadLine;    }
 
 
+"switch"	    { return T_Switch;	    }
+"case"		    { return T_Case;	    }
+"default"	    { return T_Default;	    }
 
  /* -------------------- Operators ----------------------------- */
 "<="                { return T_LessEqual;   }
@@ -112,6 +115,11 @@ SINGLE_COMMENT    ("//"[^\n]*)
 "!="                { return T_NotEqual;    }
 "&&"                { return T_And;         }
 "||"                { return T_Or;          }
+
+"++"                { return T_Increment;   }
+"--"                { return T_Decrement;   }
+
+
 {OPERATOR}          { return yytext[0];     }
     
 "[]"                { return T_Dims;        }

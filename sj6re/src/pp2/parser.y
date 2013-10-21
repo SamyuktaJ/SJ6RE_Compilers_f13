@@ -53,12 +53,29 @@ void yyerror(const char *msg); // standard error-handling routine
     Type *type;
     Stmt *stmt;
 	NamedType *namedType;
+	StmtBlock *stmtBlock;//new
+	Expr *expr; 
+	IfStmt *ifStmt;
+	WhileStmt *whileStmt;
+	ForStmt *forStmt;
+	ReturnStmt *returnStmt;
+	BreakStmt *breakStmt;
+	PrintStmt *printStmt;
+	LValue *lvalue;
+
+	//Case *caseStmt;
+	//List<Case*> *caseList;
+	//Default *defaultStmt;
+	//SwitchStmt *switchStmt;
+
 
     List<Stmt*> *stmtList;
     List<VarDecl*> *varList;
     List<Decl*> *declList;
 	List<Identifier*> *identifierList;
 	List<NamedType*> *namedTypeList;
+	List<Expr*> *exprList;
+
 }
 
 
@@ -73,6 +90,8 @@ void yyerror(const char *msg); // standard error-handling routine
 %token   T_And T_Or T_Null T_Extends T_This T_Interface T_Implements
 %token   T_While T_For T_If T_Else T_Return T_Break
 %token   T_New T_NewArray T_Print T_ReadInteger T_ReadLine
+
+%token	 T_Increment T_Decrement T_Switch T_Case T_Default/*NEW*/
 
 %token   <identifier> T_Identifier
 %token   <stringConstant> T_StringConstant 
@@ -106,6 +125,21 @@ void yyerror(const char *msg); // standard error-handling routine
 	%type <identifierList>	  InterfaceList
 	%type <namedType>	  ClassParent
 	%type <namedTypeList>	  ClassInterface	
+	%type <expr>      Expr	ExprS	Call Constant
+	%type <ifStmt>    IfStmt
+	%type <whileStmt> WhileStmt
+	%type <forStmt>   ForStmt
+	%type <returnStmt> ReturnStmt
+	%type <breakStmt> BreakStmt
+	%type <exprList>  ExprPC	Actuals
+	%type <printStmt> PrintStmt
+	%type <lvalue>    LValue
+	%type <stmt>      ElseO
+
+/* ================================================================*/
+
+
+
 %%
 /* Rules
  * -----
@@ -193,8 +227,86 @@ StmtBlock :    '{' VarDecls StmtList '}' { $$ = new StmtBlock($2, $3); }
           |    '{' VarDecls '}'       { $$ = new StmtBlock($2, new List<Stmt*>); }
           |    '{' StmtList '}'       { $$ = new StmtBlock(new List<VarDecl*>, $2);}
           |    '{' '}'                { $$ = new StmtBlock(new List<VarDecl*>,new List<Stmt*>);};
+/* ================================================================*/
+ExprS	  :	Expr	{ $$=$1;}
+	  |	/*empty*/	{ $$=new EmptyExpr;};
+Stmt	  :	ExprS		{ $$=$1;}
+	  |	IfStmt		{ $$=$1;}
+	  |	WhileStmt	{ $$=$1;}
+	  |	ForStmt		{ $$=$1;}
+	  |	BreakStmt	{ $$=$1;}
+	  |	ReturnStmt	{ $$=$1;}
+	  |	PrintStmt	{ $$=$1;}
+	  |	StmtBlock	{ $$=$1;};
 
-Stmt	  : ;
+Expr      :    LValue '=' Expr      { $$ = new AssignExpr($1, new Operator(@2, "="), $3);}
+          |    Constant             { $$ = $1; }
+          |    LValue               { $$ = $1; }
+          |    T_This               { $$ = new This(@1);}
+          |    Call                 { $$ = $1; }
+          |    '(' Expr ')'         { $$ = $2; }
+          |    Expr '+' Expr        { $$ = new ArithmeticExpr($1, new Operator(@2, "+"), $3);}
+          |    Expr '-' Expr        { $$ = new ArithmeticExpr($1, new Operator(@2, "-"), $3);}
+          |    Expr '*' Expr        { $$ = new ArithmeticExpr($1, new Operator(@2, "*"), $3);}
+          |    Expr '/' Expr        { $$ = new ArithmeticExpr($1, new Operator(@2, "/"), $3);}
+          |    Expr '%' Expr        { $$ = new ArithmeticExpr($1, new Operator(@2, "%"), $3);}
+          |    '-' Expr             { $$ = new ArithmeticExpr( new Operator(@1, "-"), $2);}
+          |    Expr '<' Expr        { $$ = new RelationalExpr($1, new Operator(@2, "<"), $3);}
+          |    Expr T_LessEqual Expr { $$ = new RelationalExpr($1, new Operator(@2, "<="), $3);}
+          |    Expr '>' Expr        { $$ = new RelationalExpr($1, new Operator(@2, ">"), $3);}
+          |    Expr T_GreaterEqual Expr { $$ = new RelationalExpr($1, new Operator(@2, ">="), $3);}
+          |    Expr T_Equal Expr    { $$ = new EqualityExpr($1, new Operator(@2, "=="), $3);}
+          |    Expr T_NotEqual Expr { $$ = new EqualityExpr($1, new Operator(@2, "!="), $3);}
+          |    Expr T_And Expr      { $$= new LogicalExpr($1, new Operator(@2, "&&"), $3);}
+          |    Expr T_Or Expr       { $$ = new LogicalExpr($1, new Operator(@2, "||"), $3);}
+          |    '!' Expr             { $$ = new LogicalExpr(new Operator(@1, "!"), $2);}
+          |    T_ReadInteger '(' ')'   { $$ = new ReadIntegerExpr(@1); }
+          |    T_ReadLine '(' ')'      { $$ = new ReadLineExpr(@1); }
+          |    T_New T_Identifier   { $$ = new NewExpr(@1, new NamedType(new Identifier(@2, $2)));}
+          |    T_NewArray '(' Expr ',' Type ')' { $$ = new NewArrayExpr(@1, $3, $5);};
+/* ================================================================*/
+
+ElseO     :    T_Else Stmt %prec T_Else { $$ = $2; }
+          |                %prec NoElse { $$ = NULL; };
+
+IfStmt    :    T_If '(' Expr ')' Stmt ElseO { $$ = new IfStmt($3, $5, $6); };
+
+WhileStmt :    T_While '(' Expr ')' Stmt { $$ = new WhileStmt($3, $5); };
+
+ForStmt   :    T_For '(' ExprS ';' Expr ';' ExprS ')' Stmt { $$ = new ForStmt($3, $5, $7, $9);};
+
+ReturnStmt :   T_Return ExprS ';'   { $$ = new ReturnStmt(@1, $2); };
+
+BreakStmt :    T_Break ';'          { $$ = new BreakStmt(@1); };
+
+ExprPC    :    ExprPC ',' Expr      { ($$ = $1)->Append($3); }
+          |    Expr                 { ($$ = new List<Expr*>)->Append($1); };
+
+PrintStmt :    T_Print '(' ExprPC ')' ';' { $$ = new PrintStmt($3); };
+
+LValue    :    T_Identifier         { $$ = new FieldAccess(NULL, new Identifier(@1, $1));}
+          |    Expr '.' T_Identifier { $$ = new FieldAccess($1, new Identifier(@3, $3));}
+          |    Expr '[' Expr ']'    { $$ = new ArrayAccess(@1, $1, $3); };
+
+
+Call      :    T_Identifier '(' Actuals ')' { $$ = new Call(@1, NULL, new Identifier(@1, $1), $3); }
+          |    Expr '.' T_Identifier '(' Actuals ')' { $$ = new Call(@2, $1, new Identifier(@3, $3), $5);};
+
+Actuals   :    ExprPC               { $$ = $1; }
+          |                         { $$ = new List<Expr*>; };
+
+Constant  :    T_IntConstant        { $$ = new IntConstant(@1, $1); }
+          |    T_DoubleConstant     { $$ = new DoubleConstant(@1, $1); }
+          |    T_BoolConstant       { $$ = new BoolConstant(@1, $1); }
+          |    T_StringConstant     { $$ = new StringConstant(@1, $1); }
+          |    T_Null               { $$ = new NullConstant(@1); };
+
+
+/* ================================================================*/
+
+/* ================================================================*/
+
+/* ================================================================*/
 
 %%
 
