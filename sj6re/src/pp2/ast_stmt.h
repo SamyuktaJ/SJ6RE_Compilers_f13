@@ -19,7 +19,7 @@
 class Decl;
 class VarDecl;
 class Expr;
-  
+class IntConstant;//new  
 class Program : public Node
 {
   protected:
@@ -127,5 +127,46 @@ class PrintStmt : public Stmt
     void PrintChildren(int indentLevel);
 };
 
+class SwitchLabel : public Stmt
+{
+  protected:
+    IntConstant *label;
+    List<Stmt*> *stmts;
+
+  public:
+    SwitchLabel() { label = NULL; stmts = NULL; }
+    SwitchLabel(IntConstant *label, List<Stmt*> *stmts);
+    SwitchLabel(List<Stmt*> *stmts);
+    void PrintChildren(int indentLevel);
+};
+
+class Case : public SwitchLabel
+{
+  public:
+    Case() : SwitchLabel() {}
+    Case(IntConstant *label, List<Stmt*> *stmts) : SwitchLabel(label, stmts) {}
+    const char *GetPrintNameForNode() { return "Case"; }
+};
+
+class Default : public SwitchLabel
+{
+  public:
+    Default(List<Stmt*> *stmts) : SwitchLabel(stmts) {}
+    const char *GetPrintNameForNode() { return "Default"; }
+};
+
+class SwitchStmt : public Stmt
+{
+  protected:
+    Expr *expr;
+    List<Case*> *cases;
+    Default *def;
+
+  public:
+    SwitchStmt() : expr(NULL), cases(NULL), def(NULL) {}
+    SwitchStmt(Expr *expr, List<Case*> *cases, Default *def);
+    virtual const char *GetPrintNameForNode() { return "SwitchStmt"; }
+    void PrintChildren(int indentLevel);
+};
 
 #endif

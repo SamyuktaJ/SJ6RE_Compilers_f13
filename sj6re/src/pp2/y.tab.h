@@ -155,10 +155,9 @@ typedef union YYSTYPE
 	PrintStmt *printStmt;
 	LValue *lvalue;
 
-	//Case *caseStmt;
-	//List<Case*> *caseList;
-	//Default *defaultStmt;
-	//SwitchStmt *switchStmt;
+	Case *caseStmt;
+	Default *defaultStmt;
+	SwitchStmt *switchStmt;
 
 
     List<Stmt*> *stmtList;
@@ -167,12 +166,14 @@ typedef union YYSTYPE
 	List<Identifier*> *identifierList;
 	List<NamedType*> *namedTypeList;
 	List<Expr*> *exprList;
+	List<Case*> *caseList;
+
 
 
 
 
 /* Line 2068 of yacc.c  */
-#line 176 "y.tab.h"
+#line 177 "y.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

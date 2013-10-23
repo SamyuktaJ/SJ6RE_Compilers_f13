@@ -84,4 +84,35 @@ void PrintStmt::PrintChildren(int indentLevel) {
     args->PrintAll(indentLevel+1, "(args) ");
 }
 
+SwitchLabel::SwitchLabel(IntConstant *l, List<Stmt*> *s) {
+    Assert(l != NULL && s != NULL);
+    (label=l)->SetParent(this);
+    (stmts=s)->SetParentAll(this);
+}
+
+SwitchLabel::SwitchLabel(List<Stmt*> *s) {
+    Assert(s != NULL);
+    label = NULL;
+    (stmts=s)->SetParentAll(this);
+}
+
+void SwitchLabel::PrintChildren(int indentLevel) {
+    if (label) label->Print(indentLevel+1);
+    if (stmts) stmts->PrintAll(indentLevel+1);
+}
+
+SwitchStmt::SwitchStmt(Expr *e, List<Case*> *c, Default *d) {
+    Assert(e != NULL && c != NULL && c->NumElements() != 0 );
+    (expr=e)->SetParent(this);
+    (cases=c)->SetParentAll(this);
+    def = d;
+    if (def) def->SetParent(this);
+}
+
+void SwitchStmt::PrintChildren(int indentLevel) {
+    if (expr) expr->Print(indentLevel+1);
+    if (cases) cases->PrintAll(indentLevel+1);
+    if (def) def->Print(indentLevel+1);
+}
+
 
