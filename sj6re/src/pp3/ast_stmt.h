@@ -15,27 +15,76 @@
 
 #include "list.h"
 #include "ast.h"
+#include "hashtable.h"
+#include "ast_type.h"
 
 class Decl;
 class VarDecl;
 class Expr;
 class IntConstant;//new  
+class Type;
+class ClassDecl;
+class LoopStmt;
+class FnDecl;
+
+class Scope
+{
+  private:
+    Scope *parent;
+
+  public:
+    Hashtable<Decl*> *table;
+    ClassDecl *classDecl;
+    LoopStmt *loopStmt;
+    FnDecl *fnDecl;
+
+  public:
+    Scope() : table(new Hashtable<Decl*>), classDecl(NULL), loopStmt(NULL),
+              fnDecl(NULL) {}
+
+    void SetParent(Scope *p) { parent = p; }
+    Scope* GetParent() { return parent; }
+
+    void SetClassDecl(ClassDecl *d) { classDecl = d; }
+    ClassDecl* GetClassDecl() { return classDecl; }
+
+    void SetLoopStmt(LoopStmt *s) { loopStmt = s; }
+    LoopStmt* GetLoopStmt() { return loopStmt; }
+
+    void SetFnDecl(FnDecl *d) { fnDecl = d; }
+    FnDecl* GetFnDecl() { return fnDecl; }
+
+    int AddDecl(Decl *decl);
+    friend ostream& operator<<(ostream& out, Scope *s);
+};
+
+
 class Program : public Node
 {
   protected:
      List<Decl*> *decls;
      
   public:
+static Scope *gScope;
+void Check();
      Program(List<Decl*> *declList);
-     const char *GetPrintNameForNode() { return "Program"; }
-     void PrintChildren(int indentLevel);
+//     const char *GetPrintNameForNode() { return "Program"; }
+//     void PrintChildren(int indentLevel);
+ private:
+     void BuildScope();
+
 };
 
 class Stmt : public Node
 {
   public:
-     Stmt() : Node() {}
-     Stmt(yyltype loc) : Node(loc) {}
+     Stmt() : Node() {}, scope(new Scope) {}
+     Stmt(yyltype loc) : Node(loc) {}, scope(new Scope) {}
+     virtual void BuildScope(Scope *parent);
+     virtual void Check() = 0;
+ protected:
+    Scope *scope;
+
 };
 
 class StmtBlock : public Stmt 
@@ -46,8 +95,10 @@ class StmtBlock : public Stmt
     
   public:
     StmtBlock(List<VarDecl*> *variableDeclarations, List<Stmt*> *statements);
-    const char *GetPrintNameForNode() { return "StmtBlock"; }
-    void PrintChildren(int indentLevel);
+//    const char *GetPrintNameForNode() { return "StmtBlock"; }
+//    void PrintChildren(int indentLevel);
+    void BuildScope(Scope *parent);
+    void Check();
 };
 
   
@@ -59,6 +110,9 @@ class ConditionalStmt : public Stmt
   
   public:
     ConditionalStmt(Expr *testExpr, Stmt *body);
+//
+void BuildScope(Scope *parent);
+    void Check();
 };
 
 class LoopStmt : public ConditionalStmt 
@@ -66,6 +120,8 @@ class LoopStmt : public ConditionalStmt
   public:
     LoopStmt(Expr *testExpr, Stmt *body)
             : ConditionalStmt(testExpr, body) {}
+//
+void BuildScope(Scope *parent);
 };
 
 class ForStmt : public LoopStmt 
@@ -75,16 +131,18 @@ class ForStmt : public LoopStmt
   
   public:
     ForStmt(Expr *init, Expr *test, Expr *step, Stmt *body);
-    const char *GetPrintNameForNode() { return "ForStmt"; }
-    void PrintChildren(int indentLevel);
+//    const char *GetPrintNameForNode() { return "ForStmt"; }
+//    void PrintChildren(int indentLevel);
+//gets from LoopStmt
 };
 
 class WhileStmt : public LoopStmt 
 {
   public:
     WhileStmt(Expr *test, Stmt *body) : LoopStmt(test, body) {}
-    const char *GetPrintNameForNode() { return "WhileStmt"; }
-    void PrintChildren(int indentLevel);
+//    const char *GetPrintNameForNode() { return "WhileStmt"; }
+//    void PrintChildren(int indentLevel);
+//Gets methods from LoopStmt
 };
 
 class IfStmt : public ConditionalStmt 
@@ -94,15 +152,18 @@ class IfStmt : public ConditionalStmt
   
   public:
     IfStmt(Expr *test, Stmt *thenBody, Stmt *elseBody);
-    const char *GetPrintNameForNode() { return "IfStmt"; }
-    void PrintChildren(int indentLevel);
+//    const char *GetPrintNameForNode() { return "IfStmt"; }
+//    void PrintChildren(int indentLevel);
+void BuildScope(Scope *parent);
+    void Check();
 };
 
 class BreakStmt : public Stmt 
 {
   public:
     BreakStmt(yyltype loc) : Stmt(loc) {}
-    const char *GetPrintNameForNode() { return "BreakStmt"; }
+//    const char *GetPrintNameForNode() { return "BreakStmt"; }
+    void Check();
 };
 
 class ReturnStmt : public Stmt  
@@ -112,8 +173,10 @@ class ReturnStmt : public Stmt
   
   public:
     ReturnStmt(yyltype loc, Expr *expr);
-    const char *GetPrintNameForNode() { return "ReturnStmt"; }
-    void PrintChildren(int indentLevel);
+//    const char *GetPrintNameForNode() { return "ReturnStmt"; }
+//    void PrintChildren(int indentLevel);
+    void BuildScope(Scope *parent);
+    void Check();
 };
 
 class PrintStmt : public Stmt
@@ -123,8 +186,10 @@ class PrintStmt : public Stmt
     
   public:
     PrintStmt(List<Expr*> *arguments);
-    const char *GetPrintNameForNode() { return "PrintStmt"; }
-    void PrintChildren(int indentLevel);
+//    const char *GetPrintNameForNode() { return "PrintStmt"; }
+//    void PrintChildren(int indentLevel);
+void BuildScope(Scope *parent);
+    void Check();
 };
 
 class SwitchLabel : public Stmt
@@ -137,7 +202,7 @@ class SwitchLabel : public Stmt
     SwitchLabel() { label = NULL; stmts = NULL; }
     SwitchLabel(IntConstant *label, List<Stmt*> *stmts);
     SwitchLabel(List<Stmt*> *stmts);
-    void PrintChildren(int indentLevel);
+//    void PrintChildren(int indentLevel);
 };
 
 class Case : public SwitchLabel
@@ -145,14 +210,15 @@ class Case : public SwitchLabel
   public:
     Case() : SwitchLabel() {}
     Case(IntConstant *label, List<Stmt*> *stmts) : SwitchLabel(label, stmts) {}
-    const char *GetPrintNameForNode() { return "Case"; }
+//    const char *GetPrintNameForNode() { return "Case"; }
+
 };
 
 class Default : public SwitchLabel
 {
   public:
     Default(List<Stmt*> *stmts) : SwitchLabel(stmts) {}
-    const char *GetPrintNameForNode() { return "Default"; }
+//    const char *GetPrintNameForNode() { return "Default"; }
 };
 
 class SwitchStmt : public Stmt
@@ -165,8 +231,10 @@ class SwitchStmt : public Stmt
   public:
     SwitchStmt() : expr(NULL), cases(NULL), def(NULL) {}
     SwitchStmt(Expr *expr, List<Case*> *cases, Default *def);
-    virtual const char *GetPrintNameForNode() { return "SwitchStmt"; }
-    void PrintChildren(int indentLevel);
+//    virtual const char *GetPrintNameForNode() { return "SwitchStmt"; }
+//    void PrintChildren(int indentLevel);
+void BuildScope(Scope *parent);
+    void Check();
 };
 
 #endif
