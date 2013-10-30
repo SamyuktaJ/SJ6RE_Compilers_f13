@@ -33,6 +33,7 @@
 
 #include <stdlib.h>   // for NULL
 #include "location.h"
+#include <iostream>
 
 class Node 
 {
@@ -66,8 +67,10 @@ class Identifier : public Node
     Identifier(yyltype loc, const char *name);
     ////const char *GetPrintNameForNode()   { return "Identifier"; }
     ////void PrintChildren(int indentLevel);
+    friend ostream& operator<<(ostream& out, Identifier *id) { return out << id->name; }
+    bool operator==(const Identifier &rhs);
+    const char* Name() { return name; }
 
-	// SOME CODE!!
 };
 
 

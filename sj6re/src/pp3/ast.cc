@@ -44,6 +44,11 @@ Identifier::Identifier(yyltype loc, const char *n) : Node(loc) {
     name = strdup(n);
 } 
 
-void Identifier::PrintChildren(int indentLevel) {
+/*void Identifier::PrintChildren(int indentLevel) {
     printf("%s", name);
+}
+*/
+
+bool Identifier::operator==(const Identifier &rhs) {
+    return strcmp(name, rhs.name) == 0 ? true : false;
 }
