@@ -32,11 +32,12 @@ class Type : public Node
 Type() : Node() {}
     
     virtual void PrintToStream(std::ostream& out) { out << typeName; }
-    friend std::ostream& operator<<(std::ostream& out, Type *t) { t->PrintToStream(out); return out; }
-    virtual bool IsEquivalentTo(Type *other) { return this == other; }
+//    friend std::ostream& operator<<(std::ostream& out, Type *t) { t->PrintToStream(out); return out; }
+ friend std::ostream& operator<<(std::ostream& out, Type *t) { t->PrintToStream(out); return out; }
+    virtual bool IsEqualTo(Type *other) { return this == other; }
 
 //new
- virtual bool IsEquivalentTo(Type *other);
+    virtual bool IsEquivalentTo(Type *other);
     virtual void ReportNotDeclaredIdentifier(reasonT reason) { return; }
 
     virtual const char* Name() { return typeName; }
@@ -57,7 +58,7 @@ class NamedType : public Type
     bool IsEqualTo(Type *other);
     void ReportNotDeclaredIdentifier(reasonT reason);
 
-    const char* Name() { return id->Name; }
+    const char* Name() { return id->Name(); }
     bool IsPrimitive() { return false; }
     Identifier* GetId() { return id;}
 

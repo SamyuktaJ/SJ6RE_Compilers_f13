@@ -290,13 +290,13 @@ void SwitchStmt::BuildScope(Scope *parent) {
 
     test->BuildScope(scope);
     body->BuildScope(scope); 
-for (int i = 0, n = cases->NumElements(); i < n; ++i)
-        cases->Nth(i)->BuildScope(scope);
+//for (int i = 0, n = cases->NumElements(); i < n; ++i)
+//        cases->Nth(i)->BuildScope(scope);
 
 //also build and check for expr, cases and d?
 }
-
-void SwitchStmt::Check() {
+//Odd errors
+/*void SwitchStmt::Check() {
     test->Check();
     body->Check();
 
@@ -307,7 +307,9 @@ void SwitchStmt::Check() {
         cases->Nth(i)->Check();
 
 
-}
+}*/
+
+
 /*void SwitchStmt::PrintChildren(int indentLevel) {
     if (expr) expr->Print(indentLevel+1);
     if (cases) cases->PrintAll(indentLevel+1);

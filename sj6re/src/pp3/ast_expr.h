@@ -124,7 +124,7 @@ class Operator : public Node
 //    const char *GetPrintNameForNode() { return "Operator"; }
 //    void PrintChildren(int indentLevel);
 
-friend ostream& operator<<(ostream& out, Operator *o) { return out << o->tokenString; }
+friend std::ostream& operator<<(std::ostream& out, Operator *o) { return out << o->tokenString; }
 };
  
 class CompoundExpr : public Expr

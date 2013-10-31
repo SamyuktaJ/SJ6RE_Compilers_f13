@@ -1,0 +1,3833 @@
+Grammar
+
+    0 $accept: Program $end
+
+    1 Program: DeclList
+
+    2 DeclList: DeclList Decl
+    3         | Decl
+
+    4 Decl: VarDecl
+    5     | FnDecl
+    6     | ClassDecl
+    7     | InterfaceDecl
+
+    8 VarDecl: Variable ';'
+
+    9 Variable: Type T_Identifier
+
+   10 Type: T_Int
+   11     | T_Bool
+   12     | T_String
+   13     | T_Double
+   14     | T_Identifier
+   15     | Type T_Dims
+
+   16 FnDecl: FnHeader StmtBlock
+
+   17 FnHeader: Type T_Identifier '(' Formals ')'
+   18         | T_Void T_Identifier '(' Formals ')'
+
+   19 Formals: FormalList
+   20        | /* empty */
+
+   21 FormalList: FormalList ',' Variable
+   22           | Variable
+
+   23 ClassDecl: T_Class T_Identifier ClassParent ClassInterface '{' FieldList '}'
+
+   24 ClassParent: T_Extends T_Identifier
+   25            | /* empty */
+
+   26 ClassInterface: T_Implements InterfaceList
+   27               | /* empty */
+
+   28 InterfaceList: InterfaceList ',' T_Identifier
+   29              | T_Identifier
+
+   30 Field: VarDecl
+   31      | FnDecl
+
+   32 FieldList: FieldList Field
+   33          | /* empty */
+
+   34 InterfaceDecl: T_Interface T_Identifier '{' PrototypeList '}'
+
+   35 PrototypeList: PrototypeList Prototype
+   36              | /* empty */
+
+   37 Prototype: Type T_Identifier '(' Formals ')' ';'
+   38          | T_Void T_Identifier '(' Formals ')' ';'
+
+   39 VarDecls: VarDecls VarDecl
+   40         | VarDecl
+
+   41 StmtList: StmtList Stmt
+   42         | Stmt
+
+   43 StmtBlock: '{' VarDecls StmtList '}'
+   44          | '{' VarDecls '}'
+   45          | '{' StmtList '}'
+   46          | '{' '}'
+
+   47 ExprS: Expr
+   48      | /* empty */
+
+   49 Stmt: ExprS ';'
+   50     | IfStmt
+   51     | WhileStmt
+   52     | ForStmt
+   53     | BreakStmt
+   54     | ReturnStmt
+   55     | PrintStmt
+   56     | StmtBlock
+   57     | SwitchStmt
+
+   58 Expr: LValue '=' Expr
+   59     | Constant
+   60     | LValue
+   61     | T_This
+   62     | Call
+   63     | '(' Expr ')'
+   64     | Expr '+' Expr
+   65     | Expr '-' Expr
+   66     | Expr '*' Expr
+   67     | Expr '/' Expr
+   68     | Expr '%' Expr
+   69     | '-' Expr
+   70     | Expr '<' Expr
+   71     | Expr T_LessEqual Expr
+   72     | Expr '>' Expr
+   73     | Expr T_GreaterEqual Expr
+   74     | Expr T_Equal Expr
+   75     | Expr T_NotEqual Expr
+   76     | Expr T_And Expr
+   77     | Expr T_Or Expr
+   78     | '!' Expr
+   79     | T_ReadInteger '(' ')'
+   80     | T_ReadLine '(' ')'
+   81     | T_New '(' T_Identifier ')'
+   82     | T_NewArray '(' Expr ',' Type ')'
+   83     | LValue T_Increment
+   84     | LValue T_Decrement
+
+   85 ElseO: T_Else Stmt
+   86      | /* empty */
+
+   87 IfStmt: T_If '(' Expr ')' Stmt ElseO
+
+   88 WhileStmt: T_While '(' Expr ')' Stmt
+
+   89 ForStmt: T_For '(' ExprS ';' Expr ';' ExprS ')' Stmt
+
+   90 ReturnStmt: T_Return ExprS ';'
+
+   91 BreakStmt: T_Break ';'
+
+   92 ExprPC: ExprPC ',' Expr
+   93       | Expr
+
+   94 PrintStmt: T_Print '(' ExprPC ')' ';'
+
+   95 LValue: T_Identifier
+   96       | Expr '.' T_Identifier
+   97       | Expr '[' Expr ']'
+
+   98 Call: T_Identifier '(' Actuals ')'
+   99     | Expr '.' T_Identifier '(' Actuals ')'
+
+  100 Actuals: ExprPC
+  101        | /* empty */
+
+  102 Constant: T_IntConstant
+  103         | T_DoubleConstant
+  104         | T_BoolConstant
+  105         | T_StringConstant
+  106         | T_Null
+
+  107 SwitchStmt: T_Switch '(' Expr ')' '{' CaseP DefaultO '}'
+
+  108 Case: T_Case T_IntConstant ':' StmtList
+  109     | T_Case T_IntConstant ':'
+
+  110 CaseP: CaseP Case
+  111      | Case
+
+  112 Default: T_Default ':' StmtList
+
+  113 DefaultO: Default
+  114         | /* empty */
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'!' (33) 78
+'%' (37) 68
+'(' (40) 17 18 37 38 63 79 80 81 82 87 88 89 94 98 99 107
+')' (41) 17 18 37 38 63 79 80 81 82 87 88 89 94 98 99 107
+'*' (42) 66
+'+' (43) 64
+',' (44) 21 28 82 92
+'-' (45) 65 69
+'.' (46) 96 99
+'/' (47) 67
+':' (58) 108 109 112
+';' (59) 8 37 38 49 89 90 91 94
+'<' (60) 70
+'=' (61) 58
+'>' (62) 72
+'[' (91) 97
+']' (93) 97
+'{' (123) 23 34 43 44 45 46 107
+'}' (125) 23 34 43 44 45 46 107
+error (256)
+T_Void (258) 18 38
+T_Bool (259) 11
+T_Int (260) 10
+T_Double (261) 13
+T_String (262) 12
+T_Class (263) 23
+T_LessEqual (264) 71
+T_GreaterEqual (265) 73
+T_Equal (266) 74
+T_NotEqual (267) 75
+T_Dims (268) 15
+T_And (269) 76
+T_Or (270) 77
+T_Null (271) 106
+T_Extends (272) 24
+T_This (273) 61
+T_Interface (274) 34
+T_Implements (275) 26
+T_While (276) 88
+T_For (277) 89
+T_If (278) 87
+T_Else (279) 85
+T_Return (280) 90
+T_Break (281) 91
+T_New (282) 81
+T_NewArray (283) 82
+T_Print (284) 94
+T_ReadInteger (285) 79
+T_ReadLine (286) 80
+T_Increment (287) 83
+T_Decrement (288) 84
+T_Switch (289) 107
+T_Case (290) 108 109
+T_Default (291) 112
+T_Identifier (292) 9 14 17 18 23 24 28 29 34 37 38 81 95 96 98 99
+T_StringConstant (293) 105
+T_IntConstant (294) 102 108 109
+T_DoubleConstant (295) 103
+T_BoolConstant (296) 104
+NoElse (297)
+
+
+Nonterminals, with rules where they appear
+
+$accept (62)
+    on left: 0
+Program (63)
+    on left: 1, on right: 0
+DeclList (64)
+    on left: 2 3, on right: 1 2
+Decl (65)
+    on left: 4 5 6 7, on right: 2 3
+VarDecl (66)
+    on left: 8, on right: 4 30 39 40
+Variable (67)
+    on left: 9, on right: 8 21 22
+Type (68)
+    on left: 10 11 12 13 14 15, on right: 9 15 17 37 82
+FnDecl (69)
+    on left: 16, on right: 5 31
+FnHeader (70)
+    on left: 17 18, on right: 16
+Formals (71)
+    on left: 19 20, on right: 17 18 37 38
+FormalList (72)
+    on left: 21 22, on right: 19 21
+ClassDecl (73)
+    on left: 23, on right: 6
+ClassParent (74)
+    on left: 24 25, on right: 23
+ClassInterface (75)
+    on left: 26 27, on right: 23
+InterfaceList (76)
+    on left: 28 29, on right: 26 28
+Field (77)
+    on left: 30 31, on right: 32
+FieldList (78)
+    on left: 32 33, on right: 23 32
+InterfaceDecl (79)
+    on left: 34, on right: 7
+PrototypeList (80)
+    on left: 35 36, on right: 34 35
+Prototype (81)
+    on left: 37 38, on right: 35
+VarDecls (82)
+    on left: 39 40, on right: 39 43 44
+StmtList (83)
+    on left: 41 42, on right: 41 43 45 108 112
+StmtBlock (84)
+    on left: 43 44 45 46, on right: 16 56
+ExprS (85)
+    on left: 47 48, on right: 49 89 90
+Stmt (86)
+    on left: 49 50 51 52 53 54 55 56 57, on right: 41 42 85 87 88 89
+Expr (87)
+    on left: 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75
+    76 77 78 79 80 81 82 83 84, on right: 47 58 63 64 65 66 67 68 69
+    70 71 72 73 74 75 76 77 78 82 87 88 89 92 93 96 97 99 107
+ElseO (88)
+    on left: 85 86, on right: 87
+IfStmt (89)
+    on left: 87, on right: 50
+WhileStmt (90)
+    on left: 88, on right: 51
+ForStmt (91)
+    on left: 89, on right: 52
+ReturnStmt (92)
+    on left: 90, on right: 54
+BreakStmt (93)
+    on left: 91, on right: 53
+ExprPC (94)
+    on left: 92 93, on right: 92 94 100
+PrintStmt (95)
+    on left: 94, on right: 55
+LValue (96)
+    on left: 95 96 97, on right: 58 60 83 84
+Call (97)
+    on left: 98 99, on right: 62
+Actuals (98)
+    on left: 100 101, on right: 98 99
+Constant (99)
+    on left: 102 103 104 105 106, on right: 59
+SwitchStmt (100)
+    on left: 107, on right: 57
+Case (101)
+    on left: 108 109, on right: 110 111
+CaseP (102)
+    on left: 110 111, on right: 107 110
+Default (103)
+    on left: 112, on right: 113
+DefaultO (104)
+    on left: 113 114, on right: 107
+
+
+state 0
+
+    0 $accept: . Program $end
+
+    T_Void        shift, and go to state 1
+    T_Bool        shift, and go to state 2
+    T_Int         shift, and go to state 3
+    T_Double      shift, and go to state 4
+    T_String      shift, and go to state 5
+    T_Class       shift, and go to state 6
+    T_Interface   shift, and go to state 7
+    T_Identifier  shift, and go to state 8
+
+    Program        go to state 9
+    DeclList       go to state 10
+    Decl           go to state 11
+    VarDecl        go to state 12
+    Variable       go to state 13
+    Type           go to state 14
+    FnDecl         go to state 15
+    FnHeader       go to state 16
+    ClassDecl      go to state 17
+    InterfaceDecl  go to state 18
+
+
+state 1
+
+   18 FnHeader: T_Void . T_Identifier '(' Formals ')'
+
+    T_Identifier  shift, and go to state 19
+
+
+state 2
+
+   11 Type: T_Bool .
+
+    $default  reduce using rule 11 (Type)
+
+
+state 3
+
+   10 Type: T_Int .
+
+    $default  reduce using rule 10 (Type)
+
+
+state 4
+
+   13 Type: T_Double .
+
+    $default  reduce using rule 13 (Type)
+
+
+state 5
+
+   12 Type: T_String .
+
+    $default  reduce using rule 12 (Type)
+
+
+state 6
+
+   23 ClassDecl: T_Class . T_Identifier ClassParent ClassInterface '{' FieldList '}'
+
+    T_Identifier  shift, and go to state 20
+
+
+state 7
+
+   34 InterfaceDecl: T_Interface . T_Identifier '{' PrototypeList '}'
+
+    T_Identifier  shift, and go to state 21
+
+
+state 8
+
+   14 Type: T_Identifier .
+
+    $default  reduce using rule 14 (Type)
+
+
+state 9
+
+    0 $accept: Program . $end
+
+    $end  shift, and go to state 22
+
+
+state 10
+
+    1 Program: DeclList .
+    2 DeclList: DeclList . Decl
+
+    T_Void        shift, and go to state 1
+    T_Bool        shift, and go to state 2
+    T_Int         shift, and go to state 3
+    T_Double      shift, and go to state 4
+    T_String      shift, and go to state 5
+    T_Class       shift, and go to state 6
+    T_Interface   shift, and go to state 7
+    T_Identifier  shift, and go to state 8
+
+    $default  reduce using rule 1 (Program)
+
+    Decl           go to state 23
+    VarDecl        go to state 12
+    Variable       go to state 13
+    Type           go to state 14
+    FnDecl         go to state 15
+    FnHeader       go to state 16
+    ClassDecl      go to state 17
+    InterfaceDecl  go to state 18
+
+
+state 11
+
+    3 DeclList: Decl .
+
+    $default  reduce using rule 3 (DeclList)
+
+
+state 12
+
+    4 Decl: VarDecl .
+
+    $default  reduce using rule 4 (Decl)
+
+
+state 13
+
+    8 VarDecl: Variable . ';'
+
+    ';'  shift, and go to state 24
+
+
+state 14
+
+    9 Variable: Type . T_Identifier
+   15 Type: Type . T_Dims
+   17 FnHeader: Type . T_Identifier '(' Formals ')'
+
+    T_Dims        shift, and go to state 25
+    T_Identifier  shift, and go to state 26
+
+
+state 15
+
+    5 Decl: FnDecl .
+
+    $default  reduce using rule 5 (Decl)
+
+
+state 16
+
+   16 FnDecl: FnHeader . StmtBlock
+
+    '{'  shift, and go to state 27
+
+    StmtBlock  go to state 28
+
+
+state 17
+
+    6 Decl: ClassDecl .
+
+    $default  reduce using rule 6 (Decl)
+
+
+state 18
+
+    7 Decl: InterfaceDecl .
+
+    $default  reduce using rule 7 (Decl)
+
+
+state 19
+
+   18 FnHeader: T_Void T_Identifier . '(' Formals ')'
+
+    '('  shift, and go to state 29
+
+
+state 20
+
+   23 ClassDecl: T_Class T_Identifier . ClassParent ClassInterface '{' FieldList '}'
+
+    T_Extends  shift, and go to state 30
+
+    $default  reduce using rule 25 (ClassParent)
+
+    ClassParent  go to state 31
+
+
+state 21
+
+   34 InterfaceDecl: T_Interface T_Identifier . '{' PrototypeList '}'
+
+    '{'  shift, and go to state 32
+
+
+state 22
+
+    0 $accept: Program $end .
+
+    $default  accept
+
+
+state 23
+
+    2 DeclList: DeclList Decl .
+
+    $default  reduce using rule 2 (DeclList)
+
+
+state 24
+
+    8 VarDecl: Variable ';' .
+
+    $default  reduce using rule 8 (VarDecl)
+
+
+state 25
+
+   15 Type: Type T_Dims .
+
+    $default  reduce using rule 15 (Type)
+
+
+state 26
+
+    9 Variable: Type T_Identifier .
+   17 FnHeader: Type T_Identifier . '(' Formals ')'
+
+    '('  shift, and go to state 33
+
+    $default  reduce using rule 9 (Variable)
+
+
+state 27
+
+   43 StmtBlock: '{' . VarDecls StmtList '}'
+   44          | '{' . VarDecls '}'
+   45          | '{' . StmtList '}'
+   46          | '{' . '}'
+
+    T_Bool            shift, and go to state 2
+    T_Int             shift, and go to state 3
+    T_Double          shift, and go to state 4
+    T_String          shift, and go to state 5
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_While           shift, and go to state 36
+    T_For             shift, and go to state 37
+    T_If              shift, and go to state 38
+    T_Return          shift, and go to state 39
+    T_Break           shift, and go to state 40
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_Print           shift, and go to state 43
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Switch          shift, and go to state 46
+    T_Identifier      shift, and go to state 47
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+    '{'               shift, and go to state 27
+    '}'               shift, and go to state 55
+
+    $default  reduce using rule 48 (ExprS)
+
+    VarDecl     go to state 56
+    Variable    go to state 13
+    Type        go to state 57
+    VarDecls    go to state 58
+    StmtList    go to state 59
+    StmtBlock   go to state 60
+    ExprS       go to state 61
+    Stmt        go to state 62
+    Expr        go to state 63
+    IfStmt      go to state 64
+    WhileStmt   go to state 65
+    ForStmt     go to state 66
+    ReturnStmt  go to state 67
+    BreakStmt   go to state 68
+    PrintStmt   go to state 69
+    LValue      go to state 70
+    Call        go to state 71
+    Constant    go to state 72
+    SwitchStmt  go to state 73
+
+
+state 28
+
+   16 FnDecl: FnHeader StmtBlock .
+
+    $default  reduce using rule 16 (FnDecl)
+
+
+state 29
+
+   18 FnHeader: T_Void T_Identifier '(' . Formals ')'
+
+    T_Bool        shift, and go to state 2
+    T_Int         shift, and go to state 3
+    T_Double      shift, and go to state 4
+    T_String      shift, and go to state 5
+    T_Identifier  shift, and go to state 8
+
+    $default  reduce using rule 20 (Formals)
+
+    Variable    go to state 74
+    Type        go to state 57
+    Formals     go to state 75
+    FormalList  go to state 76
+
+
+state 30
+
+   24 ClassParent: T_Extends . T_Identifier
+
+    T_Identifier  shift, and go to state 77
+
+
+state 31
+
+   23 ClassDecl: T_Class T_Identifier ClassParent . ClassInterface '{' FieldList '}'
+
+    T_Implements  shift, and go to state 78
+
+    $default  reduce using rule 27 (ClassInterface)
+
+    ClassInterface  go to state 79
+
+
+state 32
+
+   34 InterfaceDecl: T_Interface T_Identifier '{' . PrototypeList '}'
+
+    $default  reduce using rule 36 (PrototypeList)
+
+    PrototypeList  go to state 80
+
+
+state 33
+
+   17 FnHeader: Type T_Identifier '(' . Formals ')'
+
+    T_Bool        shift, and go to state 2
+    T_Int         shift, and go to state 3
+    T_Double      shift, and go to state 4
+    T_String      shift, and go to state 5
+    T_Identifier  shift, and go to state 8
+
+    $default  reduce using rule 20 (Formals)
+
+    Variable    go to state 74
+    Type        go to state 57
+    Formals     go to state 81
+    FormalList  go to state 76
+
+
+state 34
+
+  106 Constant: T_Null .
+
+    $default  reduce using rule 106 (Constant)
+
+
+state 35
+
+   61 Expr: T_This .
+
+    $default  reduce using rule 61 (Expr)
+
+
+state 36
+
+   88 WhileStmt: T_While . '(' Expr ')' Stmt
+
+    '('  shift, and go to state 82
+
+
+state 37
+
+   89 ForStmt: T_For . '(' ExprS ';' Expr ';' ExprS ')' Stmt
+
+    '('  shift, and go to state 83
+
+
+state 38
+
+   87 IfStmt: T_If . '(' Expr ')' Stmt ElseO
+
+    '('  shift, and go to state 84
+
+
+state 39
+
+   90 ReturnStmt: T_Return . ExprS ';'
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    $default  reduce using rule 48 (ExprS)
+
+    ExprS     go to state 86
+    Expr      go to state 63
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 40
+
+   91 BreakStmt: T_Break . ';'
+
+    ';'  shift, and go to state 87
+
+
+state 41
+
+   81 Expr: T_New . '(' T_Identifier ')'
+
+    '('  shift, and go to state 88
+
+
+state 42
+
+   82 Expr: T_NewArray . '(' Expr ',' Type ')'
+
+    '('  shift, and go to state 89
+
+
+state 43
+
+   94 PrintStmt: T_Print . '(' ExprPC ')' ';'
+
+    '('  shift, and go to state 90
+
+
+state 44
+
+   79 Expr: T_ReadInteger . '(' ')'
+
+    '('  shift, and go to state 91
+
+
+state 45
+
+   80 Expr: T_ReadLine . '(' ')'
+
+    '('  shift, and go to state 92
+
+
+state 46
+
+  107 SwitchStmt: T_Switch . '(' Expr ')' '{' CaseP DefaultO '}'
+
+    '('  shift, and go to state 93
+
+
+state 47
+
+   14 Type: T_Identifier .
+   95 LValue: T_Identifier .
+   98 Call: T_Identifier . '(' Actuals ')'
+
+    '('  shift, and go to state 94
+
+    T_Dims        reduce using rule 14 (Type)
+    T_Identifier  reduce using rule 14 (Type)
+    $default      reduce using rule 95 (LValue)
+
+
+state 48
+
+  105 Constant: T_StringConstant .
+
+    $default  reduce using rule 105 (Constant)
+
+
+state 49
+
+  102 Constant: T_IntConstant .
+
+    $default  reduce using rule 102 (Constant)
+
+
+state 50
+
+  103 Constant: T_DoubleConstant .
+
+    $default  reduce using rule 103 (Constant)
+
+
+state 51
+
+  104 Constant: T_BoolConstant .
+
+    $default  reduce using rule 104 (Constant)
+
+
+state 52
+
+   69 Expr: '-' . Expr
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 95
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 53
+
+   78 Expr: '!' . Expr
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 96
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 54
+
+   63 Expr: '(' . Expr ')'
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 97
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 55
+
+   46 StmtBlock: '{' '}' .
+
+    $default  reduce using rule 46 (StmtBlock)
+
+
+state 56
+
+   40 VarDecls: VarDecl .
+
+    $default  reduce using rule 40 (VarDecls)
+
+
+state 57
+
+    9 Variable: Type . T_Identifier
+   15 Type: Type . T_Dims
+
+    T_Dims        shift, and go to state 25
+    T_Identifier  shift, and go to state 98
+
+
+state 58
+
+   39 VarDecls: VarDecls . VarDecl
+   43 StmtBlock: '{' VarDecls . StmtList '}'
+   44          | '{' VarDecls . '}'
+
+    T_Bool            shift, and go to state 2
+    T_Int             shift, and go to state 3
+    T_Double          shift, and go to state 4
+    T_String          shift, and go to state 5
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_While           shift, and go to state 36
+    T_For             shift, and go to state 37
+    T_If              shift, and go to state 38
+    T_Return          shift, and go to state 39
+    T_Break           shift, and go to state 40
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_Print           shift, and go to state 43
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Switch          shift, and go to state 46
+    T_Identifier      shift, and go to state 47
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+    '{'               shift, and go to state 27
+    '}'               shift, and go to state 99
+
+    $default  reduce using rule 48 (ExprS)
+
+    VarDecl     go to state 100
+    Variable    go to state 13
+    Type        go to state 57
+    StmtList    go to state 101
+    StmtBlock   go to state 60
+    ExprS       go to state 61
+    Stmt        go to state 62
+    Expr        go to state 63
+    IfStmt      go to state 64
+    WhileStmt   go to state 65
+    ForStmt     go to state 66
+    ReturnStmt  go to state 67
+    BreakStmt   go to state 68
+    PrintStmt   go to state 69
+    LValue      go to state 70
+    Call        go to state 71
+    Constant    go to state 72
+    SwitchStmt  go to state 73
+
+
+state 59
+
+   41 StmtList: StmtList . Stmt
+   45 StmtBlock: '{' StmtList . '}'
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_While           shift, and go to state 36
+    T_For             shift, and go to state 37
+    T_If              shift, and go to state 38
+    T_Return          shift, and go to state 39
+    T_Break           shift, and go to state 40
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_Print           shift, and go to state 43
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Switch          shift, and go to state 46
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+    '{'               shift, and go to state 27
+    '}'               shift, and go to state 102
+
+    $default  reduce using rule 48 (ExprS)
+
+    StmtBlock   go to state 60
+    ExprS       go to state 61
+    Stmt        go to state 103
+    Expr        go to state 63
+    IfStmt      go to state 64
+    WhileStmt   go to state 65
+    ForStmt     go to state 66
+    ReturnStmt  go to state 67
+    BreakStmt   go to state 68
+    PrintStmt   go to state 69
+    LValue      go to state 70
+    Call        go to state 71
+    Constant    go to state 72
+    SwitchStmt  go to state 73
+
+
+state 60
+
+   56 Stmt: StmtBlock .
+
+    $default  reduce using rule 56 (Stmt)
+
+
+state 61
+
+   49 Stmt: ExprS . ';'
+
+    ';'  shift, and go to state 104
+
+
+state 62
+
+   42 StmtList: Stmt .
+
+    $default  reduce using rule 42 (StmtList)
+
+
+state 63
+
+   47 ExprS: Expr .
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    T_LessEqual     shift, and go to state 105
+    T_GreaterEqual  shift, and go to state 106
+    T_Equal         shift, and go to state 107
+    T_NotEqual      shift, and go to state 108
+    T_And           shift, and go to state 109
+    T_Or            shift, and go to state 110
+    '<'             shift, and go to state 111
+    '>'             shift, and go to state 112
+    '-'             shift, and go to state 113
+    '+'             shift, and go to state 114
+    '/'             shift, and go to state 115
+    '%'             shift, and go to state 116
+    '*'             shift, and go to state 117
+    '.'             shift, and go to state 118
+    '['             shift, and go to state 119
+
+    $default  reduce using rule 47 (ExprS)
+
+
+state 64
+
+   50 Stmt: IfStmt .
+
+    $default  reduce using rule 50 (Stmt)
+
+
+state 65
+
+   51 Stmt: WhileStmt .
+
+    $default  reduce using rule 51 (Stmt)
+
+
+state 66
+
+   52 Stmt: ForStmt .
+
+    $default  reduce using rule 52 (Stmt)
+
+
+state 67
+
+   54 Stmt: ReturnStmt .
+
+    $default  reduce using rule 54 (Stmt)
+
+
+state 68
+
+   53 Stmt: BreakStmt .
+
+    $default  reduce using rule 53 (Stmt)
+
+
+state 69
+
+   55 Stmt: PrintStmt .
+
+    $default  reduce using rule 55 (Stmt)
+
+
+state 70
+
+   58 Expr: LValue . '=' Expr
+   60     | LValue .
+   83     | LValue . T_Increment
+   84     | LValue . T_Decrement
+
+    T_Increment  shift, and go to state 120
+    T_Decrement  shift, and go to state 121
+    '='          shift, and go to state 122
+
+    $default  reduce using rule 60 (Expr)
+
+
+state 71
+
+   62 Expr: Call .
+
+    $default  reduce using rule 62 (Expr)
+
+
+state 72
+
+   59 Expr: Constant .
+
+    $default  reduce using rule 59 (Expr)
+
+
+state 73
+
+   57 Stmt: SwitchStmt .
+
+    $default  reduce using rule 57 (Stmt)
+
+
+state 74
+
+   22 FormalList: Variable .
+
+    $default  reduce using rule 22 (FormalList)
+
+
+state 75
+
+   18 FnHeader: T_Void T_Identifier '(' Formals . ')'
+
+    ')'  shift, and go to state 123
+
+
+state 76
+
+   19 Formals: FormalList .
+   21 FormalList: FormalList . ',' Variable
+
+    ','  shift, and go to state 124
+
+    $default  reduce using rule 19 (Formals)
+
+
+state 77
+
+   24 ClassParent: T_Extends T_Identifier .
+
+    $default  reduce using rule 24 (ClassParent)
+
+
+state 78
+
+   26 ClassInterface: T_Implements . InterfaceList
+
+    T_Identifier  shift, and go to state 125
+
+    InterfaceList  go to state 126
+
+
+state 79
+
+   23 ClassDecl: T_Class T_Identifier ClassParent ClassInterface . '{' FieldList '}'
+
+    '{'  shift, and go to state 127
+
+
+state 80
+
+   34 InterfaceDecl: T_Interface T_Identifier '{' PrototypeList . '}'
+   35 PrototypeList: PrototypeList . Prototype
+
+    T_Void        shift, and go to state 128
+    T_Bool        shift, and go to state 2
+    T_Int         shift, and go to state 3
+    T_Double      shift, and go to state 4
+    T_String      shift, and go to state 5
+    T_Identifier  shift, and go to state 8
+    '}'           shift, and go to state 129
+
+    Type       go to state 130
+    Prototype  go to state 131
+
+
+state 81
+
+   17 FnHeader: Type T_Identifier '(' Formals . ')'
+
+    ')'  shift, and go to state 132
+
+
+state 82
+
+   88 WhileStmt: T_While '(' . Expr ')' Stmt
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 133
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 83
+
+   89 ForStmt: T_For '(' . ExprS ';' Expr ';' ExprS ')' Stmt
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    $default  reduce using rule 48 (ExprS)
+
+    ExprS     go to state 134
+    Expr      go to state 63
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 84
+
+   87 IfStmt: T_If '(' . Expr ')' Stmt ElseO
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 135
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 85
+
+   95 LValue: T_Identifier .
+   98 Call: T_Identifier . '(' Actuals ')'
+
+    '('  shift, and go to state 94
+
+    $default  reduce using rule 95 (LValue)
+
+
+state 86
+
+   90 ReturnStmt: T_Return ExprS . ';'
+
+    ';'  shift, and go to state 136
+
+
+state 87
+
+   91 BreakStmt: T_Break ';' .
+
+    $default  reduce using rule 91 (BreakStmt)
+
+
+state 88
+
+   81 Expr: T_New '(' . T_Identifier ')'
+
+    T_Identifier  shift, and go to state 137
+
+
+state 89
+
+   82 Expr: T_NewArray '(' . Expr ',' Type ')'
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 138
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 90
+
+   94 PrintStmt: T_Print '(' . ExprPC ')' ';'
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 139
+    ExprPC    go to state 140
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 91
+
+   79 Expr: T_ReadInteger '(' . ')'
+
+    ')'  shift, and go to state 141
+
+
+state 92
+
+   80 Expr: T_ReadLine '(' . ')'
+
+    ')'  shift, and go to state 142
+
+
+state 93
+
+  107 SwitchStmt: T_Switch '(' . Expr ')' '{' CaseP DefaultO '}'
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 143
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 94
+
+   98 Call: T_Identifier '(' . Actuals ')'
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    $default  reduce using rule 101 (Actuals)
+
+    Expr      go to state 139
+    ExprPC    go to state 144
+    LValue    go to state 70
+    Call      go to state 71
+    Actuals   go to state 145
+    Constant  go to state 72
+
+
+state 95
+
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   69     | '-' Expr .
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    '+'  shift, and go to state 114
+    '/'  shift, and go to state 115
+    '%'  shift, and go to state 116
+    '*'  shift, and go to state 117
+    '.'  shift, and go to state 118
+    '['  shift, and go to state 119
+
+    $default  reduce using rule 69 (Expr)
+
+
+state 96
+
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   78     | '!' Expr .
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    '.'  shift, and go to state 118
+    '['  shift, and go to state 119
+
+    $default  reduce using rule 78 (Expr)
+
+
+state 97
+
+   63 Expr: '(' Expr . ')'
+   64     | Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    T_LessEqual     shift, and go to state 105
+    T_GreaterEqual  shift, and go to state 106
+    T_Equal         shift, and go to state 107
+    T_NotEqual      shift, and go to state 108
+    T_And           shift, and go to state 109
+    T_Or            shift, and go to state 110
+    '<'             shift, and go to state 111
+    '>'             shift, and go to state 112
+    '-'             shift, and go to state 113
+    '+'             shift, and go to state 114
+    '/'             shift, and go to state 115
+    '%'             shift, and go to state 116
+    '*'             shift, and go to state 117
+    '.'             shift, and go to state 118
+    '['             shift, and go to state 119
+    ')'             shift, and go to state 146
+
+
+state 98
+
+    9 Variable: Type T_Identifier .
+
+    $default  reduce using rule 9 (Variable)
+
+
+state 99
+
+   44 StmtBlock: '{' VarDecls '}' .
+
+    $default  reduce using rule 44 (StmtBlock)
+
+
+state 100
+
+   39 VarDecls: VarDecls VarDecl .
+
+    $default  reduce using rule 39 (VarDecls)
+
+
+state 101
+
+   41 StmtList: StmtList . Stmt
+   43 StmtBlock: '{' VarDecls StmtList . '}'
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_While           shift, and go to state 36
+    T_For             shift, and go to state 37
+    T_If              shift, and go to state 38
+    T_Return          shift, and go to state 39
+    T_Break           shift, and go to state 40
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_Print           shift, and go to state 43
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Switch          shift, and go to state 46
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+    '{'               shift, and go to state 27
+    '}'               shift, and go to state 147
+
+    $default  reduce using rule 48 (ExprS)
+
+    StmtBlock   go to state 60
+    ExprS       go to state 61
+    Stmt        go to state 103
+    Expr        go to state 63
+    IfStmt      go to state 64
+    WhileStmt   go to state 65
+    ForStmt     go to state 66
+    ReturnStmt  go to state 67
+    BreakStmt   go to state 68
+    PrintStmt   go to state 69
+    LValue      go to state 70
+    Call        go to state 71
+    Constant    go to state 72
+    SwitchStmt  go to state 73
+
+
+state 102
+
+   45 StmtBlock: '{' StmtList '}' .
+
+    $default  reduce using rule 45 (StmtBlock)
+
+
+state 103
+
+   41 StmtList: StmtList Stmt .
+
+    $default  reduce using rule 41 (StmtList)
+
+
+state 104
+
+   49 Stmt: ExprS ';' .
+
+    $default  reduce using rule 49 (Stmt)
+
+
+state 105
+
+   71 Expr: Expr T_LessEqual . Expr
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 148
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 106
+
+   73 Expr: Expr T_GreaterEqual . Expr
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 149
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 107
+
+   74 Expr: Expr T_Equal . Expr
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 150
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 108
+
+   75 Expr: Expr T_NotEqual . Expr
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 151
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 109
+
+   76 Expr: Expr T_And . Expr
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 152
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 110
+
+   77 Expr: Expr T_Or . Expr
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 153
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 111
+
+   70 Expr: Expr '<' . Expr
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 154
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 112
+
+   72 Expr: Expr '>' . Expr
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 155
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 113
+
+   65 Expr: Expr '-' . Expr
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 156
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 114
+
+   64 Expr: Expr '+' . Expr
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 157
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 115
+
+   67 Expr: Expr '/' . Expr
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 158
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 116
+
+   68 Expr: Expr '%' . Expr
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 159
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 117
+
+   66 Expr: Expr '*' . Expr
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 160
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 118
+
+   96 LValue: Expr '.' . T_Identifier
+   99 Call: Expr '.' . T_Identifier '(' Actuals ')'
+
+    T_Identifier  shift, and go to state 161
+
+
+state 119
+
+   97 LValue: Expr '[' . Expr ']'
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 162
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 120
+
+   83 Expr: LValue T_Increment .
+
+    $default  reduce using rule 83 (Expr)
+
+
+state 121
+
+   84 Expr: LValue T_Decrement .
+
+    $default  reduce using rule 84 (Expr)
+
+
+state 122
+
+   58 Expr: LValue '=' . Expr
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 163
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 123
+
+   18 FnHeader: T_Void T_Identifier '(' Formals ')' .
+
+    $default  reduce using rule 18 (FnHeader)
+
+
+state 124
+
+   21 FormalList: FormalList ',' . Variable
+
+    T_Bool        shift, and go to state 2
+    T_Int         shift, and go to state 3
+    T_Double      shift, and go to state 4
+    T_String      shift, and go to state 5
+    T_Identifier  shift, and go to state 8
+
+    Variable  go to state 164
+    Type      go to state 57
+
+
+state 125
+
+   29 InterfaceList: T_Identifier .
+
+    $default  reduce using rule 29 (InterfaceList)
+
+
+state 126
+
+   26 ClassInterface: T_Implements InterfaceList .
+   28 InterfaceList: InterfaceList . ',' T_Identifier
+
+    ','  shift, and go to state 165
+
+    $default  reduce using rule 26 (ClassInterface)
+
+
+state 127
+
+   23 ClassDecl: T_Class T_Identifier ClassParent ClassInterface '{' . FieldList '}'
+
+    $default  reduce using rule 33 (FieldList)
+
+    FieldList  go to state 166
+
+
+state 128
+
+   38 Prototype: T_Void . T_Identifier '(' Formals ')' ';'
+
+    T_Identifier  shift, and go to state 167
+
+
+state 129
+
+   34 InterfaceDecl: T_Interface T_Identifier '{' PrototypeList '}' .
+
+    $default  reduce using rule 34 (InterfaceDecl)
+
+
+state 130
+
+   15 Type: Type . T_Dims
+   37 Prototype: Type . T_Identifier '(' Formals ')' ';'
+
+    T_Dims        shift, and go to state 25
+    T_Identifier  shift, and go to state 168
+
+
+state 131
+
+   35 PrototypeList: PrototypeList Prototype .
+
+    $default  reduce using rule 35 (PrototypeList)
+
+
+state 132
+
+   17 FnHeader: Type T_Identifier '(' Formals ')' .
+
+    $default  reduce using rule 17 (FnHeader)
+
+
+state 133
+
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   88 WhileStmt: T_While '(' Expr . ')' Stmt
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    T_LessEqual     shift, and go to state 105
+    T_GreaterEqual  shift, and go to state 106
+    T_Equal         shift, and go to state 107
+    T_NotEqual      shift, and go to state 108
+    T_And           shift, and go to state 109
+    T_Or            shift, and go to state 110
+    '<'             shift, and go to state 111
+    '>'             shift, and go to state 112
+    '-'             shift, and go to state 113
+    '+'             shift, and go to state 114
+    '/'             shift, and go to state 115
+    '%'             shift, and go to state 116
+    '*'             shift, and go to state 117
+    '.'             shift, and go to state 118
+    '['             shift, and go to state 119
+    ')'             shift, and go to state 169
+
+
+state 134
+
+   89 ForStmt: T_For '(' ExprS . ';' Expr ';' ExprS ')' Stmt
+
+    ';'  shift, and go to state 170
+
+
+state 135
+
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   87 IfStmt: T_If '(' Expr . ')' Stmt ElseO
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    T_LessEqual     shift, and go to state 105
+    T_GreaterEqual  shift, and go to state 106
+    T_Equal         shift, and go to state 107
+    T_NotEqual      shift, and go to state 108
+    T_And           shift, and go to state 109
+    T_Or            shift, and go to state 110
+    '<'             shift, and go to state 111
+    '>'             shift, and go to state 112
+    '-'             shift, and go to state 113
+    '+'             shift, and go to state 114
+    '/'             shift, and go to state 115
+    '%'             shift, and go to state 116
+    '*'             shift, and go to state 117
+    '.'             shift, and go to state 118
+    '['             shift, and go to state 119
+    ')'             shift, and go to state 171
+
+
+state 136
+
+   90 ReturnStmt: T_Return ExprS ';' .
+
+    $default  reduce using rule 90 (ReturnStmt)
+
+
+state 137
+
+   81 Expr: T_New '(' T_Identifier . ')'
+
+    ')'  shift, and go to state 172
+
+
+state 138
+
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   82     | T_NewArray '(' Expr . ',' Type ')'
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    T_LessEqual     shift, and go to state 105
+    T_GreaterEqual  shift, and go to state 106
+    T_Equal         shift, and go to state 107
+    T_NotEqual      shift, and go to state 108
+    T_And           shift, and go to state 109
+    T_Or            shift, and go to state 110
+    '<'             shift, and go to state 111
+    '>'             shift, and go to state 112
+    '-'             shift, and go to state 113
+    '+'             shift, and go to state 114
+    '/'             shift, and go to state 115
+    '%'             shift, and go to state 116
+    '*'             shift, and go to state 117
+    '.'             shift, and go to state 118
+    '['             shift, and go to state 119
+    ','             shift, and go to state 173
+
+
+state 139
+
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   93 ExprPC: Expr .
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    T_LessEqual     shift, and go to state 105
+    T_GreaterEqual  shift, and go to state 106
+    T_Equal         shift, and go to state 107
+    T_NotEqual      shift, and go to state 108
+    T_And           shift, and go to state 109
+    T_Or            shift, and go to state 110
+    '<'             shift, and go to state 111
+    '>'             shift, and go to state 112
+    '-'             shift, and go to state 113
+    '+'             shift, and go to state 114
+    '/'             shift, and go to state 115
+    '%'             shift, and go to state 116
+    '*'             shift, and go to state 117
+    '.'             shift, and go to state 118
+    '['             shift, and go to state 119
+
+    $default  reduce using rule 93 (ExprPC)
+
+
+state 140
+
+   92 ExprPC: ExprPC . ',' Expr
+   94 PrintStmt: T_Print '(' ExprPC . ')' ';'
+
+    ')'  shift, and go to state 174
+    ','  shift, and go to state 175
+
+
+state 141
+
+   79 Expr: T_ReadInteger '(' ')' .
+
+    $default  reduce using rule 79 (Expr)
+
+
+state 142
+
+   80 Expr: T_ReadLine '(' ')' .
+
+    $default  reduce using rule 80 (Expr)
+
+
+state 143
+
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+  107 SwitchStmt: T_Switch '(' Expr . ')' '{' CaseP DefaultO '}'
+
+    T_LessEqual     shift, and go to state 105
+    T_GreaterEqual  shift, and go to state 106
+    T_Equal         shift, and go to state 107
+    T_NotEqual      shift, and go to state 108
+    T_And           shift, and go to state 109
+    T_Or            shift, and go to state 110
+    '<'             shift, and go to state 111
+    '>'             shift, and go to state 112
+    '-'             shift, and go to state 113
+    '+'             shift, and go to state 114
+    '/'             shift, and go to state 115
+    '%'             shift, and go to state 116
+    '*'             shift, and go to state 117
+    '.'             shift, and go to state 118
+    '['             shift, and go to state 119
+    ')'             shift, and go to state 176
+
+
+state 144
+
+   92 ExprPC: ExprPC . ',' Expr
+  100 Actuals: ExprPC .
+
+    ','  shift, and go to state 175
+
+    $default  reduce using rule 100 (Actuals)
+
+
+state 145
+
+   98 Call: T_Identifier '(' Actuals . ')'
+
+    ')'  shift, and go to state 177
+
+
+state 146
+
+   63 Expr: '(' Expr ')' .
+
+    $default  reduce using rule 63 (Expr)
+
+
+state 147
+
+   43 StmtBlock: '{' VarDecls StmtList '}' .
+
+    $default  reduce using rule 43 (StmtBlock)
+
+
+state 148
+
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   71     | Expr T_LessEqual Expr .
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    T_GreaterEqual  shift, and go to state 106
+    '>'             shift, and go to state 112
+    '-'             shift, and go to state 113
+    '+'             shift, and go to state 114
+    '/'             shift, and go to state 115
+    '%'             shift, and go to state 116
+    '*'             shift, and go to state 117
+    '.'             shift, and go to state 118
+    '['             shift, and go to state 119
+
+    $default  reduce using rule 71 (Expr)
+
+
+state 149
+
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   73     | Expr T_GreaterEqual Expr .
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    '-'  shift, and go to state 113
+    '+'  shift, and go to state 114
+    '/'  shift, and go to state 115
+    '%'  shift, and go to state 116
+    '*'  shift, and go to state 117
+    '.'  shift, and go to state 118
+    '['  shift, and go to state 119
+
+    $default  reduce using rule 73 (Expr)
+
+
+state 150
+
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   74     | Expr T_Equal Expr .
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    T_LessEqual     shift, and go to state 105
+    T_GreaterEqual  shift, and go to state 106
+    T_NotEqual      shift, and go to state 108
+    '<'             shift, and go to state 111
+    '>'             shift, and go to state 112
+    '-'             shift, and go to state 113
+    '+'             shift, and go to state 114
+    '/'             shift, and go to state 115
+    '%'             shift, and go to state 116
+    '*'             shift, and go to state 117
+    '.'             shift, and go to state 118
+    '['             shift, and go to state 119
+
+    $default  reduce using rule 74 (Expr)
+
+
+state 151
+
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   75     | Expr T_NotEqual Expr .
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    T_LessEqual     shift, and go to state 105
+    T_GreaterEqual  shift, and go to state 106
+    '<'             shift, and go to state 111
+    '>'             shift, and go to state 112
+    '-'             shift, and go to state 113
+    '+'             shift, and go to state 114
+    '/'             shift, and go to state 115
+    '%'             shift, and go to state 116
+    '*'             shift, and go to state 117
+    '.'             shift, and go to state 118
+    '['             shift, and go to state 119
+
+    $default  reduce using rule 75 (Expr)
+
+
+state 152
+
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   76     | Expr T_And Expr .
+   77     | Expr . T_Or Expr
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    T_LessEqual     shift, and go to state 105
+    T_GreaterEqual  shift, and go to state 106
+    T_Equal         shift, and go to state 107
+    T_NotEqual      shift, and go to state 108
+    '<'             shift, and go to state 111
+    '>'             shift, and go to state 112
+    '-'             shift, and go to state 113
+    '+'             shift, and go to state 114
+    '/'             shift, and go to state 115
+    '%'             shift, and go to state 116
+    '*'             shift, and go to state 117
+    '.'             shift, and go to state 118
+    '['             shift, and go to state 119
+
+    $default  reduce using rule 76 (Expr)
+
+
+state 153
+
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   77     | Expr T_Or Expr .
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    T_LessEqual     shift, and go to state 105
+    T_GreaterEqual  shift, and go to state 106
+    T_Equal         shift, and go to state 107
+    T_NotEqual      shift, and go to state 108
+    T_And           shift, and go to state 109
+    '<'             shift, and go to state 111
+    '>'             shift, and go to state 112
+    '-'             shift, and go to state 113
+    '+'             shift, and go to state 114
+    '/'             shift, and go to state 115
+    '%'             shift, and go to state 116
+    '*'             shift, and go to state 117
+    '.'             shift, and go to state 118
+    '['             shift, and go to state 119
+
+    $default  reduce using rule 77 (Expr)
+
+
+state 154
+
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   70     | Expr '<' Expr .
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    T_LessEqual     shift, and go to state 105
+    T_GreaterEqual  shift, and go to state 106
+    '>'             shift, and go to state 112
+    '-'             shift, and go to state 113
+    '+'             shift, and go to state 114
+    '/'             shift, and go to state 115
+    '%'             shift, and go to state 116
+    '*'             shift, and go to state 117
+    '.'             shift, and go to state 118
+    '['             shift, and go to state 119
+
+    $default  reduce using rule 70 (Expr)
+
+
+state 155
+
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   72     | Expr '>' Expr .
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    T_GreaterEqual  shift, and go to state 106
+    '-'             shift, and go to state 113
+    '+'             shift, and go to state 114
+    '/'             shift, and go to state 115
+    '%'             shift, and go to state 116
+    '*'             shift, and go to state 117
+    '.'             shift, and go to state 118
+    '['             shift, and go to state 119
+
+    $default  reduce using rule 72 (Expr)
+
+
+state 156
+
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   65     | Expr '-' Expr .
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    '+'  shift, and go to state 114
+    '/'  shift, and go to state 115
+    '%'  shift, and go to state 116
+    '*'  shift, and go to state 117
+    '.'  shift, and go to state 118
+    '['  shift, and go to state 119
+
+    $default  reduce using rule 65 (Expr)
+
+
+state 157
+
+   64 Expr: Expr . '+' Expr
+   64     | Expr '+' Expr .
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    '/'  shift, and go to state 115
+    '%'  shift, and go to state 116
+    '*'  shift, and go to state 117
+    '.'  shift, and go to state 118
+    '['  shift, and go to state 119
+
+    $default  reduce using rule 64 (Expr)
+
+
+state 158
+
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   67     | Expr '/' Expr .
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    '%'  shift, and go to state 116
+    '*'  shift, and go to state 117
+    '.'  shift, and go to state 118
+    '['  shift, and go to state 119
+
+    $default  reduce using rule 67 (Expr)
+
+
+state 159
+
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   68     | Expr '%' Expr .
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    '*'  shift, and go to state 117
+    '.'  shift, and go to state 118
+    '['  shift, and go to state 119
+
+    $default  reduce using rule 68 (Expr)
+
+
+state 160
+
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   66     | Expr '*' Expr .
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    '.'  shift, and go to state 118
+    '['  shift, and go to state 119
+
+    $default  reduce using rule 66 (Expr)
+
+
+state 161
+
+   96 LValue: Expr '.' T_Identifier .
+   99 Call: Expr '.' T_Identifier . '(' Actuals ')'
+
+    '('  shift, and go to state 178
+
+    $default  reduce using rule 96 (LValue)
+
+
+state 162
+
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   97       | Expr '[' Expr . ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    T_LessEqual     shift, and go to state 105
+    T_GreaterEqual  shift, and go to state 106
+    T_Equal         shift, and go to state 107
+    T_NotEqual      shift, and go to state 108
+    T_And           shift, and go to state 109
+    T_Or            shift, and go to state 110
+    '<'             shift, and go to state 111
+    '>'             shift, and go to state 112
+    '-'             shift, and go to state 113
+    '+'             shift, and go to state 114
+    '/'             shift, and go to state 115
+    '%'             shift, and go to state 116
+    '*'             shift, and go to state 117
+    '.'             shift, and go to state 118
+    '['             shift, and go to state 119
+    ']'             shift, and go to state 179
+
+
+state 163
+
+   58 Expr: LValue '=' Expr .
+   64     | Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    T_LessEqual     shift, and go to state 105
+    T_GreaterEqual  shift, and go to state 106
+    T_Equal         shift, and go to state 107
+    T_NotEqual      shift, and go to state 108
+    T_And           shift, and go to state 109
+    T_Or            shift, and go to state 110
+    '<'             shift, and go to state 111
+    '>'             shift, and go to state 112
+    '-'             shift, and go to state 113
+    '+'             shift, and go to state 114
+    '/'             shift, and go to state 115
+    '%'             shift, and go to state 116
+    '*'             shift, and go to state 117
+    '.'             shift, and go to state 118
+    '['             shift, and go to state 119
+
+    $default  reduce using rule 58 (Expr)
+
+
+state 164
+
+   21 FormalList: FormalList ',' Variable .
+
+    $default  reduce using rule 21 (FormalList)
+
+
+state 165
+
+   28 InterfaceList: InterfaceList ',' . T_Identifier
+
+    T_Identifier  shift, and go to state 180
+
+
+state 166
+
+   23 ClassDecl: T_Class T_Identifier ClassParent ClassInterface '{' FieldList . '}'
+   32 FieldList: FieldList . Field
+
+    T_Void        shift, and go to state 1
+    T_Bool        shift, and go to state 2
+    T_Int         shift, and go to state 3
+    T_Double      shift, and go to state 4
+    T_String      shift, and go to state 5
+    T_Identifier  shift, and go to state 8
+    '}'           shift, and go to state 181
+
+    VarDecl   go to state 182
+    Variable  go to state 13
+    Type      go to state 14
+    FnDecl    go to state 183
+    FnHeader  go to state 16
+    Field     go to state 184
+
+
+state 167
+
+   38 Prototype: T_Void T_Identifier . '(' Formals ')' ';'
+
+    '('  shift, and go to state 185
+
+
+state 168
+
+   37 Prototype: Type T_Identifier . '(' Formals ')' ';'
+
+    '('  shift, and go to state 186
+
+
+state 169
+
+   88 WhileStmt: T_While '(' Expr ')' . Stmt
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_While           shift, and go to state 36
+    T_For             shift, and go to state 37
+    T_If              shift, and go to state 38
+    T_Return          shift, and go to state 39
+    T_Break           shift, and go to state 40
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_Print           shift, and go to state 43
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Switch          shift, and go to state 46
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+    '{'               shift, and go to state 27
+
+    $default  reduce using rule 48 (ExprS)
+
+    StmtBlock   go to state 60
+    ExprS       go to state 61
+    Stmt        go to state 187
+    Expr        go to state 63
+    IfStmt      go to state 64
+    WhileStmt   go to state 65
+    ForStmt     go to state 66
+    ReturnStmt  go to state 67
+    BreakStmt   go to state 68
+    PrintStmt   go to state 69
+    LValue      go to state 70
+    Call        go to state 71
+    Constant    go to state 72
+    SwitchStmt  go to state 73
+
+
+state 170
+
+   89 ForStmt: T_For '(' ExprS ';' . Expr ';' ExprS ')' Stmt
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 188
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 171
+
+   87 IfStmt: T_If '(' Expr ')' . Stmt ElseO
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_While           shift, and go to state 36
+    T_For             shift, and go to state 37
+    T_If              shift, and go to state 38
+    T_Return          shift, and go to state 39
+    T_Break           shift, and go to state 40
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_Print           shift, and go to state 43
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Switch          shift, and go to state 46
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+    '{'               shift, and go to state 27
+
+    $default  reduce using rule 48 (ExprS)
+
+    StmtBlock   go to state 60
+    ExprS       go to state 61
+    Stmt        go to state 189
+    Expr        go to state 63
+    IfStmt      go to state 64
+    WhileStmt   go to state 65
+    ForStmt     go to state 66
+    ReturnStmt  go to state 67
+    BreakStmt   go to state 68
+    PrintStmt   go to state 69
+    LValue      go to state 70
+    Call        go to state 71
+    Constant    go to state 72
+    SwitchStmt  go to state 73
+
+
+state 172
+
+   81 Expr: T_New '(' T_Identifier ')' .
+
+    $default  reduce using rule 81 (Expr)
+
+
+state 173
+
+   82 Expr: T_NewArray '(' Expr ',' . Type ')'
+
+    T_Bool        shift, and go to state 2
+    T_Int         shift, and go to state 3
+    T_Double      shift, and go to state 4
+    T_String      shift, and go to state 5
+    T_Identifier  shift, and go to state 8
+
+    Type  go to state 190
+
+
+state 174
+
+   94 PrintStmt: T_Print '(' ExprPC ')' . ';'
+
+    ';'  shift, and go to state 191
+
+
+state 175
+
+   92 ExprPC: ExprPC ',' . Expr
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    Expr      go to state 192
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 176
+
+  107 SwitchStmt: T_Switch '(' Expr ')' . '{' CaseP DefaultO '}'
+
+    '{'  shift, and go to state 193
+
+
+state 177
+
+   98 Call: T_Identifier '(' Actuals ')' .
+
+    $default  reduce using rule 98 (Call)
+
+
+state 178
+
+   99 Call: Expr '.' T_Identifier '(' . Actuals ')'
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    $default  reduce using rule 101 (Actuals)
+
+    Expr      go to state 139
+    ExprPC    go to state 144
+    LValue    go to state 70
+    Call      go to state 71
+    Actuals   go to state 194
+    Constant  go to state 72
+
+
+state 179
+
+   97 LValue: Expr '[' Expr ']' .
+
+    $default  reduce using rule 97 (LValue)
+
+
+state 180
+
+   28 InterfaceList: InterfaceList ',' T_Identifier .
+
+    $default  reduce using rule 28 (InterfaceList)
+
+
+state 181
+
+   23 ClassDecl: T_Class T_Identifier ClassParent ClassInterface '{' FieldList '}' .
+
+    $default  reduce using rule 23 (ClassDecl)
+
+
+state 182
+
+   30 Field: VarDecl .
+
+    $default  reduce using rule 30 (Field)
+
+
+state 183
+
+   31 Field: FnDecl .
+
+    $default  reduce using rule 31 (Field)
+
+
+state 184
+
+   32 FieldList: FieldList Field .
+
+    $default  reduce using rule 32 (FieldList)
+
+
+state 185
+
+   38 Prototype: T_Void T_Identifier '(' . Formals ')' ';'
+
+    T_Bool        shift, and go to state 2
+    T_Int         shift, and go to state 3
+    T_Double      shift, and go to state 4
+    T_String      shift, and go to state 5
+    T_Identifier  shift, and go to state 8
+
+    $default  reduce using rule 20 (Formals)
+
+    Variable    go to state 74
+    Type        go to state 57
+    Formals     go to state 195
+    FormalList  go to state 76
+
+
+state 186
+
+   37 Prototype: Type T_Identifier '(' . Formals ')' ';'
+
+    T_Bool        shift, and go to state 2
+    T_Int         shift, and go to state 3
+    T_Double      shift, and go to state 4
+    T_String      shift, and go to state 5
+    T_Identifier  shift, and go to state 8
+
+    $default  reduce using rule 20 (Formals)
+
+    Variable    go to state 74
+    Type        go to state 57
+    Formals     go to state 196
+    FormalList  go to state 76
+
+
+state 187
+
+   88 WhileStmt: T_While '(' Expr ')' Stmt .
+
+    $default  reduce using rule 88 (WhileStmt)
+
+
+state 188
+
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   89 ForStmt: T_For '(' ExprS ';' Expr . ';' ExprS ')' Stmt
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    T_LessEqual     shift, and go to state 105
+    T_GreaterEqual  shift, and go to state 106
+    T_Equal         shift, and go to state 107
+    T_NotEqual      shift, and go to state 108
+    T_And           shift, and go to state 109
+    T_Or            shift, and go to state 110
+    '<'             shift, and go to state 111
+    '>'             shift, and go to state 112
+    '-'             shift, and go to state 113
+    '+'             shift, and go to state 114
+    '/'             shift, and go to state 115
+    '%'             shift, and go to state 116
+    '*'             shift, and go to state 117
+    '.'             shift, and go to state 118
+    '['             shift, and go to state 119
+    ';'             shift, and go to state 197
+
+
+state 189
+
+   87 IfStmt: T_If '(' Expr ')' Stmt . ElseO
+
+    T_Else  shift, and go to state 198
+
+    $default  reduce using rule 86 (ElseO)
+
+    ElseO  go to state 199
+
+
+state 190
+
+   15 Type: Type . T_Dims
+   82 Expr: T_NewArray '(' Expr ',' Type . ')'
+
+    T_Dims  shift, and go to state 25
+    ')'     shift, and go to state 200
+
+
+state 191
+
+   94 PrintStmt: T_Print '(' ExprPC ')' ';' .
+
+    $default  reduce using rule 94 (PrintStmt)
+
+
+state 192
+
+   64 Expr: Expr . '+' Expr
+   65     | Expr . '-' Expr
+   66     | Expr . '*' Expr
+   67     | Expr . '/' Expr
+   68     | Expr . '%' Expr
+   70     | Expr . '<' Expr
+   71     | Expr . T_LessEqual Expr
+   72     | Expr . '>' Expr
+   73     | Expr . T_GreaterEqual Expr
+   74     | Expr . T_Equal Expr
+   75     | Expr . T_NotEqual Expr
+   76     | Expr . T_And Expr
+   77     | Expr . T_Or Expr
+   92 ExprPC: ExprPC ',' Expr .
+   96 LValue: Expr . '.' T_Identifier
+   97       | Expr . '[' Expr ']'
+   99 Call: Expr . '.' T_Identifier '(' Actuals ')'
+
+    T_LessEqual     shift, and go to state 105
+    T_GreaterEqual  shift, and go to state 106
+    T_Equal         shift, and go to state 107
+    T_NotEqual      shift, and go to state 108
+    T_And           shift, and go to state 109
+    T_Or            shift, and go to state 110
+    '<'             shift, and go to state 111
+    '>'             shift, and go to state 112
+    '-'             shift, and go to state 113
+    '+'             shift, and go to state 114
+    '/'             shift, and go to state 115
+    '%'             shift, and go to state 116
+    '*'             shift, and go to state 117
+    '.'             shift, and go to state 118
+    '['             shift, and go to state 119
+
+    $default  reduce using rule 92 (ExprPC)
+
+
+state 193
+
+  107 SwitchStmt: T_Switch '(' Expr ')' '{' . CaseP DefaultO '}'
+
+    T_Case  shift, and go to state 201
+
+    Case   go to state 202
+    CaseP  go to state 203
+
+
+state 194
+
+   99 Call: Expr '.' T_Identifier '(' Actuals . ')'
+
+    ')'  shift, and go to state 204
+
+
+state 195
+
+   38 Prototype: T_Void T_Identifier '(' Formals . ')' ';'
+
+    ')'  shift, and go to state 205
+
+
+state 196
+
+   37 Prototype: Type T_Identifier '(' Formals . ')' ';'
+
+    ')'  shift, and go to state 206
+
+
+state 197
+
+   89 ForStmt: T_For '(' ExprS ';' Expr ';' . ExprS ')' Stmt
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+
+    $default  reduce using rule 48 (ExprS)
+
+    ExprS     go to state 207
+    Expr      go to state 63
+    LValue    go to state 70
+    Call      go to state 71
+    Constant  go to state 72
+
+
+state 198
+
+   85 ElseO: T_Else . Stmt
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_While           shift, and go to state 36
+    T_For             shift, and go to state 37
+    T_If              shift, and go to state 38
+    T_Return          shift, and go to state 39
+    T_Break           shift, and go to state 40
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_Print           shift, and go to state 43
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Switch          shift, and go to state 46
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+    '{'               shift, and go to state 27
+
+    $default  reduce using rule 48 (ExprS)
+
+    StmtBlock   go to state 60
+    ExprS       go to state 61
+    Stmt        go to state 208
+    Expr        go to state 63
+    IfStmt      go to state 64
+    WhileStmt   go to state 65
+    ForStmt     go to state 66
+    ReturnStmt  go to state 67
+    BreakStmt   go to state 68
+    PrintStmt   go to state 69
+    LValue      go to state 70
+    Call        go to state 71
+    Constant    go to state 72
+    SwitchStmt  go to state 73
+
+
+state 199
+
+   87 IfStmt: T_If '(' Expr ')' Stmt ElseO .
+
+    $default  reduce using rule 87 (IfStmt)
+
+
+state 200
+
+   82 Expr: T_NewArray '(' Expr ',' Type ')' .
+
+    $default  reduce using rule 82 (Expr)
+
+
+state 201
+
+  108 Case: T_Case . T_IntConstant ':' StmtList
+  109     | T_Case . T_IntConstant ':'
+
+    T_IntConstant  shift, and go to state 209
+
+
+state 202
+
+  111 CaseP: Case .
+
+    $default  reduce using rule 111 (CaseP)
+
+
+state 203
+
+  107 SwitchStmt: T_Switch '(' Expr ')' '{' CaseP . DefaultO '}'
+  110 CaseP: CaseP . Case
+
+    T_Case     shift, and go to state 201
+    T_Default  shift, and go to state 210
+
+    $default  reduce using rule 114 (DefaultO)
+
+    Case      go to state 211
+    Default   go to state 212
+    DefaultO  go to state 213
+
+
+state 204
+
+   99 Call: Expr '.' T_Identifier '(' Actuals ')' .
+
+    $default  reduce using rule 99 (Call)
+
+
+state 205
+
+   38 Prototype: T_Void T_Identifier '(' Formals ')' . ';'
+
+    ';'  shift, and go to state 214
+
+
+state 206
+
+   37 Prototype: Type T_Identifier '(' Formals ')' . ';'
+
+    ';'  shift, and go to state 215
+
+
+state 207
+
+   89 ForStmt: T_For '(' ExprS ';' Expr ';' ExprS . ')' Stmt
+
+    ')'  shift, and go to state 216
+
+
+state 208
+
+   85 ElseO: T_Else Stmt .
+
+    $default  reduce using rule 85 (ElseO)
+
+
+state 209
+
+  108 Case: T_Case T_IntConstant . ':' StmtList
+  109     | T_Case T_IntConstant . ':'
+
+    ':'  shift, and go to state 217
+
+
+state 210
+
+  112 Default: T_Default . ':' StmtList
+
+    ':'  shift, and go to state 218
+
+
+state 211
+
+  110 CaseP: CaseP Case .
+
+    $default  reduce using rule 110 (CaseP)
+
+
+state 212
+
+  113 DefaultO: Default .
+
+    $default  reduce using rule 113 (DefaultO)
+
+
+state 213
+
+  107 SwitchStmt: T_Switch '(' Expr ')' '{' CaseP DefaultO . '}'
+
+    '}'  shift, and go to state 219
+
+
+state 214
+
+   38 Prototype: T_Void T_Identifier '(' Formals ')' ';' .
+
+    $default  reduce using rule 38 (Prototype)
+
+
+state 215
+
+   37 Prototype: Type T_Identifier '(' Formals ')' ';' .
+
+    $default  reduce using rule 37 (Prototype)
+
+
+state 216
+
+   89 ForStmt: T_For '(' ExprS ';' Expr ';' ExprS ')' . Stmt
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_While           shift, and go to state 36
+    T_For             shift, and go to state 37
+    T_If              shift, and go to state 38
+    T_Return          shift, and go to state 39
+    T_Break           shift, and go to state 40
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_Print           shift, and go to state 43
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Switch          shift, and go to state 46
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+    '{'               shift, and go to state 27
+
+    $default  reduce using rule 48 (ExprS)
+
+    StmtBlock   go to state 60
+    ExprS       go to state 61
+    Stmt        go to state 220
+    Expr        go to state 63
+    IfStmt      go to state 64
+    WhileStmt   go to state 65
+    ForStmt     go to state 66
+    ReturnStmt  go to state 67
+    BreakStmt   go to state 68
+    PrintStmt   go to state 69
+    LValue      go to state 70
+    Call        go to state 71
+    Constant    go to state 72
+    SwitchStmt  go to state 73
+
+
+state 217
+
+  108 Case: T_Case T_IntConstant ':' . StmtList
+  109     | T_Case T_IntConstant ':' .
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_While           shift, and go to state 36
+    T_For             shift, and go to state 37
+    T_If              shift, and go to state 38
+    T_Return          shift, and go to state 39
+    T_Break           shift, and go to state 40
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_Print           shift, and go to state 43
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Switch          shift, and go to state 46
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+    '{'               shift, and go to state 27
+
+    ';'       reduce using rule 48 (ExprS)
+    $default  reduce using rule 109 (Case)
+
+    StmtList    go to state 221
+    StmtBlock   go to state 60
+    ExprS       go to state 61
+    Stmt        go to state 62
+    Expr        go to state 63
+    IfStmt      go to state 64
+    WhileStmt   go to state 65
+    ForStmt     go to state 66
+    ReturnStmt  go to state 67
+    BreakStmt   go to state 68
+    PrintStmt   go to state 69
+    LValue      go to state 70
+    Call        go to state 71
+    Constant    go to state 72
+    SwitchStmt  go to state 73
+
+
+state 218
+
+  112 Default: T_Default ':' . StmtList
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_While           shift, and go to state 36
+    T_For             shift, and go to state 37
+    T_If              shift, and go to state 38
+    T_Return          shift, and go to state 39
+    T_Break           shift, and go to state 40
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_Print           shift, and go to state 43
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Switch          shift, and go to state 46
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+    '{'               shift, and go to state 27
+
+    $default  reduce using rule 48 (ExprS)
+
+    StmtList    go to state 222
+    StmtBlock   go to state 60
+    ExprS       go to state 61
+    Stmt        go to state 62
+    Expr        go to state 63
+    IfStmt      go to state 64
+    WhileStmt   go to state 65
+    ForStmt     go to state 66
+    ReturnStmt  go to state 67
+    BreakStmt   go to state 68
+    PrintStmt   go to state 69
+    LValue      go to state 70
+    Call        go to state 71
+    Constant    go to state 72
+    SwitchStmt  go to state 73
+
+
+state 219
+
+  107 SwitchStmt: T_Switch '(' Expr ')' '{' CaseP DefaultO '}' .
+
+    $default  reduce using rule 107 (SwitchStmt)
+
+
+state 220
+
+   89 ForStmt: T_For '(' ExprS ';' Expr ';' ExprS ')' Stmt .
+
+    $default  reduce using rule 89 (ForStmt)
+
+
+state 221
+
+   41 StmtList: StmtList . Stmt
+  108 Case: T_Case T_IntConstant ':' StmtList .
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_While           shift, and go to state 36
+    T_For             shift, and go to state 37
+    T_If              shift, and go to state 38
+    T_Return          shift, and go to state 39
+    T_Break           shift, and go to state 40
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_Print           shift, and go to state 43
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Switch          shift, and go to state 46
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+    '{'               shift, and go to state 27
+
+    ';'       reduce using rule 48 (ExprS)
+    $default  reduce using rule 108 (Case)
+
+    StmtBlock   go to state 60
+    ExprS       go to state 61
+    Stmt        go to state 103
+    Expr        go to state 63
+    IfStmt      go to state 64
+    WhileStmt   go to state 65
+    ForStmt     go to state 66
+    ReturnStmt  go to state 67
+    BreakStmt   go to state 68
+    PrintStmt   go to state 69
+    LValue      go to state 70
+    Call        go to state 71
+    Constant    go to state 72
+    SwitchStmt  go to state 73
+
+
+state 222
+
+   41 StmtList: StmtList . Stmt
+  112 Default: T_Default ':' StmtList .
+
+    T_Null            shift, and go to state 34
+    T_This            shift, and go to state 35
+    T_While           shift, and go to state 36
+    T_For             shift, and go to state 37
+    T_If              shift, and go to state 38
+    T_Return          shift, and go to state 39
+    T_Break           shift, and go to state 40
+    T_New             shift, and go to state 41
+    T_NewArray        shift, and go to state 42
+    T_Print           shift, and go to state 43
+    T_ReadInteger     shift, and go to state 44
+    T_ReadLine        shift, and go to state 45
+    T_Switch          shift, and go to state 46
+    T_Identifier      shift, and go to state 85
+    T_StringConstant  shift, and go to state 48
+    T_IntConstant     shift, and go to state 49
+    T_DoubleConstant  shift, and go to state 50
+    T_BoolConstant    shift, and go to state 51
+    '-'               shift, and go to state 52
+    '!'               shift, and go to state 53
+    '('               shift, and go to state 54
+    '{'               shift, and go to state 27
+
+    '}'       reduce using rule 112 (Default)
+    $default  reduce using rule 48 (ExprS)
+
+    StmtBlock   go to state 60
+    ExprS       go to state 61
+    Stmt        go to state 103
+    Expr        go to state 63
+    IfStmt      go to state 64
+    WhileStmt   go to state 65
+    ForStmt     go to state 66
+    ReturnStmt  go to state 67
+    BreakStmt   go to state 68
+    PrintStmt   go to state 69
+    LValue      go to state 70
+    Call        go to state 71
+    Constant    go to state 72
+    SwitchStmt  go to state 73

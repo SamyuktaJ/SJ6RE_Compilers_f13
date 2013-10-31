@@ -11,6 +11,9 @@
 
 #include "ast.h"
 #include "list.h"
+#include "ast_stmt.h"
+#include "ast_type.h"
+
 
 class Type;
 class NamedType;
@@ -22,11 +25,11 @@ class Decl : public Node
   protected:
     Identifier *id;
 //new
- Scope *scope;
+ Scope *scope;//needs ast_type
   
   public:
     Decl(Identifier *name);
-friend ostream& operator<<(ostream& out, Decl *d) { return out << d->id; }
+friend std::ostream& operator<<(std::ostream& out, Decl *d) { return out << d->id; }
 
     virtual bool IsEquivalentTo(Decl *other);
 

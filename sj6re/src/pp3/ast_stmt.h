@@ -55,7 +55,7 @@ class Scope
     FnDecl* GetFnDecl() { return fnDecl; }
 
     int AddDecl(Decl *decl);
-    friend ostream& operator<<(ostream& out, Scope *s);
+    friend std::ostream& operator<<(std::ostream& out, Scope *s);//using std::ostream instead of ostream else unrecognized
 };
 
 
@@ -78,8 +78,8 @@ void Check();
 class Stmt : public Node
 {
   public:
-     Stmt() : Node() {}, scope(new Scope) {}
-     Stmt(yyltype loc) : Node(loc) {}, scope(new Scope) {}
+     Stmt() : Node(), scope(new Scope) {}
+     Stmt(yyltype loc) : Node(loc), scope(new Scope) {}
      virtual void BuildScope(Scope *parent);
      virtual void Check() = 0;
  protected:
@@ -203,6 +203,7 @@ class SwitchLabel : public Stmt
     SwitchLabel(IntConstant *label, List<Stmt*> *stmts);
     SwitchLabel(List<Stmt*> *stmts);
 //    void PrintChildren(int indentLevel);
+void Check();//err
 };
 
 class Case : public SwitchLabel
@@ -234,7 +235,7 @@ class SwitchStmt : public Stmt
 //    virtual const char *GetPrintNameForNode() { return "SwitchStmt"; }
 //    void PrintChildren(int indentLevel);
 void BuildScope(Scope *parent);
-    void Check();
+    void Check();//hmm?
 };
 
 #endif
