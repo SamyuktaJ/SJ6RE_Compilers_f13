@@ -139,8 +139,8 @@ class CompoundExpr : public Expr
     CompoundExpr(Expr *lhs, Operator *op);             // NEW for unary
 
 //    void PrintChildren(int indentLevel);
-   virtual void BuildScope(Scope *parent);
-    virtual void Check();
+   virtual void BuildScope(Scope *parent);//VIRTUAL
+   virtual void Check();//VIRTUAL
 
 };
 
@@ -201,7 +201,7 @@ class PostfixExpr : public CompoundExpr/**/
     PostfixExpr(Expr *lhs, Operator *op) : CompoundExpr(lhs,op) {}
     const char *GetPrintNameForNode() { return "PostfixExpr"; }
  Type* GetType();
-    void Check();
+ void Check();
 ////////////////////////////
 };
 /**/ 

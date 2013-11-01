@@ -80,8 +80,8 @@ class Stmt : public Node
   public:
      Stmt() : Node(), scope(new Scope) {}
      Stmt(yyltype loc) : Node(loc), scope(new Scope) {}
-     virtual void BuildScope(Scope *parent);
-     virtual void Check() = 0;
+     virtual void BuildScope(Scope *parent);//VIRTUAL
+     virtual void Check() = 0;//VIRTUAL
  protected:
     Scope *scope;
 

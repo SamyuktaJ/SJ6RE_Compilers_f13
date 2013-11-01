@@ -6,7 +6,9 @@
 #include "ast_type.h"
 #include "ast_decl.h"
 #include <string.h>
-
+//
+#include <stdio.h>
+#include <iostream>
 //NEW
 
 ClassDecl* Expr::GetClassDecl(Scope *s) {
@@ -150,14 +152,30 @@ void CompoundExpr::BuildScope(Scope *parent) {
 
     if (left != NULL)
         left->BuildScope(scope);
-
+    if (right!=NULL)//new
     right->BuildScope(scope);
+/*
+if(left==NULL)
+{
+if(right==NULL){}
+else
+right->BuildScope(scope);
+}
+else
+{
+if(right==NULL)
+{left->BuildScope(scope);}
+else
+{left->BuildScope(scope);
+right->BuildScope(scope);
+}}
+*/
 }
 
 void CompoundExpr::Check() {
     if (left != NULL)
         left->Check();
-
+    if (right != NULL)//new
     right->Check();
 }
 
@@ -344,7 +362,27 @@ void AssignExpr::Check() {
     if (!rtype->IsEquivalentTo(ltype) && !ltype->IsEqualTo(Type::errorType))
         ReportError::IncompatibleOperands(op, ltype, rtype);
 }
+//--------------------
+Type* PostfixExpr::GetType() {
+    Type *ltype = left->GetType();
+   
+//    if (!(ltype->IsEqualTo(Type::intType)||ltype->IsEqualTo(Type::doubleType)))
+//        return Type::errorType;
 
+    return ltype;
+}
+void PostfixExpr::Check() {
+/*    left->Check();
+
+    Type *ltype = left->GetType();
+
+    if (!(ltype->IsEqualTo(Type::intType)||ltype->IsEqualTo(Type::doubleType)))
+       std::cout<<"Only works on Int or double";
+//ReportError::TestNotInteger(ltype);//It should be int or double!!
+*/
+}
+
+//--------------------
 Type* This::GetType() {
     ClassDecl *d = GetClassDecl(scope);
     if (d == NULL)
