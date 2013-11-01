@@ -173,7 +173,11 @@ void ReportError::PrintArgMismatch(Expr *arg, int argIndex, Type *given) {
 void ReportError::TestNotBoolean(Expr *expr) {
     OutputError(expr->GetLocation(), "Test expression must have boolean type");
 }
-
+//NEW
+void ReportError::TestNotInteger(Expr *expr) {
+    OutputError(expr->GetLocation(), "Test expression must have integer type");
+}
+//END NEW
 void ReportError::BreakOutsideLoop(BreakStmt *bStmt) {
     OutputError(bStmt->GetLocation(), "break is only allowed inside a loop");
 }

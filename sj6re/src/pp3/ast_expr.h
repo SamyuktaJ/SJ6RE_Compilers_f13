@@ -231,8 +231,8 @@ class ArrayAccess : public LValue
 //    const char *GetPrintNameForNode() { return "ArrayAccess"; }
 //    void PrintChildren(int indentLevel);
  Type* GetType();
-    void Check();
-void BuildScope(Scope *parent);
+ void BuildScope(Scope *parent);
+   void Check();
 };
 
 /* Note that field access is used both for qualified names
@@ -273,6 +273,8 @@ class Call : public Expr
 Type* GetType();
     void BuildScope(Scope *parent);
     void Check();
+private:
+    void CheckActuals(Decl *d);
 };
 
 class NewExpr : public Expr

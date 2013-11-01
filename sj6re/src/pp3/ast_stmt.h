@@ -203,7 +203,8 @@ class SwitchLabel : public Stmt
     SwitchLabel(IntConstant *label, List<Stmt*> *stmts);
     SwitchLabel(List<Stmt*> *stmts);
 //    void PrintChildren(int indentLevel);
-void Check();//err
+void BuildScope(Scope *parent);
+void Check();
 };
 
 class Case : public SwitchLabel

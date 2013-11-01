@@ -20,7 +20,7 @@ int Scope::AddDecl(Decl *d) {
     return 0;
 }
 
-ostream& operator<<(ostream& out, Scope *s) {
+std::ostream& operator<<(std::ostream& out, Scope *s) {
     out << "========== Scope ==========" << std::endl;
     Iterator<Decl*> iter = s->table->GetIterator();
     Decl *d;
@@ -270,6 +270,24 @@ SwitchLabel::SwitchLabel(List<Stmt*> *s) {
     label = NULL;
     (stmts=s)->SetParentAll(this);
 }
+//---------
+void SwitchLabel::BuildScope(Scope *parent) {
+    scope->SetParent(parent);
+
+    label->BuildScope(scope);
+    for (int i = 0, n = stmts->NumElements(); i < n; ++i)
+        stmts->Nth(i)->BuildScope(scope);
+}
+
+void SwitchLabel::Check() {
+    label->Check();
+    for (int i = 0, n = stmts->NumElements(); i < n; ++i)
+        stmts->Nth(i)->Check();
+    if (!label->GetType()->IsEquivalentTo(Type::intType))
+        ReportError::TestNotInteger(label);
+
+}
+
 
 /*void SwitchLabel::PrintChildren(int indentLevel) {
     if (label) label->Print(indentLevel+1);
@@ -288,26 +306,23 @@ SwitchStmt::SwitchStmt(Expr *e, List<Case*> *c, Default *d) {
 void SwitchStmt::BuildScope(Scope *parent) {
     scope->SetParent(parent);
 
-    test->BuildScope(scope);
-    body->BuildScope(scope); 
-//for (int i = 0, n = cases->NumElements(); i < n; ++i)
-//        cases->Nth(i)->BuildScope(scope);
-
-//also build and check for expr, cases and d?
+    expr->BuildScope(scope);
+    for (int i = 0, n = cases->NumElements(); i < n; ++i)
+        cases->Nth(i)->BuildScope(scope);
+    def->BuildScope(scope);
 }
-//Odd errors
-/*void SwitchStmt::Check() {
-    test->Check();
-    body->Check();
 
-    if (!test->GetType()->IsEquivalentTo(Type::intType))
-        ReportError::TestNotInteger(test);
+void SwitchStmt::Check() {
+    expr->Check();
+   // cases->Check();
+    def->Check();
 
+    if (!expr->GetType()->IsEquivalentTo(Type::intType))
+        ReportError::TestNotInteger(expr);
+//the expr must be int DONE, case labels also-TO DO
     for (int i = 0, n = cases->NumElements(); i < n; ++i)
         cases->Nth(i)->Check();
-
-
-}*/
+}
 
 
 /*void SwitchStmt::PrintChildren(int indentLevel) {
