@@ -63,9 +63,9 @@ void yyerror(const char *msg); // standard error-handling routine
 	PrintStmt *printStmt;
 	LValue *lvalue;
 
-//	Case *caseStmt;
-//	Default *defaultStmt;
-//	SwitchStmt *switchStmt;
+	Case *caseStmt;
+	Default *defaultStmt;
+	SwitchStmt *switchStmt;
 
 
     List<Stmt*> *stmtList;
@@ -74,7 +74,7 @@ void yyerror(const char *msg); // standard error-handling routine
 	List<Identifier*> *identifierList;
 	List<NamedType*> *namedTypeList;
 	List<Expr*> *exprList;
-//	List<Case*> *caseList;
+	List<Case*> *caseList;
 
 
 }
@@ -92,7 +92,7 @@ void yyerror(const char *msg); // standard error-handling routine
 %token   T_While T_For T_If T_Else T_Return T_Break
 %token   T_New T_NewArray T_Print T_ReadInteger T_ReadLine
 
-//%token	 T_Increment T_Decrement T_Switch T_Case T_Default/*NEW*/
+%token	 T_Increment T_Decrement T_Switch T_Case T_Default/*NEW*/
 
 %token   <identifier> T_Identifier
 %token   <stringConstant> T_StringConstant 
@@ -136,6 +136,10 @@ void yyerror(const char *msg); // standard error-handling routine
 	%type <printStmt> PrintStmt
 	%type <lvalue>    LValue
 
+	%type <caseStmt>  Case
+	%type <caseList>  CaseP
+	%type <defaultStmt> Default DefaultO
+	%type <switchStmt> SwitchStmt
 
 
 /* Associate 'else' with the nearest  'if' porition. */
@@ -161,8 +165,8 @@ void yyerror(const char *msg); // standard error-handling routine
 %left  '['
 %left  ']'
 %left  T_Dims
-//%left  T_Increment
-//%left  T_Decrement
+%left  T_Increment
+%left  T_Decrement
 
 
 /* ================================================================*/
@@ -264,7 +268,8 @@ Stmt	  :	ExprS ';'	{ $$=$1;}
 	  |	BreakStmt	{ $$=$1;}
 	  |	ReturnStmt	{ $$=$1;}
 	  |	PrintStmt	{ $$=$1;}
-	  |	StmtBlock	{ $$=$1;};
+	  |	StmtBlock	{ $$=$1;}
+	  |	SwitchStmt	{ $$=$1;};
 
 Expr      :    LValue '=' Expr      { $$ = new AssignExpr($1, new Operator(@2, "="), $3);}
 	  |    Constant             { $$ = $1; }
@@ -290,7 +295,9 @@ Expr      :    LValue '=' Expr      { $$ = new AssignExpr($1, new Operator(@2, "
           |    T_ReadInteger '(' ')'   { $$ = new ReadIntegerExpr(@1); }
           |    T_ReadLine '(' ')'      { $$ = new ReadLineExpr(@1); }
           |    T_New'(' T_Identifier')'   { $$ = new NewExpr(@1, new NamedType(new Identifier(@3, $3)));}
-          |    T_NewArray '(' Expr ',' Type ')' { $$ = new NewArrayExpr(@1, $3, $5);};
+          |    T_NewArray '(' Expr ',' Type ')' { $$ = new NewArrayExpr(@1, $3, $5);}
+	  |    LValue T_Increment   { $$ = new PostfixExpr($1,new Operator(@2, "++")); }
+          |    LValue T_Decrement   { $$ = new PostfixExpr($1, new Operator(@2, "--"));};
 
 /* ================================================================*/
 
@@ -331,7 +338,21 @@ Constant  :    T_IntConstant        { $$ = new IntConstant(@1, $1); }
 
 
 /* ================================================================*/
-//Removed increment decrement and switch case
+
+SwitchStmt :   T_Switch '(' Expr ')' '{' CaseP DefaultO '}' { $$ = new SwitchStmt($3, $6, $7); };
+Case      :    T_Case T_IntConstant ':' StmtList { $$ = new Case(new IntConstant(@2, $2), $4);}
+	  |	T_Case T_IntConstant ':'  { $$ = new Case(new IntConstant(@2, $2), new List<Stmt*>);};
+
+
+CaseP     :    CaseP Case           { ($$ = $1)->Append($2); }
+          |    Case                 { ($$ = new List<Case*>)->Append($1); };
+
+Default   :    T_Default ':' StmtList { $$ = new Default($3); };
+
+DefaultO  :    Default              { $$ = $1; }
+          |                         { $$ = NULL; };
+
+
 /* ================================================================*/
 
 /* ================================================================*/

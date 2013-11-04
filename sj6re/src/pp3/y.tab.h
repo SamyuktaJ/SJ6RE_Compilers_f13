@@ -66,17 +66,12 @@
      T_Print = 284,
      T_ReadInteger = 285,
      T_ReadLine = 286,
-     T_Increment = 287,
-     T_Decrement = 288,
-     T_Switch = 289,
-     T_Case = 290,
-     T_Default = 291,
-     T_Identifier = 292,
-     T_StringConstant = 293,
-     T_IntConstant = 294,
-     T_DoubleConstant = 295,
-     T_BoolConstant = 296,
-     NoElse = 297
+     T_Identifier = 287,
+     T_StringConstant = 288,
+     T_IntConstant = 289,
+     T_DoubleConstant = 290,
+     T_BoolConstant = 291,
+     NoElse = 292
    };
 #endif
 /* Tokens.  */
@@ -109,17 +104,12 @@
 #define T_Print 284
 #define T_ReadInteger 285
 #define T_ReadLine 286
-#define T_Increment 287
-#define T_Decrement 288
-#define T_Switch 289
-#define T_Case 290
-#define T_Default 291
-#define T_Identifier 292
-#define T_StringConstant 293
-#define T_IntConstant 294
-#define T_DoubleConstant 295
-#define T_BoolConstant 296
-#define NoElse 297
+#define T_Identifier 287
+#define T_StringConstant 288
+#define T_IntConstant 289
+#define T_DoubleConstant 290
+#define T_BoolConstant 291
+#define NoElse 292
 
 
 
@@ -155,9 +145,9 @@ typedef union YYSTYPE
 	PrintStmt *printStmt;
 	LValue *lvalue;
 
-	Case *caseStmt;
-	Default *defaultStmt;
-	SwitchStmt *switchStmt;
+//	Case *caseStmt;
+//	Default *defaultStmt;
+//	SwitchStmt *switchStmt;
 
 
     List<Stmt*> *stmtList;
@@ -166,14 +156,14 @@ typedef union YYSTYPE
 	List<Identifier*> *identifierList;
 	List<NamedType*> *namedTypeList;
 	List<Expr*> *exprList;
-	List<Case*> *caseList;
+//	List<Case*> *caseList;
 
 
 
 
 
 /* Line 2068 of yacc.c  */
-#line 177 "y.tab.h"
+#line 167 "y.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

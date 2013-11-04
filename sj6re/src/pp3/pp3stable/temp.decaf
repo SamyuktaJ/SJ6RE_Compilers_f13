@@ -1,0 +1,7 @@
+class Turnip {
+  void Rutabaga(int a) {}
+}
+
+void main() {
+  Turnip t;
+}

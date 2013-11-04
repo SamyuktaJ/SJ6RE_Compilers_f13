@@ -14,21 +14,22 @@
 #include "ast_stmt.h"
 #include "ast_type.h"
 
+
 class Type;
+class NamedType;
 class Identifier;
 class Stmt;
-class InterfaceDecl;
 
-class Decl : public Node
+class Decl : public Node 
 {
   protected:
     Identifier *id;
-
-    Scope *scope;
-
+//new
+ Scope *scope;//needs ast_type
+  
   public:
     Decl(Identifier *name);
-    friend ostream& operator<<(ostream& out, Decl *d) { return out << d->id; }
+friend std::ostream& operator<<(std::ostream& out, Decl *d) { return out << d->id; }
 
     virtual bool IsEquivalentTo(Decl *other);
 
@@ -37,26 +38,30 @@ class Decl : public Node
 
     virtual void BuildScope(Scope *parent);
     virtual void Check() = 0;
+
 };
 
-class VarDecl : public Decl
+class VarDecl : public Decl 
 {
   protected:
     Type *type;
-
+    
   public:
     VarDecl(Identifier *name, Type *type);
+//    const char *GetPrintNameForNode() { return "VarDecl"; }
+//    void PrintChildren(int indentLevel);
 
-    bool IsEquivalentTo(Decl *other);
+bool IsEquivalentTo(Decl *other);
 
     Type* GetType() { return type; }
     void Check();
 
   private:
     void CheckType();
+
 };
 
-class ClassDecl : public Decl
+class ClassDecl : public Decl 
 {
   protected:
     List<Decl*> *members;
@@ -64,10 +69,11 @@ class ClassDecl : public Decl
     List<NamedType*> *implements;
 
   public:
-    ClassDecl(Identifier *name, NamedType *extends,
+    ClassDecl(Identifier *name, NamedType *extends, 
               List<NamedType*> *implements, List<Decl*> *members);
-
-    void BuildScope(Scope *parent);
+//    const char *GetPrintNameForNode() { return "ClassDecl"; }
+//    void PrintChildren(int indentLevel);
+void BuildScope(Scope *parent);
     void Check();
 
     NamedType* GetType() { return new NamedType(id); }
@@ -82,41 +88,46 @@ class ClassDecl : public Decl
     void CheckImplementedMembers(NamedType *impType);
     void CheckAgainstScope(Scope *other);
     void CheckImplementsInterfaces();
+
 };
 
-class InterfaceDecl : public Decl
+class InterfaceDecl : public Decl 
 {
   protected:
     List<Decl*> *members;
-
+    
   public:
     InterfaceDecl(Identifier *name, List<Decl*> *members);
-
-    void BuildScope(Scope *parent);
+//    const char *GetPrintNameForNode() { return "InterfaceDecl"; }
+//    void PrintChildren(int indentLevel);
+void BuildScope(Scope *parent);
     void Check();
 
     Type* GetType() { return new NamedType(id); }
     List<Decl*>* GetMembers() { return members; }
+
 };
 
-class FnDecl : public Decl
+class FnDecl : public Decl 
 {
   protected:
     List<VarDecl*> *formals;
     Type *returnType;
     Stmt *body;
-
+    
   public:
     FnDecl(Identifier *name, Type *returnType, List<VarDecl*> *formals);
     void SetFunctionBody(Stmt *b);
-
-    bool IsEquivalentTo(Decl *other);
+//    const char *GetPrintNameForNode() { return "FnDecl"; }
+//    void PrintChildren(int indentLevel);
+bool IsEquivalentTo(Decl *other);
 
     Type* GetReturnType() { return returnType; }
     List<VarDecl*>* GetFormals() { return formals; }
 
     void BuildScope(Scope *parent);
     void Check();
+
 };
 
 #endif

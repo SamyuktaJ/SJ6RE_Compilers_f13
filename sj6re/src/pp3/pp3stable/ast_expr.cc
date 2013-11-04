@@ -2,11 +2,14 @@
  * -----------------
  * Implementation of expression node classes.
  */
-
-#include <string.h>
 #include "ast_expr.h"
 #include "ast_type.h"
 #include "ast_decl.h"
+#include <string.h>
+//
+#include <stdio.h>
+#include <iostream>
+//NEW
 
 ClassDecl* Expr::GetClassDecl(Scope *s) {
     while (s != NULL) {
@@ -61,39 +64,51 @@ Decl* Expr::GetFieldDecl(Identifier *f, Scope *s) {
 Type* EmptyExpr::GetType() {
     return Type::errorType;
 }
-
+//---------
 IntConstant::IntConstant(yyltype loc, int val) : Expr(loc) {
     value = val;
 }
-
 Type* IntConstant::GetType() {
     return Type::intType;
 }
 
+/*void IntConstant::PrintChildren(int indentLevel) { 
+    printf("%d", value);
+}
+*/
 DoubleConstant::DoubleConstant(yyltype loc, double val) : Expr(loc) {
     value = val;
 }
-
 Type* DoubleConstant::GetType() {
     return Type::doubleType;
 }
 
+/*void DoubleConstant::PrintChildren(int indentLevel) { 
+    printf("%g", value);
+}*/
+
 BoolConstant::BoolConstant(yyltype loc, bool val) : Expr(loc) {
     value = val;
 }
-
 Type* BoolConstant::GetType() {
     return Type::boolType;
 }
+
+/*void BoolConstant::PrintChildren(int indentLevel) { 
+    printf("%s", value ? "true" : "false");
+}*/
 
 StringConstant::StringConstant(yyltype loc, const char *val) : Expr(loc) {
     Assert(val != NULL);
     value = strdup(val);
 }
-
 Type* StringConstant::GetType() {
     return Type::stringType;
 }
+
+/*void StringConstant::PrintChildren(int indentLevel) { 
+    printf("%s",value);
+}*/
 
 Type* NullConstant::GetType() {
     return Type::nullType;
@@ -101,23 +116,36 @@ Type* NullConstant::GetType() {
 
 Operator::Operator(yyltype loc, const char *tok) : Node(loc) {
     Assert(tok != NULL);
+    //tokenString=strdup(tok);//STRDUP
     strncpy(tokenString, tok, sizeof(tokenString));
 }
 
-CompoundExpr::CompoundExpr(Expr *l, Operator *o, Expr *r)
+/*void Operator::PrintChildren(int indentLevel) {
+    printf("%s",tokenString);
+}*/
+
+CompoundExpr::CompoundExpr(Expr *l, Operator *o, Expr *r) 
   : Expr(Join(l->GetLocation(), r->GetLocation())) {
     Assert(l != NULL && o != NULL && r != NULL);
     (op=o)->SetParent(this);
-    (left=l)->SetParent(this);
+    (left=l)->SetParent(this); 
     (right=r)->SetParent(this);
 }
 
-CompoundExpr::CompoundExpr(Operator *o, Expr *r)
+CompoundExpr::CompoundExpr(Operator *o, Expr *r) 
   : Expr(Join(o->GetLocation(), r->GetLocation())) {
     Assert(o != NULL && r != NULL);
-    left = NULL;
+    left = NULL; 
     (op=o)->SetParent(this);
     (right=r)->SetParent(this);
+}
+//NEW!!
+CompoundExpr::CompoundExpr(Expr *l, Operator *o) 
+  : Expr(Join(l->GetLocation(), o->GetLocation())) {
+    Assert(l != NULL && o != NULL);
+    right = NULL;
+    (left=l)->SetParent(this);
+    (op=o)->SetParent(this);
 }
 
 void CompoundExpr::BuildScope(Scope *parent) {
@@ -125,16 +153,42 @@ void CompoundExpr::BuildScope(Scope *parent) {
 
     if (left != NULL)
         left->BuildScope(scope);
-
+    if (right!=NULL)//new
     right->BuildScope(scope);
+/*
+if(left==NULL)
+{
+if(right==NULL){}
+else
+right->BuildScope(scope);
+}
+else
+{
+if(right==NULL)
+{left->BuildScope(scope);}
+else
+{left->BuildScope(scope);
+right->BuildScope(scope);
+}}
+*/
 }
 
 void CompoundExpr::Check() {
     if (left != NULL)
         left->Check();
-
+    if (right != NULL)//new
     right->Check();
 }
+
+
+
+/*void CompoundExpr::PrintChildren(int indentLevel) {
+   if (left) left->Print(indentLevel+1);
+   op->Print(indentLevel+1);
+   if(right) right->Print(indentLevel+1);
+}*/
+   
+//---------------------
 
 Type* ArithmeticExpr::GetType() {
     Type *rtype = right->GetType();
@@ -309,7 +363,27 @@ void AssignExpr::Check() {
     if (!rtype->IsEquivalentTo(ltype) && !ltype->IsEqualTo(Type::errorType))
         ReportError::IncompatibleOperands(op, ltype, rtype);
 }
+//--------------------
+Type* PostfixExpr::GetType() {
+    Type *ltype = left->GetType();
+   
+//    if (!(ltype->IsEqualTo(Type::intType)||ltype->IsEqualTo(Type::doubleType)))
+//        return Type::errorType;
 
+    return ltype;
+}
+void PostfixExpr::Check() {
+/*    left->Check();
+
+    Type *ltype = left->GetType();
+
+    if (!(ltype->IsEqualTo(Type::intType)||ltype->IsEqualTo(Type::doubleType)))
+       std::cout<<"Only works on Int or double";
+//ReportError::TestNotInteger(ltype);//It should be int or double!!
+*/
+}
+
+//--------------------
 Type* This::GetType() {
     ClassDecl *d = GetClassDecl(scope);
     if (d == NULL)
@@ -323,8 +397,9 @@ void This::Check() {
         ReportError::ThisOutsideClassScope(this);
 }
 
+//---------------------  
 ArrayAccess::ArrayAccess(yyltype loc, Expr *b, Expr *s) : LValue(loc) {
-    (base=b)->SetParent(this);
+    (base=b)->SetParent(this); 
     (subscript=s)->SetParent(this);
 }
 
@@ -355,11 +430,17 @@ void ArrayAccess::Check() {
         ReportError::SubscriptNotInteger(subscript);
 }
 
-FieldAccess::FieldAccess(Expr *b, Identifier *f)
+
+/*void ArrayAccess::PrintChildren(int indentLevel) {
+    base->Print(indentLevel+1);
+    subscript->Print(indentLevel+1, "(subscript) ");
+  }*/
+     
+FieldAccess::FieldAccess(Expr *b, Identifier *f) 
   : LValue(b? Join(b->GetLocation(), f->GetLocation()) : *f->GetLocation()) {
     Assert(f != NULL); // b can be be NULL (just means no explicit base)
-    base = b;
-    if (base) base->SetParent(this);
+    base = b; 
+    if (base) base->SetParent(this); 
     (field=f)->SetParent(this);
 }
 
@@ -434,6 +515,12 @@ void FieldAccess::Check() {
     if (dynamic_cast<VarDecl*>(d) == NULL)
         ReportError::IdentifierNotDeclared(field, LookingForVariable);
 }
+
+
+/*  void FieldAccess::PrintChildren(int indentLevel) {
+    if (base) base->Print(indentLevel+1);
+    field->Print(indentLevel+1);
+  }*/
 
 Call::Call(yyltype loc, Expr *b, Identifier *f, List<Expr*> *a) : Expr(loc)  {
     Assert(f != NULL && a != NULL); // b can be be NULL (just means no explicit base)
@@ -547,7 +634,16 @@ void Call::CheckActuals(Decl *d) {
     }
 }
 
-NewExpr::NewExpr(yyltype loc, NamedType *c) : Expr(loc) {
+ //NOTUSED APPARENTLY CHECK!!
+
+/* void Call::PrintChildren(int indentLevel) {
+    if (base) base->Print(indentLevel+1);
+    field->Print(indentLevel+1);
+    actuals->PrintAll(indentLevel+1, "(actuals) ");
+  }*/
+ 
+
+NewExpr::NewExpr(yyltype loc, NamedType *c) : Expr(loc) { 
   Assert(c != NULL);
   (cType=c)->SetParent(this);
 }
@@ -570,9 +666,15 @@ void NewExpr::Check() {
         ReportError::IdentifierNotDeclared(cType->GetId(), LookingForClass);
 }
 
+
+
+/*void NewExpr::PrintChildren(int indentLevel) {	
+    cType->Print(indentLevel+1);
+}*/
+
 NewArrayExpr::NewArrayExpr(yyltype loc, Expr *sz, Type *et) : Expr(loc) {
     Assert(sz != NULL && et != NULL);
-    (size=sz)->SetParent(this);
+    (size=sz)->SetParent(this); 
     (elemType=et)->SetParent(this);
 }
 
@@ -600,6 +702,15 @@ void NewArrayExpr::Check() {
         elemType->ReportNotDeclaredIdentifier(LookingForType);
 }
 
+
+
+/*void NewArrayExpr::PrintChildren(int indentLevel) {
+    size->Print(indentLevel+1);
+    elemType->Print(indentLevel+1);
+}
+*/
+
+//-------------------
 Type* ReadIntegerExpr::GetType() {
     return Type::intType;
 }
@@ -607,3 +718,4 @@ Type* ReadIntegerExpr::GetType() {
 Type* ReadLineExpr::GetType() {
     return Type::stringType;
 }
+       
