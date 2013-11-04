@@ -139,7 +139,7 @@ class CompoundExpr : public Expr
     CompoundExpr(Expr *lhs, Operator *op);             // NEW for unary
 
 //    void PrintChildren(int indentLevel);
-   virtual void BuildScope(Scope *parent);//VIRTUAL
+   virtual void MakeScope(Scope *parent);//VIRTUAL
    virtual void Check();//VIRTUAL
 
 };
@@ -231,7 +231,7 @@ class ArrayAccess : public LValue
 //    const char *GetPrintNameForNode() { return "ArrayAccess"; }
 //    void PrintChildren(int indentLevel);
  Type* GetType();
- void BuildScope(Scope *parent);
+ void MakeScope(Scope *parent);
    void Check();
 };
 
@@ -251,7 +251,7 @@ class FieldAccess : public LValue
 //    const char *GetPrintNameForNode() { return "FieldAccess"; }
 //    void PrintChildren(int indentLevel);
 Type* GetType();
-    void BuildScope(Scope *parent);
+    void MakeScope(Scope *parent);
     void Check();
 };
 
@@ -271,7 +271,7 @@ class Call : public Expr
 //    const char *GetPrintNameForNode() { return "Call"; }
 //    void PrintChildren(int indentLevel);
 Type* GetType();
-    void BuildScope(Scope *parent);
+    void MakeScope(Scope *parent);
     void Check();
 private:
     void CheckActuals(Decl *d);
@@ -301,7 +301,7 @@ class NewArrayExpr : public Expr
 //    const char *GetPrintNameForNode() { return "NewArrayExpr"; }
 //    void PrintChildren(int indentLevel);
 Type* GetType();
-    void BuildScope(Scope *parent);
+    void MakeScope(Scope *parent);
     void Check();
 };
 

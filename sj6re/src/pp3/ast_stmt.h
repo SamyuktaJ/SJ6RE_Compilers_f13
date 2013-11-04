@@ -66,7 +66,7 @@ class Program : public Node
      void Check();
 
   private:
-     void BuildScope();
+     void MakeScope();
 };
 
 class Stmt : public Node
@@ -78,7 +78,7 @@ class Stmt : public Node
      Stmt() : Node(), scope(new Scope) {}
      Stmt(yyltype loc) : Node(loc), scope(new Scope) {}
 
-     virtual void BuildScope(Scope *parent);
+     virtual void MakeScope(Scope *parent);
      virtual void Check() = 0;
 };
 
@@ -91,7 +91,7 @@ class StmtBlock : public Stmt
   public:
     StmtBlock(List<VarDecl*> *variableDeclarations, List<Stmt*> *statements);
 
-    void BuildScope(Scope *parent);
+    void MakeScope(Scope *parent);
     void Check();
 
   private:
@@ -106,7 +106,7 @@ class ConditionalStmt : public Stmt
   public:
     ConditionalStmt(Expr *testExpr, Stmt *body);
 
-    virtual void BuildScope(Scope *parent);
+    virtual void MakeScope(Scope *parent);
     virtual void Check();
 };
 
@@ -116,7 +116,7 @@ class LoopStmt : public ConditionalStmt
     LoopStmt(Expr *testExpr, Stmt *body)
             : ConditionalStmt(testExpr, body) {}
 
-    virtual void BuildScope(Scope *parent);
+    virtual void MakeScope(Scope *parent);
 };
 
 class ForStmt : public LoopStmt
@@ -142,7 +142,7 @@ class IfStmt : public ConditionalStmt
   public:
     IfStmt(Expr *test, Stmt *thenBody, Stmt *elseBody);
 
-    void BuildScope(Scope *parent);
+    void MakeScope(Scope *parent);
     void Check();
 };
 
@@ -162,7 +162,7 @@ class ReturnStmt : public Stmt
   public:
     ReturnStmt(yyltype loc, Expr *expr);
 
-    void BuildScope(Scope *parent);
+    void MakeScope(Scope *parent);
     void Check();
 };
 
@@ -174,7 +174,7 @@ class PrintStmt : public Stmt
   public:
     PrintStmt(List<Expr*> *arguments);
 
-    void BuildScope(Scope *parent);
+    void MakeScope(Scope *parent);
     void Check();
 };
 

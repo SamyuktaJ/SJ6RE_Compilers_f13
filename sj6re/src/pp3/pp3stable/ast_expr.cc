@@ -148,27 +148,27 @@ CompoundExpr::CompoundExpr(Expr *l, Operator *o)
     (op=o)->SetParent(this);
 }
 
-void CompoundExpr::BuildScope(Scope *parent) {
+void CompoundExpr::MakeScope(Scope *parent) {
     scope->SetParent(parent);
 
     if (left != NULL)
-        left->BuildScope(scope);
+        left->MakeScope(scope);
     if (right!=NULL)//new
-    right->BuildScope(scope);
+    right->MakeScope(scope);
 /*
 if(left==NULL)
 {
 if(right==NULL){}
 else
-right->BuildScope(scope);
+right->MakeScope(scope);
 }
 else
 {
 if(right==NULL)
-{left->BuildScope(scope);}
+{left->MakeScope(scope);}
 else
-{left->BuildScope(scope);
-right->BuildScope(scope);
+{left->MakeScope(scope);
+right->MakeScope(scope);
 }}
 */
 }
@@ -411,11 +411,11 @@ Type* ArrayAccess::GetType() {
     return t->GetElemType();
 }
 
-void ArrayAccess::BuildScope(Scope *parent) {
+void ArrayAccess::MakeScope(Scope *parent) {
     scope->SetParent(parent);
 
-    base->BuildScope(scope);
-    subscript->BuildScope(scope);
+    base->MakeScope(scope);
+    subscript->MakeScope(scope);
 }
 
 void ArrayAccess::Check() {
@@ -472,11 +472,11 @@ Type* FieldAccess::GetType() {
     return static_cast<VarDecl*>(d)->GetType();
 }
 
-void FieldAccess::BuildScope(Scope *parent) {
+void FieldAccess::MakeScope(Scope *parent) {
     scope->SetParent(parent);
 
     if (base != NULL)
-        base->BuildScope(scope);
+        base->MakeScope(scope);
 }
 
 void FieldAccess::Check() {
@@ -560,14 +560,14 @@ Type* Call::GetType() {
     return static_cast<FnDecl*>(d)->GetReturnType();
 }
 
-void Call::BuildScope(Scope *parent) {
+void Call::MakeScope(Scope *parent) {
     scope->SetParent(parent);
 
     if (base != NULL)
-        base->BuildScope(scope);
+        base->MakeScope(scope);
 
     for (int i = 0, n = actuals->NumElements(); i < n; ++i)
-        actuals->Nth(i)->BuildScope(scope);
+        actuals->Nth(i)->MakeScope(scope);
 }
 
 void Call::Check() {
@@ -682,10 +682,10 @@ Type* NewArrayExpr::GetType() {
     return new ArrayType(elemType);
 }
 
-void NewArrayExpr::BuildScope(Scope *parent) {
+void NewArrayExpr::MakeScope(Scope *parent) {
     scope->SetParent(parent);
 
-    size->BuildScope(scope);
+    size->MakeScope(scope);
 }
 
 void NewArrayExpr::Check() {

@@ -35,7 +35,7 @@ class Decl : public Node
     const char* Name() { return id->Name(); }
     Scope* GetScope() { return scope; }
 
-    virtual void BuildScope(Scope *parent);
+    virtual void MakeScope(Scope *parent);
     virtual void Check() = 0;
 };
 
@@ -67,7 +67,7 @@ class ClassDecl : public Decl
     ClassDecl(Identifier *name, NamedType *extends,
               List<NamedType*> *implements, List<Decl*> *members);
 
-    void BuildScope(Scope *parent);
+    void MakeScope(Scope *parent);
     void Check();
 
     NamedType* GetType() { return new NamedType(id); }
@@ -92,7 +92,7 @@ class InterfaceDecl : public Decl
   public:
     InterfaceDecl(Identifier *name, List<Decl*> *members);
 
-    void BuildScope(Scope *parent);
+    void MakeScope(Scope *parent);
     void Check();
 
     Type* GetType() { return new NamedType(id); }
@@ -115,7 +115,7 @@ class FnDecl : public Decl
     Type* GetReturnType() { return returnType; }
     List<VarDecl*>* GetFormals() { return formals; }
 
-    void BuildScope(Scope *parent);
+    void MakeScope(Scope *parent);
     void Check();
 };
 

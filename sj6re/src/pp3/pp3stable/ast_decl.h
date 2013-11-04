@@ -36,7 +36,7 @@ friend std::ostream& operator<<(std::ostream& out, Decl *d) { return out << d->i
     const char* Name() { return id->Name(); }
     Scope* GetScope() { return scope; }
 
-    virtual void BuildScope(Scope *parent);
+    virtual void MakeScope(Scope *parent);
     virtual void Check() = 0;
 
 };
@@ -73,7 +73,7 @@ class ClassDecl : public Decl
               List<NamedType*> *implements, List<Decl*> *members);
 //    const char *GetPrintNameForNode() { return "ClassDecl"; }
 //    void PrintChildren(int indentLevel);
-void BuildScope(Scope *parent);
+void MakeScope(Scope *parent);
     void Check();
 
     NamedType* GetType() { return new NamedType(id); }
@@ -100,7 +100,7 @@ class InterfaceDecl : public Decl
     InterfaceDecl(Identifier *name, List<Decl*> *members);
 //    const char *GetPrintNameForNode() { return "InterfaceDecl"; }
 //    void PrintChildren(int indentLevel);
-void BuildScope(Scope *parent);
+void MakeScope(Scope *parent);
     void Check();
 
     Type* GetType() { return new NamedType(id); }
@@ -125,7 +125,7 @@ bool IsEquivalentTo(Decl *other);
     Type* GetReturnType() { return returnType; }
     List<VarDecl*>* GetFormals() { return formals; }
 
-    void BuildScope(Scope *parent);
+    void MakeScope(Scope *parent);
     void Check();
 
 };

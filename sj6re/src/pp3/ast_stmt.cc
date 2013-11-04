@@ -46,21 +46,21 @@ void Program::Check() {
      *      and polymorphism in the node classes.
      */
 
-    BuildScope();
+    MakeScope();
 
     for (int i = 0, n = decls->NumElements(); i < n; ++i)
         decls->Nth(i)->Check();
 }
 
-void Program::BuildScope() {
+void Program::MakeScope() {
     for (int i = 0, n = decls->NumElements(); i < n; ++i)
         gScope->AddDecl(decls->Nth(i));
 
     for (int i = 0, n = decls->NumElements(); i < n; ++i)
-        decls->Nth(i)->BuildScope(gScope);
+        decls->Nth(i)->MakeScope(gScope);
 }
 
-void Stmt::BuildScope(Scope *parent) {
+void Stmt::MakeScope(Scope *parent) {
     scope->SetParent(parent);
 }
 
@@ -70,17 +70,17 @@ StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {
     (stmts=s)->SetParentAll(this);
 }
 
-void StmtBlock::BuildScope(Scope *parent) {
+void StmtBlock::MakeScope(Scope *parent) {
     scope->SetParent(parent);
 
     for (int i = 0, n = decls->NumElements(); i < n; ++i)
         scope->AddDecl(decls->Nth(i));
 
     for (int i = 0, n = decls->NumElements(); i < n; ++i)
-        decls->Nth(i)->BuildScope(scope);
+        decls->Nth(i)->MakeScope(scope);
 
     for (int i = 0, n = stmts->NumElements(); i < n; ++i)
-        stmts->Nth(i)->BuildScope(scope);
+        stmts->Nth(i)->MakeScope(scope);
 }
 
 void StmtBlock::Check() {
@@ -97,11 +97,11 @@ ConditionalStmt::ConditionalStmt(Expr *t, Stmt *b) {
     (body=b)->SetParent(this);
 }
 
-void ConditionalStmt::BuildScope(Scope *parent) {
+void ConditionalStmt::MakeScope(Scope *parent) {
     scope->SetParent(parent);
 
-    test->BuildScope(scope);
-    body->BuildScope(scope);
+    test->MakeScope(scope);
+    body->MakeScope(scope);
 }
 
 void ConditionalStmt::Check() {
@@ -112,12 +112,12 @@ void ConditionalStmt::Check() {
         ReportError::TestNotBoolean(test);
 }
 
-void LoopStmt::BuildScope(Scope *parent) {
+void LoopStmt::MakeScope(Scope *parent) {
     scope->SetParent(parent);
     scope->SetLoopStmt(this);
 
-    test->BuildScope(scope);
-    body->BuildScope(scope);
+    test->MakeScope(scope);
+    body->MakeScope(scope);
 }
 
 ForStmt::ForStmt(Expr *i, Expr *t, Expr *s, Stmt *b): LoopStmt(t, b) {
@@ -132,14 +132,14 @@ IfStmt::IfStmt(Expr *t, Stmt *tb, Stmt *eb): ConditionalStmt(t, tb) {
     if (elseBody) elseBody->SetParent(this);
 }
 
-void IfStmt::BuildScope(Scope *parent) {
+void IfStmt::MakeScope(Scope *parent) {
     scope->SetParent(parent);
 
-    test->BuildScope(scope);
-    body->BuildScope(scope);
+    test->MakeScope(scope);
+    body->MakeScope(scope);
 
     if (elseBody != NULL)
-        elseBody->BuildScope(scope);
+        elseBody->MakeScope(scope);
 }
 
 void IfStmt::Check() {
@@ -170,10 +170,10 @@ ReturnStmt::ReturnStmt(yyltype loc, Expr *e) : Stmt(loc) {
     (expr=e)->SetParent(this);
 }
 
-void ReturnStmt::BuildScope(Scope *parent) {
+void ReturnStmt::MakeScope(Scope *parent) {
     scope->SetParent(parent);
 
-    expr->BuildScope(scope);
+    expr->MakeScope(scope);
 }
 
 void ReturnStmt::Check() {
@@ -206,11 +206,11 @@ PrintStmt::PrintStmt(List<Expr*> *a) {
     (args=a)->SetParentAll(this);
 }
 
-void PrintStmt::BuildScope(Scope *parent) {
+void PrintStmt::MakeScope(Scope *parent) {
     scope->SetParent(parent);
 
     for (int i = 0, n = args->NumElements(); i < n; ++i)
-        args->Nth(i)->BuildScope(scope);
+        args->Nth(i)->MakeScope(scope);
 }
 
 void PrintStmt::Check() {

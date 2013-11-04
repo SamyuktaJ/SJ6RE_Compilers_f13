@@ -16,7 +16,7 @@ Decl::Decl(Identifier *n) : Node(*n->GetLocation()) {
 	    return true;
 	}
 
-	void Decl::BuildScope(Scope *parent) {
+	void Decl::MakeScope(Scope *parent) {
 	    scope->SetParent(parent);
 	}
 
@@ -70,7 +70,7 @@ ClassDecl::ClassDecl(Identifier *n, NamedType *ex, List<NamedType*> *imp, List<D
     (implements=imp)->SetParentAll(this);
     (members=m)->SetParentAll(this);
 }
-	void ClassDecl::BuildScope(Scope *parent) {
+	void ClassDecl::MakeScope(Scope *parent) {
 	    scope->SetParent(parent);
 	    scope->SetClassDecl(this);
 
@@ -78,7 +78,7 @@ ClassDecl::ClassDecl(Identifier *n, NamedType *ex, List<NamedType*> *imp, List<D
 	        scope->AddDecl(members->Nth(i));
 
 	    for (int i = 0, n = members->NumElements(); i < n; ++i)
-	        members->Nth(i)->BuildScope(scope);
+	        members->Nth(i)->MakeScope(scope);
 	}
 
 	void ClassDecl::Check() {
@@ -211,14 +211,14 @@ InterfaceDecl::InterfaceDecl(Identifier *n, List<Decl*> *m) : Decl(n) {
     (members=m)->SetParentAll(this);
 }
 
-	void InterfaceDecl::BuildScope(Scope *parent) {
+	void InterfaceDecl::MakeScope(Scope *parent) {
 	    scope->SetParent(parent);
 	
 	    for (int i = 0, n = members->NumElements(); i < n; ++i)
 	        scope->AddDecl(members->Nth(i));
 
 	    for (int i = 0, n = members->NumElements(); i < n; ++i)
-	        members->Nth(i)->BuildScope(scope);
+	        members->Nth(i)->MakeScope(scope);
 	}	
 
 	void InterfaceDecl::Check() {
@@ -260,7 +260,7 @@ FnDecl::FnDecl(Identifier *n, Type *r, List<VarDecl*> *d) : Decl(n) {
 	    return true;
 	}
 
-	void FnDecl::BuildScope(Scope *parent) {
+	void FnDecl::MakeScope(Scope *parent) {
 	    scope->SetParent(parent);
 	    scope->SetFnDecl(this);
 
@@ -268,10 +268,10 @@ FnDecl::FnDecl(Identifier *n, Type *r, List<VarDecl*> *d) : Decl(n) {
 	        scope->AddDecl(formals->Nth(i));
 
 	    for (int i = 0, n = formals->NumElements(); i < n; ++i)
-	        formals->Nth(i)->BuildScope(scope);
+	        formals->Nth(i)->MakeScope(scope);
 
 	    if (body)
-	        body->BuildScope(scope);
+	        body->MakeScope(scope);
 	}
 
 	void FnDecl::Check() {

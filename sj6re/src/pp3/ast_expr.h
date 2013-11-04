@@ -119,7 +119,7 @@ class CompoundExpr : public Expr
     CompoundExpr(Expr *lhs, Operator *op, Expr *rhs); // for binary
     CompoundExpr(Operator *op, Expr *rhs);             // for unary
 
-    virtual void BuildScope(Scope *parent);
+    virtual void MakeScope(Scope *parent);
     virtual void Check();
 };
 
@@ -197,7 +197,7 @@ class ArrayAccess : public LValue
     ArrayAccess(yyltype loc, Expr *base, Expr *subscript);
 
     Type* GetType();
-    void BuildScope(Scope *parent);
+    void MakeScope(Scope *parent);
     void Check();
 };
 
@@ -216,7 +216,7 @@ class FieldAccess : public LValue
     FieldAccess(Expr *base, Identifier *field); //ok to pass NULL base
 
     Type* GetType();
-    void BuildScope(Scope *parent);
+    void MakeScope(Scope *parent);
     void Check();
 };
 
@@ -235,7 +235,7 @@ class Call : public Expr
     Call(yyltype loc, Expr *base, Identifier *field, List<Expr*> *args);
 
     Type* GetType();
-    void BuildScope(Scope *parent);
+    void MakeScope(Scope *parent);
     void Check();
 
   private:
@@ -264,7 +264,7 @@ class NewArrayExpr : public Expr
     NewArrayExpr(yyltype loc, Expr *sizeExpr, Type *elemType);
 
     Type* GetType();
-    void BuildScope(Scope *parent);
+    void MakeScope(Scope *parent);
     void Check();
 };
 

@@ -12,13 +12,10 @@ Decl::Decl(Identifier *n) : Node(*n->GetLocation()), scope(new Scope) {
 }
 
 bool Decl::IsEquivalentTo(Decl *other) {
-    /* TODO: Once all subclasses support this function it should be made a pure
-     * virtual function.
-     */
     return true;
 }
 
-void Decl::BuildScope(Scope *parent) {
+void Decl::MakeScope(Scope *parent) {
     scope->SetParent(parent);
 }
 
@@ -71,7 +68,7 @@ ClassDecl::ClassDecl(Identifier *n, NamedType *ex, List<NamedType*> *imp, List<D
     (members=m)->SetParentAll(this);
 }
 
-void ClassDecl::BuildScope(Scope *parent) {
+void ClassDecl::MakeScope(Scope *parent) {
     scope->SetParent(parent);
     scope->SetClassDecl(this);
 
@@ -79,7 +76,7 @@ void ClassDecl::BuildScope(Scope *parent) {
         scope->AddDecl(members->Nth(i));
 
     for (int i = 0, n = members->NumElements(); i < n; ++i)
-        members->Nth(i)->BuildScope(scope);
+        members->Nth(i)->MakeScope(scope);
 }
 
 void ClassDecl::Check() {
@@ -203,14 +200,14 @@ InterfaceDecl::InterfaceDecl(Identifier *n, List<Decl*> *m) : Decl(n) {
     (members=m)->SetParentAll(this);
 }
 
-void InterfaceDecl::BuildScope(Scope *parent) {
+void InterfaceDecl::MakeScope(Scope *parent) {
     scope->SetParent(parent);
 
     for (int i = 0, n = members->NumElements(); i < n; ++i)
         scope->AddDecl(members->Nth(i));
 
     for (int i = 0, n = members->NumElements(); i < n; ++i)
-        members->Nth(i)->BuildScope(scope);
+        members->Nth(i)->MakeScope(scope);
 }
 
 void InterfaceDecl::Check() {
@@ -248,7 +245,7 @@ bool FnDecl::IsEquivalentTo(Decl *other) {
     return true;
 }
 
-void FnDecl::BuildScope(Scope *parent) {
+void FnDecl::MakeScope(Scope *parent) {
     scope->SetParent(parent);
     scope->SetFnDecl(this);
 
@@ -256,10 +253,10 @@ void FnDecl::BuildScope(Scope *parent) {
         scope->AddDecl(formals->Nth(i));
 
     for (int i = 0, n = formals->NumElements(); i < n; ++i)
-        formals->Nth(i)->BuildScope(scope);
+        formals->Nth(i)->MakeScope(scope);
 
     if (body)
-        body->BuildScope(scope);
+        body->MakeScope(scope);
 }
 
 void FnDecl::Check() {
