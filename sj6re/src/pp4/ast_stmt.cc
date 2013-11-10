@@ -6,7 +6,7 @@
 #include "ast_type.h"
 #include "ast_decl.h"
 #include "ast_expr.h"
-#include "scope.h"
+//#include "scope.h"
 #include "errors.h"
 #include <typeinfo>
 //
@@ -156,8 +156,8 @@ void BreakStmt::CheckStatements() {
   while (parent)
     {
       if ((typeid(*parent) == typeid(WhileStmt)) ||
-          (typeid(*parent) == typeid(ForStmt)) )
-	//|| (typeid(*parent) == typeid(SwitchStmt)))
+          (typeid(*parent) == typeid(ForStmt)) ||
+	  (typeid(*parent) == typeid(SwitchStmt)))
         return;
       parent = parent->GetParent();
     }
@@ -230,7 +230,76 @@ void PrintStmt::CheckStatements() {
         }
     }
 }
-
+//NEW pp4
+CaseStmt::CaseStmt(IntConstant *ic, List<Stmt*> *sts)
+  : DefaultStmt(sts) {
+  (this->intconst=ic)->SetParent(this);
+}
+ 
+DefaultStmt::DefaultStmt(List<Stmt*> *sts) {
+  if (sts) (this->stmts=sts)->SetParentAll(this);
+}
+ 
+void DefaultStmt::CheckStatements() {
+  if (this->stmts)
+    {
+      for (int i = 0; i < this->stmts->NumElements(); i++)
+        {
+          Stmt *stmt = this->stmts->Nth(i);
+          stmt->CheckStatements();
+        }
+    }
+}
+ 
+void DefaultStmt::CheckDeclError() {
+  if (this->stmts)
+    {
+      for (int i = 0; i < this->stmts->NumElements(); i++)
+        {
+          Stmt *stmt = this->stmts->Nth(i);
+          stmt->CheckDeclError();
+        }
+    }
+}
+ 
+SwitchStmt::SwitchStmt(Expr *e, List<CaseStmt*> *cs, DefaultStmt *ds) {
+  Assert(e != NULL && cs != NULL);
+  (this->expr=e)->SetParent(this);
+  (this->cases=cs)->SetParentAll(this);
+  if (ds)
+   (this->defaults=ds)->SetParent(this);
+}
+ 
+void SwitchStmt::CheckStatements() {
+  if (this->expr)
+    this->expr->CheckStatements();
+ 
+  if (this->cases)
+    {
+      for (int i = 0; i < this->cases->NumElements(); i++)
+        {
+          CaseStmt *stmt = this->cases->Nth(i);
+          stmt->CheckStatements();
+        }
+    }
+ 
+  if (this->defaults)
+    this->defaults->CheckStatements();
+}
+ 
+void SwitchStmt::CheckDeclError() {
+  if (this->cases)
+    {
+      for (int i = 0; i < this->cases->NumElements(); i++)
+        {
+          CaseStmt *stmt = this->cases->Nth(i);
+          stmt->CheckDeclError();
+        }
+    }
+ 
+  if (this->defaults)
+    this->defaults->CheckDeclError();
+}
 //
 /*void Program::Check() {
     nodeScope = new Scope();

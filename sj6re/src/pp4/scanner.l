@@ -51,7 +51,7 @@ DOUBLE            ({INTEGER}"."{DIGIT}*{EXPONENT}?)
 BEG_STRING        (\"[^"\n]*)
 STRING            ({BEG_STRING}\")
 IDENTIFIER        ([a-zA-Z][a-zA-Z_0-9]*)
-OPERATOR          ([-+/*%=.,;!<>()[\]{}])
+OPERATOR          ([-+/*%=.,;!<>()[\]{}:])
 BEG_COMMENT       ("/*")
 END_COMMENT       ("*/")
 SINGLE_COMMENT    ("//"[^\n]*)
@@ -104,6 +104,9 @@ SINGLE_COMMENT    ("//"[^\n]*)
 "ReadLine"          { return T_ReadLine;    }
 
 
+"switch"	    { return T_Switch;	    }
+"case"		    { return T_Case;	    }
+"default"	    { return T_Default;	    }
 
  /* -------------------- Operators ----------------------------- */
 "<="                { return T_LessEqual;   }
@@ -112,6 +115,11 @@ SINGLE_COMMENT    ("//"[^\n]*)
 "!="                { return T_NotEqual;    }
 "&&"                { return T_And;         }
 "||"                { return T_Or;          }
+
+"++"                { return T_Increment;   }
+"--"                { return T_Decrement;   }
+
+
 {OPERATOR}          { return yytext[0];     }
     
 "[]"                { return T_Dims;        }

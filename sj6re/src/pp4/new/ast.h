@@ -65,7 +65,7 @@ class Identifier : public Node
   const char *GetName() { return name; }
   Decl *CheckIdDecl();
   Decl *CheckIdDecl(Hashtable<Decl*> *sym_table, const char *name);
-  friend std::ostream& operator<<(std::ostream& out, Identifier *id) { if (id) return out << id->name; else return out;}
+  friend ostream& operator<<(ostream& out, Identifier *id) { if (id) return out << id->name; else return out;}
 };
  
  

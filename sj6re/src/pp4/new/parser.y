@@ -63,8 +63,8 @@ void yyerror(const char *msg); // standard error-handling routine
 	PrintStmt *printStmt;
 	LValue *lvalue;
 
-	CaseStmt *caseStmt;
-	DefaultStmt *defaultStmt;
+	Case *caseStmt;
+	Default *defaultStmt;
 	SwitchStmt *switchStmt;
 
 
@@ -74,9 +74,8 @@ void yyerror(const char *msg); // standard error-handling routine
 	List<Identifier*> *identifierList;
 	List<NamedType*> *namedTypeList;
 	List<Expr*> *exprList;
-	List<CaseStmt*> *caseList;//Case->casestmt
-	
-	Program *program;//pp4
+	List<Case*> *caseList;
+
 
 }
 
@@ -120,8 +119,7 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <varList>   Formals FormalList VarDecls
 %type <fDecl>     FnDecl FnHeader
 %type <stmtList>  StmtList
-%type <stmt>      	Stmt/**/	ElseO/**/
-%type <stmtBlock> StmtBlock /*pp4*/
+%type <stmt>      StmtBlock	Stmt/**/	ElseO/**/
 	%type <classDecl>	  ClassDecl /*new block*/
 	%type <interfaceDecl>	  InterfaceDecl
 
@@ -302,8 +300,8 @@ Expr      :    LValue '=' Expr      { $$ = new AssignExpr($1, new Operator(@2, "
           |    T_ReadLine '(' ')'      { $$ = new ReadLineExpr(@1); }
           |    T_New'(' T_Identifier')'   { $$ = new NewExpr(@1, new NamedType(new Identifier(@3, $3)));}
           |    T_NewArray '(' Expr ',' Type ')' { $$ = new NewArrayExpr(@1, $3, $5);}
-	  |    LValue T_Increment   { $$ = new PostfixExpr(Join(@1, @2),$1,new Operator(@2, "++")); /*Join is new:pp4*/}
-          |    LValue T_Decrement   { $$ = new PostfixExpr(Join(@1, @2),$1, new Operator(@2, "--"));};
+	  |    LValue T_Increment   { $$ = new PostfixExpr($1,new Operator(@2, "++")); }
+          |    LValue T_Decrement   { $$ = new PostfixExpr($1, new Operator(@2, "--"));};
 
 /* ================================================================*/
 
@@ -346,14 +344,14 @@ Constant  :    T_IntConstant        { $$ = new IntConstant(@1, $1); }
 /* ================================================================*/
 
 SwitchStmt :   T_Switch '(' Expr ')' '{' CaseP DefaultO '}' { $$ = new SwitchStmt($3, $6, $7); };
-Case      :    T_Case T_IntConstant ':' StmtList { $$ = new CaseStmt(new IntConstant(@2,$2), $4);}
-	  |	T_Case T_IntConstant ':'  { $$ = new CaseStmt(new IntConstant(@2,$2), new List<Stmt*>);};
+Case      :    T_Case T_IntConstant ':' StmtList { $$ = new Case(new IntConstant(@2, $2), $4);}
+	  |	T_Case T_IntConstant ':'  { $$ = new Case(new IntConstant(@2, $2), new List<Stmt*>);};
 
 
 CaseP     :    CaseP Case           { ($$ = $1)->Append($2); }
-          |    Case                 { ($$ = new List<CaseStmt*>)->Append($1); };
+          |    Case                 { ($$ = new List<Case*>)->Append($1); };
 
-Default   :    T_Default ':' StmtList { $$ = new DefaultStmt($3); };
+Default   :    T_Default ':' StmtList { $$ = new Default($3); };
 
 DefaultO  :    Default              { $$ = $1; }
           |                         { $$ = NULL; };

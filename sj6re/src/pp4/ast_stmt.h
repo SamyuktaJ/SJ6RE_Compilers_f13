@@ -39,7 +39,7 @@ class Stmt : public Node
 {
   public:
      Stmt() : Node() {}
-     Stmt(yyltype loc);// : Node(loc) {}
+     Stmt(yyltype loc) : Node(loc) {}
 };
 
 class StmtBlock : public Stmt 
@@ -142,5 +142,39 @@ class PrintStmt : public Stmt
 void CheckStatements();
 };
 
+//NEW PP4
+class DefaultStmt : public Stmt
+{
+  protected:
+    List<Stmt*> *stmts;
+ 
+  public:
+    DefaultStmt(List<Stmt*> *sts);
+    void CheckStatements();
+    void CheckDeclError();
+};
+ 
+ 
+class CaseStmt : public DefaultStmt
+{
+  protected:
+    IntConstant *intconst;
+ 
+  public:
+    CaseStmt(IntConstant *ic, List<Stmt*> *sts);
+};
+ 
+class SwitchStmt : public Stmt
+{
+  protected:
+    Expr *expr;
+    List<CaseStmt*> *cases;
+    DefaultStmt *defaults;
+ 
+  public:
+    SwitchStmt(Expr *e, List<CaseStmt*> *cs, DefaultStmt *ds);
+    void CheckStatements();
+    void CheckDeclError();
+};
 
 #endif

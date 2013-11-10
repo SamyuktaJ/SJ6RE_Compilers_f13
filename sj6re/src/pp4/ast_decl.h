@@ -5,48 +5,37 @@
  * specialized for declarations of variables, functions, classes,
  * and interfaces.
  */
-
+ 
 #ifndef _H_ast_decl
 #define _H_ast_decl
-
+ 
 #include "ast.h"
-#include "list.h"
-
 #include "ast_type.h"
 #include "hashtable.h"
-
-class Type;
-class NamedType;
+#include "list.h"
+ 
 class Identifier;
-class Stmt;
-class FnDecl;
-class InterfaceDecl;
-
 class StmtBlock;
-
+ 
+ 
 class Decl : public Node 
 {
  protected:
   Identifier *id;
-  
+   
  public:
   Decl(Identifier *name);
-
-  virtual bool ConflictsWithPrevious(Decl *prev);
-
-  const char *GetName() { return id->GetName(); }
-
   Identifier *GetID() { return id; }
   friend std::ostream& operator<<(std::ostream &out, Decl *decl) { if (decl) return out << decl->id; else return out; }
   virtual const char *GetTypeName() { return NULL; }
   virtual Type *GetType() { return NULL; }
 };
-
+ 
 class VarDecl : public Decl 
 {
  protected:
   Type *type;
-    
+     
  public:
   VarDecl(Identifier *name, Type *type);
   Type *GetType() { return type; }
@@ -55,8 +44,8 @@ class VarDecl : public Decl
   void CheckStatements();
   void CheckDeclError();
 };
-
-
+ 
+ 
 class ClassDecl : public Decl 
 {
  protected:
@@ -64,10 +53,10 @@ class ClassDecl : public Decl
   NamedType *extends;
   List<NamedType*> *implements;
   Hashtable<Decl*> *sym_table;
-
+ 
  public:
   ClassDecl(Identifier *name, NamedType *extends, 
-	    List<NamedType*> *implements, List<Decl*> *members);
+        List<NamedType*> *implements, List<Decl*> *members);
   NamedType *GetExtends() { return extends; }
   List<NamedType*> *GetImplements() { return implements; }
   void CheckStatements();
@@ -75,32 +64,32 @@ class ClassDecl : public Decl
   bool IsCompatibleWith(Decl *decl);
   Hashtable<Decl*> *GetSymTable() { return sym_table; }
 };
-
+ 
 class InterfaceDecl : public Decl 
 {
  protected:
   List<Decl*> *members;
   Hashtable<Decl*> *sym_table;
-
+ 
  public:
   InterfaceDecl(Identifier *name, List<Decl*> *members);
   void CheckDeclError();
   List<Decl*> *GetMembers() { return members; }
   Hashtable<Decl*> *GetSymTable() { return sym_table; }
-
+ 
 };
-
+ 
 class FnDecl : public Decl 
 {
  protected:
   List<VarDecl*> *formals;
   Type *returnType;
-  Stmt *body;//StmtBlock
+  StmtBlock *body;
   Hashtable<Decl*> *sym_table;
-    
+     
  public:
   FnDecl(Identifier *name, Type *returnType, List<VarDecl*> *formals);
-  void SetFunctionBody(Stmt *b);//StmtBlock?Stmt?
+  void SetFunctionBody(StmtBlock *b);
   void CheckStatements();
   void CheckDeclError();
   Type *GetType() { return returnType; }
@@ -108,85 +97,8 @@ class FnDecl : public Decl
   const char *GetTypeName() { if (returnType) return returnType->GetTypeName(); else return NULL; }
   bool HasSameTypeSig(FnDecl *fd);
   Hashtable<Decl*> *GetSymTable() { return sym_table; }
-
+ 
 };
-
-
-/*class Decl : public Node 
-{
-  protected:
-    Identifier *id;
-  
-  public:
-    Decl(Identifier *name);
-    friend std::std::ostream& operator<<(std::std::ostream& out, Decl *d) { return out << d->id; }
-    Identifier *GetId() { return id; }
-    const char *GetName() { return id->GetName(); }
-    
-    virtual bool ConflictsWithPrevious(Decl *prev);
-
-    virtual bool IsVarDecl() { return false; } // jdz: could use typeid/dynamic_cast for these
-    virtual bool IsClassDecl() { return false; }
-    virtual bool IsInterfaceDecl() { return false; }
-    virtual bool IsFnDecl() { return false; } 
-    virtual bool IsMethodDecl() { return false; }
-};
-
-class VarDecl : public Decl 
-{
-  protected:
-    Type *type;
-    
-  public:
-    VarDecl(Identifier *name, Type *type);
-    void Check();
-    Type *GetDeclaredType() { return type; }
-};
-
-class ClassDecl : public Decl 
-{
-  protected:
-    List<Decl*> *members;
-    NamedType *extends;
-    List<NamedType*> *implements;
-    Type *cType;
-    List<InterfaceDecl*> *convImp;
-
-  public:
-    ClassDecl(Identifier *name, NamedType *extends, 
-              List<NamedType*> *implements, List<Decl*> *members);
-    void Check();
-    bool IsClassDecl() { return true; }
-    Scope *PrepareScope();
-};
-
-class InterfaceDecl : public Decl 
-{
-  protected:
-    List<Decl*> *members;
-    
-  public:
-    InterfaceDecl(Identifier *name, List<Decl*> *members);
-    void Check();
-    bool IsInterfaceDecl() { return true; }
-    Scope *PrepareScope();
-};
-
-class FnDecl : public Decl 
-{
-  protected:
-    List<VarDecl*> *formals;
-    Type *returnType;
-    Stmt *body;
-    
-  public:
-    FnDecl(Identifier *name, Type *returnType, List<VarDecl*> *formals);
-    void SetFunctionBody(Stmt *b);
-    void Check();
-    bool IsFnDecl() { return true; }
-    bool IsMethodDecl();
-    bool ConflictsWithPrevious(Decl *prev);
-    bool MatchesPrototype(FnDecl *other);
-};
-*/
+ 
+ 
 #endif
