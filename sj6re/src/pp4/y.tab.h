@@ -121,7 +121,6 @@ typedef union YYSTYPE
 /* Line 2068 of yacc.c  */
 #line 41 "parser.y"
 
-	Program *program;//new p4
     int integerConstant;
     bool boolConstant;
     char *stringConstant;
@@ -164,7 +163,7 @@ typedef union YYSTYPE
 
 
 /* Line 2068 of yacc.c  */
-#line 168 "y.tab.h"
+#line 167 "y.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

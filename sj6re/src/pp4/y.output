@@ -1411,6 +1411,7 @@ state 92
    94       | Expr . '[' Expr ']'
    96 Call: Expr . '.' T_Identifier '(' Actuals ')'
 
+    '+'  shift, and go to state 111
     '/'  shift, and go to state 112
     '%'  shift, and go to state 113
     '*'  shift, and go to state 114
@@ -2286,13 +2287,15 @@ state 142
    94       | Expr . '[' Expr ']'
    96 Call: Expr . '.' T_Identifier '(' Actuals ')'
 
-    '-'  shift, and go to state 110
-    '+'  shift, and go to state 111
-    '/'  shift, and go to state 112
-    '%'  shift, and go to state 113
-    '*'  shift, and go to state 114
-    '.'  shift, and go to state 115
-    '['  shift, and go to state 116
+    T_GreaterEqual  shift, and go to state 103
+    '>'             shift, and go to state 109
+    '-'             shift, and go to state 110
+    '+'             shift, and go to state 111
+    '/'             shift, and go to state 112
+    '%'             shift, and go to state 113
+    '*'             shift, and go to state 114
+    '.'             shift, and go to state 115
+    '['             shift, and go to state 116
 
     $default  reduce using rule 70 (Expr)
 
@@ -2350,6 +2353,7 @@ state 144
 
     T_LessEqual     shift, and go to state 102
     T_GreaterEqual  shift, and go to state 103
+    T_NotEqual      shift, and go to state 105
     '<'             shift, and go to state 108
     '>'             shift, and go to state 109
     '-'             shift, and go to state 110
@@ -2493,13 +2497,16 @@ state 148
    94       | Expr . '[' Expr ']'
    96 Call: Expr . '.' T_Identifier '(' Actuals ')'
 
-    '-'  shift, and go to state 110
-    '+'  shift, and go to state 111
-    '/'  shift, and go to state 112
-    '%'  shift, and go to state 113
-    '*'  shift, and go to state 114
-    '.'  shift, and go to state 115
-    '['  shift, and go to state 116
+    T_LessEqual     shift, and go to state 102
+    T_GreaterEqual  shift, and go to state 103
+    '>'             shift, and go to state 109
+    '-'             shift, and go to state 110
+    '+'             shift, and go to state 111
+    '/'             shift, and go to state 112
+    '%'             shift, and go to state 113
+    '*'             shift, and go to state 114
+    '.'             shift, and go to state 115
+    '['             shift, and go to state 116
 
     $default  reduce using rule 69 (Expr)
 
@@ -2524,13 +2531,14 @@ state 149
    94       | Expr . '[' Expr ']'
    96 Call: Expr . '.' T_Identifier '(' Actuals ')'
 
-    '-'  shift, and go to state 110
-    '+'  shift, and go to state 111
-    '/'  shift, and go to state 112
-    '%'  shift, and go to state 113
-    '*'  shift, and go to state 114
-    '.'  shift, and go to state 115
-    '['  shift, and go to state 116
+    T_GreaterEqual  shift, and go to state 103
+    '-'             shift, and go to state 110
+    '+'             shift, and go to state 111
+    '/'             shift, and go to state 112
+    '%'             shift, and go to state 113
+    '*'             shift, and go to state 114
+    '.'             shift, and go to state 115
+    '['             shift, and go to state 116
 
     $default  reduce using rule 71 (Expr)
 
@@ -2555,6 +2563,7 @@ state 150
    94       | Expr . '[' Expr ']'
    96 Call: Expr . '.' T_Identifier '(' Actuals ')'
 
+    '+'  shift, and go to state 111
     '/'  shift, and go to state 112
     '%'  shift, and go to state 113
     '*'  shift, and go to state 114
@@ -2613,6 +2622,8 @@ state 152
    94       | Expr . '[' Expr ']'
    96 Call: Expr . '.' T_Identifier '(' Actuals ')'
 
+    '%'  shift, and go to state 113
+    '*'  shift, and go to state 114
     '.'  shift, and go to state 115
     '['  shift, and go to state 116
 
@@ -2639,6 +2650,7 @@ state 153
    94       | Expr . '[' Expr ']'
    96 Call: Expr . '.' T_Identifier '(' Actuals ')'
 
+    '*'  shift, and go to state 114
     '.'  shift, and go to state 115
     '['  shift, and go to state 116
 

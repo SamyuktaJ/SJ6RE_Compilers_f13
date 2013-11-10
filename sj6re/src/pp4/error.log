@@ -1,0 +1,102 @@
+19,24d18
+< 
+< *** Error line 6.
+<    g.GetColor(10);
+<      ^^^^^^^^
+< *** Unknown has no such field 'GetColor'
+< 
+samples/bad10.decaf
+28c28
+<   ^^^^^^
+---
+>          ^
+samples/bad6.decaf
+16c16
+<                  ^^
+---
+>                  ^^^^^^
+samples/bad9.decaf
+16c16
+<        ^^^^^^^^
+---
+>        ^^^^^^^^^^^^^^^^
+22c22
+<        ^^^^^^^^^^^
+---
+>        ^^^^^^^^^^^^^
+28c28
+<        ^^^^^^^^
+---
+>        ^^^^^^^^^^
+34c34
+<        ^^^
+---
+>        ^^^^^^^^
+40c40
+<        ^
+---
+>        ^^^^^^
+52c52
+<      ^^^^
+---
+>      ^^^^^^^
+samples/new.decaf
+1,6d0
+< 
+< *** Error line 20.
+<   void SetColor(Color c) { myColor = c;}
+<        ^^^^^^^^
+< *** Method 'SetColor' must match inherited type signature
+< 
+samples/t13.decaf
+19,24d18
+< 
+< *** Error line 6.
+<    g.GetColor(10);
+<      ^^^^^^^^
+< *** Unknown has no such field 'GetColor'
+< 
+samples/bad10.decaf
+28c28
+<   ^^^^^^
+---
+>          ^
+samples/bad6.decaf
+16c16
+<                  ^^
+---
+>                  ^^^^^^
+samples/bad9.decaf
+16c16
+<        ^^^^^^^^
+---
+>        ^^^^^^^^^^^^^^^^
+22c22
+<        ^^^^^^^^^^^
+---
+>        ^^^^^^^^^^^^^
+28c28
+<        ^^^^^^^^
+---
+>        ^^^^^^^^^^
+34c34
+<        ^^^
+---
+>        ^^^^^^^^
+40c40
+<        ^
+---
+>        ^^^^^^
+52c52
+<      ^^^^
+---
+>      ^^^^^^^
+samples/new.decaf
+1,6d0
+< 
+< *** Error line 20.
+<   void SetColor(Color c) { myColor = c;}
+<        ^^^^^^^^
+< *** Method 'SetColor' must match inherited type signature
+< 
+samples/t13.decaf

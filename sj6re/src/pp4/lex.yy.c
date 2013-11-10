@@ -489,7 +489,7 @@ static yyconst flex_int32_t yy_ec[256] =
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    4,    5,    6,    1,    1,    7,    8,    1,    7,
         7,    9,   10,    7,   10,   11,   12,   13,   14,   14,
-       14,   14,   14,   14,   14,   14,   14,    1,    7,   15,
+       14,   14,   14,   14,   14,   14,   14,    7,    7,   15,
        16,   17,    1,    1,   18,   19,   19,   19,   20,   19,
        21,   21,   22,   21,   21,   23,   21,   24,   21,   25,
        21,   26,   21,   21,   21,   21,   21,   27,   21,   21,
@@ -649,8 +649,8 @@ static yyconst flex_int16_t yy_rule_linenum[47] =
        61,   66,   70,   71,   74,   75,   78,   79,   83,   84,
        85,   86,   87,   88,   89,   90,   91,   92,   93,   94,
        95,   96,   97,   98,   99,  100,  101,  102,  103,  104,
-      109,  110,  111,  112,  113,  114,  115,  117,  120,  122,
-      124,  126,  128,  130,  134,  142
+      109,  110,  111,  112,  113,  114,  116,  118,  121,  123,
+      125,  127,  129,  131,  135,  143
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -1278,54 +1278,54 @@ YY_RULE_SETUP
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 115 "scanner.l"
+#line 116 "scanner.l"
 { return yytext[0];     }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 117 "scanner.l"
+#line 118 "scanner.l"
 { return T_Dims;        }
 	YY_BREAK
 /* -------------------- Constants ------------------------------ */
 case 39:
 YY_RULE_SETUP
-#line 120 "scanner.l"
+#line 121 "scanner.l"
 { yylval.boolConstant = (yytext[0] == 't');
                          return T_BoolConstant; }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 122 "scanner.l"
+#line 123 "scanner.l"
 { yylval.integerConstant = strtol(yytext, NULL, 10);
                          return T_IntConstant; }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 124 "scanner.l"
+#line 125 "scanner.l"
 { yylval.integerConstant = strtol(yytext, NULL, 16);
                          return T_IntConstant; }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 126 "scanner.l"
+#line 127 "scanner.l"
 { yylval.doubleConstant = atof(yytext);
                          return T_DoubleConstant; }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 128 "scanner.l"
+#line 129 "scanner.l"
 { yylval.stringConstant = strdup(yytext); 
                          return T_StringConstant; }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 130 "scanner.l"
+#line 131 "scanner.l"
 { ReportError::UntermString(&yylloc, yytext); }
 	YY_BREAK
 /* -------------------- Identifiers --------------------------- */
 case 45:
 YY_RULE_SETUP
-#line 134 "scanner.l"
+#line 135 "scanner.l"
 { if (strlen(yytext) > MaxIdentLen)
                          ReportError::LongIdentifier(&yylloc, yytext);
                        strncpy(yylval.identifier, yytext, MaxIdentLen);
@@ -1335,12 +1335,12 @@ YY_RULE_SETUP
 /* -------------------- Default rule (error) -------------------- */
 case 46:
 YY_RULE_SETUP
-#line 142 "scanner.l"
+#line 143 "scanner.l"
 { ReportError::UnrecogChar(&yylloc, yytext[0]); }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 144 "scanner.l"
+#line 145 "scanner.l"
 ECHO;
 	YY_BREAK
 #line 1347 "lex.yy.c"
@@ -2536,7 +2536,7 @@ void yyfree (void * ptr )
 
 /* %ok-for-header */
 
-#line 144 "scanner.l"
+#line 145 "scanner.l"
 
 
 
