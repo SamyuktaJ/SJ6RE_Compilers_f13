@@ -31,6 +31,11 @@ class Decl : public Node
   
  public:
   Decl(Identifier *name);
+
+  virtual bool ConflictsWithPrevious(Decl *prev);
+
+  const char *GetName() { return id->GetName(); }
+
   Identifier *GetID() { return id; }
   friend std::ostream& operator<<(std::ostream &out, Decl *decl) { if (decl) return out << decl->id; else return out; }
   virtual const char *GetTypeName() { return NULL; }
