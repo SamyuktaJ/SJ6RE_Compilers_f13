@@ -96,6 +96,7 @@ class ReportError
 
   // Errors used by semantic analyzer for control structures
   static void TestNotBoolean(Expr *testExpr);
+  /*NEW*/ static void TestNotInteger(Expr *testExpr);//TYPE CHECK
   static void ReturnMismatch(ReturnStmt *rStmt, Type *given, Type *expected);
   static void BreakOutsideLoop(BreakStmt *bStmt);
 

@@ -2,15 +2,11 @@
  * -----------------
  * Implementation of type node classes.
  */
+
+#include <string.h>
 #include "ast_type.h"
 #include "ast_decl.h"
-#include <string.h>
 
-#include "errors.h"
-#include <typeinfo>
-#include "ast_stmt.h"
-
- 
 /* Class constants
  * ---------------
  * These are public constants for the built-in base types (int, double, etc.)
@@ -32,93 +28,60 @@ Type::Type(const char *n) {
     typeName = strdup(n);
 }
 
+bool Type::IsEquivalentTo(Type *other) {
+    if (IsEqualTo(Type::errorType))
+        return true;
 
+    if (IsEqualTo(Type::nullType) && dynamic_cast<NamedType*>(other))
+        return true;
 
-	
+    return IsEqualTo(other);
+}
+
 NamedType::NamedType(Identifier *i) : Type(*i->GetLocation()) {
     Assert(i != NULL);
     (id=i)->SetParent(this);
-} 
-
-bool Type::HasSameType(Type *t) {
-  return this == t;
 }
 
-
-//
-bool NamedType::HasSameType(Type *nt) {
-  if (typeid(*nt) == typeid(NamedType))
-    return !strcmp(this->GetTypeName(), nt->GetTypeName());
-  else
-    return false;
+void NamedType::ReportNotDeclaredIdentifier(reasonT reason) {
+    ReportError::IdentifierNotDeclared(id, reason);
 }
 
-void NamedType::CheckTypeError() {
-  const char *name = this->id->GetName();
-  Decl *decl = Program::sym_table->Lookup(name);
-  if ((decl == NULL) || (((typeid(*decl) != typeid(ClassDecl))) && ((typeid(*decl) != typeid(InterfaceDecl)))))
-    {
-      ReportError::IdentifierNotDeclared(id, LookingForType);
-      this->id = NULL;
-    }
-}
+bool NamedType::IsEqualTo(Type *other) {
+    NamedType *namedOther = dynamic_cast<NamedType*>(other);
 
-ArrayType::ArrayType(yyltype loc, Type *et) : Type(loc) {
-  Assert(et != NULL);
-  (this->elemType=et)->SetParent(this);
-}
+    if (namedOther == NULL)
+        return false;
 
-const char *ArrayType::GetTypeName() { 
-  if (this->elemType) 
-    {
-      string delim = "[]";
-      string str = this->elemType->GetTypeName() + delim;
-      return str.c_str();
-    }
-  else 
-    return NULL;
-}
-
-
-bool ArrayType::HasSameType(Type *at) {
-  return this->elemType->HasSameType(at->GetElemType());
-}
-
-void ArrayType::CheckTypeError() {
-  this->elemType->CheckTypeError();
-}
-
-//
-
-/*
-void NamedType::Check() {
-    if (!GetDeclForType()) {
-        isError = true;
-        ReportError::IdentifierNotDeclared(id, LookingForType);
-    }
-}
-Decl *NamedType::GetDeclForType() {
-    if (!cachedDecl && !isError) {
-        Decl *declForName = FindDecl(id);
-        if (declForName && (declForName->IsClassDecl() || declForName->IsInterfaceDecl())) 
-            cachedDecl = declForName;
-    }
-    return cachedDecl;
-}
-
-bool NamedType::IsInterface() {
-    Decl *d = GetDeclForType();
-    return (d && d->IsInterfaceDecl());
-}
-
-bool NamedType::IsClass() {
-    Decl *d = GetDeclForType();
-    return (d && d->IsClassDecl());
+    return *id == *(namedOther->id);
 }
 
 bool NamedType::IsEquivalentTo(Type *other) {
-    NamedType *ot = dynamic_cast<NamedType*>(other);
-    return ot && strcmp(id->GetName(), ot->id->GetName()) == 0;
+    if (IsEqualTo(other))
+        return true;
+
+    NamedType *nType = this;
+    Decl *lookup;
+    while ((lookup = Program::gScope->table->Lookup(nType->Name())) != NULL) {
+        ClassDecl *c = dynamic_cast<ClassDecl*>(lookup);
+        if (c == NULL)
+            return false;
+
+        List<NamedType*> *imps = c->GetImplements();
+        for (int i = 0, n = imps->NumElements(); i < n; ++i) {
+            if (imps->Nth(i)->IsEqualTo(other))
+                return true;
+        }
+
+        nType = c->GetExtends();
+        if (nType == NULL)
+            break;
+
+        if (nType->IsEqualTo(other))
+            return true;
+    }
+
+    return false;
 }
 
 ArrayType::ArrayType(yyltype loc, Type *et) : Type(loc) {
@@ -126,12 +89,29 @@ ArrayType::ArrayType(yyltype loc, Type *et) : Type(loc) {
     (elemType=et)->SetParent(this);
 }
 
-void ArrayType::Check() {
-    elemType->Check();
+ArrayType::ArrayType(Type *et) : Type() {
+    Assert(et != NULL);
+    (elemType=et)->SetParent(this);
+}
+
+void ArrayType::ReportNotDeclaredIdentifier(reasonT reason) {
+    elemType->ReportNotDeclaredIdentifier(reason);
+}
+
+bool ArrayType::IsEqualTo(Type *other) {
+    ArrayType *arrayOther = dynamic_cast<ArrayType*>(other);
+
+    if (arrayOther == NULL)
+        return false;
+
+    return elemType->IsEqualTo(arrayOther->elemType);
 }
 
 bool ArrayType::IsEquivalentTo(Type *other) {
-    ArrayType *o = dynamic_cast<ArrayType*>(other);
-    return (o && elemType->IsEquivalentTo(o->elemType));
+    ArrayType *arrayOther = dynamic_cast<ArrayType*>(other);
+
+    if (arrayOther == NULL)
+        return false;
+
+    return elemType->IsEquivalentTo(arrayOther->elemType);
 }
-*/
