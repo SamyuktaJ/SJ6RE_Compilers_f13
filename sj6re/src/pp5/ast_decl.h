@@ -11,49 +11,62 @@
 
 #include "ast.h"
 #include "list.h"
-#include "ast_stmt.h"
-#include "ast_type.h"
+//#include "ast_stmt.h"
+//#include "ast_type.h"
 
 class Type;
 class Identifier;
 class Stmt;
-class InterfaceDecl;
+//class InterfaceDecl;
+class NamedType;
+class CodeGenerator;
+class Location;
+class FnDecl;
+
 
 class Decl : public Node
 {
   protected:
     Identifier *id;
 
-    Scope *scope;
-
   public:
     Decl(Identifier *name);
     friend ostream& operator<<(ostream& out, Decl *d) { return out << d->id; }
 
-    virtual bool IsEquivalentTo(Decl *other);
+    const char* GetName() { return id->GetName(); }
 
-    const char* Name() { return id->Name(); }
-    Scope* GetScope() { return scope; }
-
-    virtual void MakeScope(Scope *parent);
-    virtual void Check() = 0;
+    virtual void BuildScope() = 0;
+    virtual void PreEmit() = 0;
+    virtual Location* Emit(CodeGenerator *cg) = 0;
+    virtual int GetMemBytes() = 0;
+    virtual int GetVTblBytes() = 0;
+    virtual void AddLabelPrefix(const char *prefix) = 0;
 };
 
 class VarDecl : public Decl
 {
   protected:
     Type *type;
+    Location *memLoc;
+    int memOffset;
 
   public:
     VarDecl(Identifier *name, Type *type);
 
-    bool IsEquivalentTo(Decl *other);
-
     Type* GetType() { return type; }
-    void Check();
 
-  private:
-    void CheckType();
+    void BuildScope() { /* Empty */ }
+    void PreEmit() { /* Empty */ }
+    Location* Emit(CodeGenerator *cg) { return NULL; }
+    int GetMemBytes();
+    int GetVTblBytes() { return 0; }
+    void AddLabelPrefix(const char *prefix) { /* Empty */ }
+
+    Location* GetMemLoc() { return memLoc; }
+    void SetMemLoc(Location *m) { memLoc = m; }
+
+    int GetMemOffset() { return memOffset; }
+    void SetMemOffset(int m) { memOffset = m; }
 };
 
 class ClassDecl : public Decl
@@ -67,21 +80,18 @@ class ClassDecl : public Decl
     ClassDecl(Identifier *name, NamedType *extends,
               List<NamedType*> *implements, List<Decl*> *members);
 
-    void MakeScope(Scope *parent);
-    void Check();
-
-    NamedType* GetType() { return new NamedType(id); }
+    NamedType* GetType();
     NamedType* GetExtends() { return extends; }
-    List<NamedType*>* GetImplements() { return implements; }
+
+    void BuildScope();
+    void PreEmit();
+    Location* Emit(CodeGenerator *cg);
+    int GetMemBytes();
+    int GetVTblBytes();
+    void AddLabelPrefix(const char *prefix) { /* Empty */ }
 
   private:
-    void CheckExtends();
-    void CheckImplements();
-
-    void CheckExtendedMembers(NamedType *extType);
-    void CheckImplementedMembers(NamedType *impType);
-    void CheckAgainstScope(Scope *other);
-    void CheckImplementsInterfaces();
+    List<FnDecl*>* GetMethodDecls();
 };
 
 class InterfaceDecl : public Decl
@@ -92,11 +102,14 @@ class InterfaceDecl : public Decl
   public:
     InterfaceDecl(Identifier *name, List<Decl*> *members);
 
-    void MakeScope(Scope *parent);
-    void Check();
+    // XXX: Interfaces are not supported
 
-    Type* GetType() { return new NamedType(id); }
-    List<Decl*>* GetMembers() { return members; }
+    void BuildScope();
+    void PreEmit() { /* Empty */ }
+    Location* Emit(CodeGenerator *cg) { return NULL; }
+    int GetMemBytes() { return 0; }
+    int GetVTblBytes() { return 0; }
+    void AddLabelPrefix(const char *prefix) { /* Empty */ }
 };
 
 class FnDecl : public Decl
@@ -105,18 +118,30 @@ class FnDecl : public Decl
     List<VarDecl*> *formals;
     Type *returnType;
     Stmt *body;
+    std::string *label;
+    int vtblOffset;
+    bool isMethod;
 
   public:
     FnDecl(Identifier *name, Type *returnType, List<VarDecl*> *formals);
     void SetFunctionBody(Stmt *b);
 
-    bool IsEquivalentTo(Decl *other);
+    Type* GetType() { return returnType; }
+    const char* GetLabel();
+    bool HasReturnVal();
 
-    Type* GetReturnType() { return returnType; }
-    List<VarDecl*>* GetFormals() { return formals; }
+    void BuildScope();
+    void PreEmit() { /* Empty */ }
+    Location* Emit(CodeGenerator *cg);
+    int GetMemBytes() { return 0; }
+    int GetVTblBytes();
+    void AddLabelPrefix(const char *prefix);
 
-    void MakeScope(Scope *parent);
-    void Check();
+    int GetVTblOffset() { return vtblOffset; }
+    void SetVTblOffset(int v) { vtblOffset = v; }
+
+    void SetIsMethod(bool b) { isMethod = b; }
 };
 
 #endif
+

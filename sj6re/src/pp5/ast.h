@@ -16,16 +16,21 @@
 #include <iostream>
 using namespace std;
 
+class Scope;//new
+
 class Node  {
   protected:
     yyltype *location;
     Node *parent;
+    Scope *scope;//new
 
   public:
     Node(yyltype loc);
     Node();
     virtual ~Node() {}
 
+    Scope *GetScope()	     { return scope;}
+	//new GetScope
     yyltype *GetLocation()   { return location; }
     void SetParent(Node *p)  { parent = p; }
     Node *GetParent()        { return parent; }
@@ -39,7 +44,7 @@ class Identifier : public Node
   public:
     Identifier(yyltype loc, const char *name);
     friend ostream& operator<<(ostream& out, Identifier *id) { return out << id->name; }
-    bool operator==(const Identifier &rhs);
+    //bool operator==(const Identifier &rhs);
     const char* Name() { return name; }
 };
 

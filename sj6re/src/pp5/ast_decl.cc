@@ -5,18 +5,12 @@
 #include "ast_decl.h"
 #include "ast_type.h"
 #include "ast_stmt.h"
+#include "codegen.h"
 
-Decl::Decl(Identifier *n) : Node(*n->GetLocation()), scope(new Scope) {
+Decl::Decl(Identifier *n) : Node(*n->GetLocation()) {
     Assert(n != NULL);
     (id=n)->SetParent(this);
-}
-
-bool Decl::IsEquivalentTo(Decl *other) {
-    return true;
-}
-
-void Decl::MakeScope(Scope *parent) {
-    scope->SetParent(parent);
+    scope = new Scope;
 }
 
 VarDecl::VarDecl(Identifier *n, Type *t) : Decl(n) {
@@ -24,39 +18,8 @@ VarDecl::VarDecl(Identifier *n, Type *t) : Decl(n) {
     (type=t)->SetParent(this);
 }
 
-bool VarDecl::IsEquivalentTo(Decl *other) {
-    VarDecl *varDecl = dynamic_cast<VarDecl*>(other);
-    if (varDecl == NULL)
-        return false;
-
-    return type->IsEquivalentTo(varDecl->type);
-}
-
-void VarDecl::Check() {
-    CheckType();
-}
-
-void VarDecl::CheckType() {
-    if (type->IsPrimitive())
-        return;
-
-    Scope *s = scope;
-    while (s != NULL) {
-        Decl *d;
-        if ((d = s->table->Lookup(type->Name())) != NULL) {
-            /* TODO: Do not let VarDecl's to be of an Interface type except
-             * when in that Interfaces scope.
-             */
-            if (dynamic_cast<ClassDecl*>(d) == NULL &&
-                dynamic_cast<InterfaceDecl*>(d) == NULL)
-                type->ReportNotDeclaredIdentifier(LookingForType);
-
-            return;
-        }
-        s = s->GetParent();
-    }
-
-    type->ReportNotDeclaredIdentifier(LookingForType);
+int VarDecl::GetMemBytes() {
+    return CodeGenerator::VarSize;
 }
 
 ClassDecl::ClassDecl(Identifier *n, NamedType *ex, List<NamedType*> *imp, List<Decl*> *m) : Decl(n) {
@@ -66,133 +29,135 @@ ClassDecl::ClassDecl(Identifier *n, NamedType *ex, List<NamedType*> *imp, List<D
     if (extends) extends->SetParent(this);
     (implements=imp)->SetParentAll(this);
     (members=m)->SetParentAll(this);
+
 }
 
-void ClassDecl::MakeScope(Scope *parent) {
-    scope->SetParent(parent);
-    scope->SetClassDecl(this);
+NamedType* ClassDecl::GetType() {
+    return new NamedType(id);
+}
 
+void ClassDecl::BuildScope() {
     for (int i = 0, n = members->NumElements(); i < n; ++i)
         scope->AddDecl(members->Nth(i));
 
     for (int i = 0, n = members->NumElements(); i < n; ++i)
-        members->Nth(i)->MakeScope(scope);
+        members->Nth(i)->BuildScope();
 }
 
-void ClassDecl::Check() {
+void ClassDecl::PreEmit() {
+    int memOffset = CodeGenerator::OffsetToFirstField;
+    int vtblOffset = CodeGenerator::OffsetToFirstMethod;
+
+    if (extends != NULL) {
+        Decl *d = Program::gScope->table->Lookup(extends->GetName());
+        Assert(d != NULL);
+        memOffset += d->GetMemBytes();
+        vtblOffset += d->GetVTblBytes();
+    }
+
+    for (int i = 0, n = members->NumElements(); i < n; ++i) {
+        VarDecl *d = dynamic_cast<VarDecl*>(members->Nth(i));
+        if (d == NULL)
+            continue;
+        d->SetMemOffset(memOffset);
+        memOffset += d->GetMemBytes();
+
+    }
+
+    for (int i = 0, n = members->NumElements(); i < n; ++i) {
+        FnDecl *d = dynamic_cast<FnDecl*>(members->Nth(i));
+        if (d == NULL)
+            continue;
+        d->SetIsMethod(true);
+        d->SetVTblOffset(vtblOffset);
+        vtblOffset += CodeGenerator::VarSize;
+    }
+
+    for (int i = 0, n = members->NumElements(); i < n; ++i) {
+        std::string prefix;
+        prefix += GetName();
+        prefix += ".";
+        members->Nth(i)->AddLabelPrefix(prefix.c_str());
+    }
+}
+
+Location* ClassDecl::Emit(CodeGenerator *cg) {
     for (int i = 0, n = members->NumElements(); i < n; ++i)
-        members->Nth(i)->Check();
+        members->Nth(i)->Emit(cg);
 
-    CheckExtends();
-    CheckImplements();
+    List<FnDecl*> *decls = GetMethodDecls();
+    List<const char*> *labels = new List<const char*>;
+    for (int i = 0, n = decls->NumElements(); i < n; ++i)
+        labels->Append(decls->Nth(i)->GetLabel());
 
-    for (int i = 0, n = implements->NumElements(); i < n; ++i)
-        CheckImplementedMembers(implements->Nth(i));
+    cg->GenVTable(GetName(), labels);
 
-    CheckExtendedMembers(extends);
-    CheckImplementsInterfaces();
+    return NULL;
 }
 
-void ClassDecl::CheckExtends() {
-    if (extends == NULL)
-        return;
+int ClassDecl::GetMemBytes() {
+    int memBytes = 0;
 
-    Decl *lookup = scope->GetParent()->table->Lookup(extends->Name());
-    if (dynamic_cast<ClassDecl*>(lookup) == NULL)
-        extends->ReportNotDeclaredIdentifier(LookingForClass);
-}
-
-void ClassDecl::CheckImplements() {
-    Scope *s = scope->GetParent();
-
-    for (int i = 0, n = implements->NumElements(); i < n; ++i) {
-        NamedType *nth = implements->Nth(i);
-        Decl *lookup = s->table->Lookup(implements->Nth(i)->Name());
-
-        if (dynamic_cast<InterfaceDecl*>(lookup) == NULL)
-            nth->ReportNotDeclaredIdentifier(LookingForInterface);
+    if (extends != NULL) {
+        Decl *d = Program::gScope->table->Lookup(extends->GetName());
+        Assert(d != NULL);
+        memBytes += d->GetMemBytes();
     }
+
+    for (int i = 0, n = members->NumElements(); i < n; ++i)
+        memBytes += members->Nth(i)->GetMemBytes();
+
+    return memBytes;
 }
 
-void ClassDecl::CheckExtendedMembers(NamedType *extType) {
-    if (extType == NULL)
-        return;
+int ClassDecl::GetVTblBytes() {
+    int vtblBytes = 0;
 
-    Decl *lookup = scope->GetParent()->table->Lookup(extType->Name());
-    ClassDecl *extDecl = dynamic_cast<ClassDecl*>(lookup);
-    if (extDecl == NULL)
-        return;
+    if (extends != NULL) {
+        Decl *d = Program::gScope->table->Lookup(extends->GetName());
+        Assert(d != NULL);
+        vtblBytes += d->GetVTblBytes();
+    }
 
-    CheckExtendedMembers(extDecl->extends);
-    CheckAgainstScope(extDecl->scope);
+    for (int i = 0, n = members->NumElements(); i < n; ++i)
+        vtblBytes += members->Nth(i)->GetVTblBytes();
+
+    return vtblBytes;
 }
 
-void ClassDecl::CheckImplementedMembers(NamedType *impType) {
-    Decl *lookup = scope->GetParent()->table->Lookup(impType->Name());
-    InterfaceDecl *intDecl = dynamic_cast<InterfaceDecl*>(lookup);
-    if (intDecl == NULL)
-        return;
+List<FnDecl*>* ClassDecl::GetMethodDecls() {
+    List<FnDecl*> *decls = new List<FnDecl*>;
 
-    CheckAgainstScope(intDecl->GetScope());
-}
+    if (extends != NULL) {
+        Decl *d = Program::gScope->table->Lookup(extends->GetName());
+        ClassDecl *c = dynamic_cast<ClassDecl*>(d);
+        Assert(c != NULL);
+        List<FnDecl*> *extDecls = c->GetMethodDecls();
+        for (int i = 0, n = extDecls->NumElements(); i < n; ++i)
+            decls->Append(extDecls->Nth(i));
+    }
 
-void ClassDecl::CheckAgainstScope(Scope *other) {
-    Iterator<Decl*> iter = scope->table->GetIterator();
-    Decl *d;
-    while ((d = iter.GetNextValue()) != NULL) {
-        Decl *lookup = other->table->Lookup(d->Name());
-
-        if (lookup == NULL)
+    for (int i = 0, n = members->NumElements(); i < n; ++i) {
+        FnDecl *d = dynamic_cast<FnDecl*>(members->Nth(i));
+        if (d == NULL)
             continue;
 
-        if (dynamic_cast<VarDecl*>(lookup) != NULL)
-            ReportError::DeclConflict(d, lookup);
-
-        if (dynamic_cast<FnDecl*>(lookup) != NULL &&
-            !d->IsEquivalentTo(lookup))
-            ReportError::OverrideMismatch(d);
-    }
-}
-
-void ClassDecl::CheckImplementsInterfaces() {
-    Scope *s = scope->GetParent();
-
-    for (int i = 0, n = implements->NumElements(); i < n; ++i) {
-        NamedType *nth = implements->Nth(i);
-        Decl *lookup = s->table->Lookup(implements->Nth(i)->Name());
-        InterfaceDecl *intDecl = dynamic_cast<InterfaceDecl*>(lookup);
-
-        if (intDecl == NULL)
-            continue;
-
-        List<Decl*> *intMembers = intDecl->GetMembers();
-
-        for (int i = 0, n = intMembers->NumElements(); i < n; ++i) {
-            Decl *d = intMembers->Nth(i);
-
-            ClassDecl *classDecl = this;
-            Decl *classLookup;
-            while (classDecl != NULL) {
-                classLookup = classDecl->GetScope()->table->Lookup(d->Name());
-
-                if (classLookup != NULL)
-                    break;
-
-                if (classDecl->GetExtends() == NULL) {
-                    classDecl = NULL;
-                } else {
-                    const char *extName = classDecl->GetExtends()->Name();
-                    Decl *ext = Program::gScope->table->Lookup(extName);
-                    classDecl = dynamic_cast<ClassDecl*>(ext);
-                }
-            }
-
-            if (classLookup == NULL) {
-                ReportError::InterfaceNotImplemented(this, nth);
-                return;
+        for (int j = 0, m = decls->NumElements(); j < m; ++j) {
+            if (strcmp(decls->Nth(j)->GetName(), d->GetName()) == 0) {
+                decls->RemoveAt(j);
+                decls->InsertAt(d, j);
             }
         }
     }
+
+    for (int i = 0, n = members->NumElements(); i < n; ++i) {
+        FnDecl *d = dynamic_cast<FnDecl*>(members->Nth(i));
+        if (d == NULL)
+            continue;
+        decls->Append(d);
+    }
+
+    return decls;
 }
 
 InterfaceDecl::InterfaceDecl(Identifier *n, List<Decl*> *m) : Decl(n) {
@@ -200,19 +165,12 @@ InterfaceDecl::InterfaceDecl(Identifier *n, List<Decl*> *m) : Decl(n) {
     (members=m)->SetParentAll(this);
 }
 
-void InterfaceDecl::MakeScope(Scope *parent) {
-    scope->SetParent(parent);
-
+void InterfaceDecl::BuildScope() {
     for (int i = 0, n = members->NumElements(); i < n; ++i)
         scope->AddDecl(members->Nth(i));
 
     for (int i = 0, n = members->NumElements(); i < n; ++i)
-        members->Nth(i)->MakeScope(scope);
-}
-
-void InterfaceDecl::Check() {
-    for (int i = 0, n = members->NumElements(); i < n; ++i)
-        members->Nth(i)->Check();
+        members->Nth(i)->BuildScope();
 }
 
 FnDecl::FnDecl(Identifier *n, Type *r, List<VarDecl*> *d) : Decl(n) {
@@ -220,49 +178,62 @@ FnDecl::FnDecl(Identifier *n, Type *r, List<VarDecl*> *d) : Decl(n) {
     (returnType=r)->SetParent(this);
     (formals=d)->SetParentAll(this);
     body = NULL;
+    label = new std::string(GetName());
+    if (*label != "main")
+        label->insert(0, "____"); // Prefix function labels to avoid conflicts
+    isMethod = false;
 }
 
 void FnDecl::SetFunctionBody(Stmt *b) {
     (body=b)->SetParent(this);
 }
 
-bool FnDecl::IsEquivalentTo(Decl *other) {
-    FnDecl *fnDecl = dynamic_cast<FnDecl*>(other);
-
-    if (fnDecl == NULL)
-        return false;
-
-    if (!returnType->IsEquivalentTo(fnDecl->returnType))
-        return false;
-
-    if (formals->NumElements() != fnDecl->formals->NumElements())
-        return false;
-
-    for (int i = 0, n = formals->NumElements(); i < n; ++i)
-        if (!formals->Nth(i)->IsEquivalentTo(fnDecl->formals->Nth(i)))
-            return false;
-
-    return true;
+const char* FnDecl::GetLabel() {
+    return label->c_str();
 }
 
-void FnDecl::MakeScope(Scope *parent) {
-    scope->SetParent(parent);
-    scope->SetFnDecl(this);
+bool FnDecl::HasReturnVal() {
+    return returnType == Type::voidType ? 0 : 1;
+}
 
+void FnDecl::BuildScope() {
     for (int i = 0, n = formals->NumElements(); i < n; ++i)
         scope->AddDecl(formals->Nth(i));
 
     for (int i = 0, n = formals->NumElements(); i < n; ++i)
-        formals->Nth(i)->MakeScope(scope);
+        formals->Nth(i)->BuildScope();
 
-    if (body)
-        body->MakeScope(scope);
+    if (body) body->BuildScope();
 }
 
-void FnDecl::Check() {
-    for (int i = 0, n = formals->NumElements(); i < n; ++i)
-        formals->Nth(i)->Check();
+Location* FnDecl::Emit(CodeGenerator *cg) {
+    int offset = CodeGenerator::OffsetToFirstParam;
 
-    if (body)
-        body->Check();
+    if (isMethod)
+        offset += CodeGenerator::VarSize;
+
+    for (int i = 0, n = formals->NumElements(); i < n; ++i) {
+        VarDecl *d = formals->Nth(i);
+        Location *loc = new Location(fpRelative, offset, d->GetName());
+        d->SetMemLoc(loc);
+        offset += d->GetMemBytes();
+    }
+
+    if (body != NULL) {
+        cg->GenLabel(GetLabel());
+        cg->GenBeginFunc()->SetFrameSize(body->GetMemBytes());
+        body->Emit(cg);
+        cg->GenEndFunc();
+    }
+
+    return NULL;
 }
+
+int FnDecl::GetVTblBytes() {
+    return CodeGenerator::VarSize;
+}
+
+void FnDecl::AddLabelPrefix(const char *p) {
+    label->insert(0, p);
+}
+
