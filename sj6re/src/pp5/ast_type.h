@@ -12,7 +12,8 @@
 #include "ast.h"
 #include "list.h"
 #include <iostream>
-#include "errors.h"
+//#include "errors.h"
+#include "codegen.h"//new
 using namespace std;
 
 class Type : public Node
@@ -25,17 +26,15 @@ class Type : public Node
                 *nullType, *stringType, *errorType;
 
     Type(yyltype loc) : Node(loc) {}
-    Type() : Node() {}
     Type(const char *str);
+    Type() : Node() {}
+
+    virtual const char* GetName() { return typeName; }
 
     virtual void PrintToStream(ostream& out) { out << typeName; }
     friend ostream& operator<<(ostream& out, Type *t) { t->PrintToStream(out); return out; }
-    virtual bool IsEqualTo(Type *other) { return this == other; }
-    virtual bool IsEquivalentTo(Type *other);
-    virtual void ReportNotDeclaredIdentifier(reasonT reason) { return; }
-
-    virtual const char* Name() { return typeName; }
-    virtual bool IsPrimitive() { return true; }
+    virtual bool IsEquivalentTo(Type *other) { return this == other; }
+    virtual BuiltIn GetPrint();
 };
 
 class NamedType : public Type
@@ -46,14 +45,10 @@ class NamedType : public Type
   public:
     NamedType(Identifier *i);
 
-    void PrintToStream(ostream& out) { out << id; }
-    void ReportNotDeclaredIdentifier(reasonT reason);
-    bool IsEqualTo(Type *other);
-    bool IsEquivalentTo(Type *other);
+    const char* GetName() { return id->GetName(); }
 
-    const char* Name() { return id->Name(); }
-    bool IsPrimitive() { return false; }
-    Identifier* GetId() { return id; }
+    void PrintToStream(ostream& out) { out << id; }
+    BuiltIn GetPrint();
 };
 
 class ArrayType : public Type
@@ -65,15 +60,10 @@ class ArrayType : public Type
     ArrayType(yyltype loc, Type *elemType);
     ArrayType(Type *elemType);
 
+    const char* GetName() { return elemType->GetName(); }
+
     void PrintToStream(ostream& out) { out << elemType << "[]"; }
-    void ReportNotDeclaredIdentifier(reasonT reason);
-    bool IsEqualTo(Type *other);
-    bool IsEquivalentTo(Type *other);
-
-    const char* Name() { return elemType->Name(); }
-    bool IsPrimitive() { return false; }
-
-    Type* GetElemType() { return elemType; }
+    BuiltIn GetPrint();
 };
 
 #endif

@@ -36,12 +36,12 @@ NamedType* ClassDecl::GetType() {
     return new NamedType(id);
 }
 
-void ClassDecl::BuildScope() {
+void ClassDecl::MakeScope() {
     for (int i = 0, n = members->NumElements(); i < n; ++i)
         scope->AddDecl(members->Nth(i));
 
     for (int i = 0, n = members->NumElements(); i < n; ++i)
-        members->Nth(i)->BuildScope();
+        members->Nth(i)->MakeScope();
 }
 
 void ClassDecl::PreEmit() {
@@ -165,12 +165,12 @@ InterfaceDecl::InterfaceDecl(Identifier *n, List<Decl*> *m) : Decl(n) {
     (members=m)->SetParentAll(this);
 }
 
-void InterfaceDecl::BuildScope() {
+void InterfaceDecl::MakeScope() {
     for (int i = 0, n = members->NumElements(); i < n; ++i)
         scope->AddDecl(members->Nth(i));
 
     for (int i = 0, n = members->NumElements(); i < n; ++i)
-        members->Nth(i)->BuildScope();
+        members->Nth(i)->MakeScope();
 }
 
 FnDecl::FnDecl(Identifier *n, Type *r, List<VarDecl*> *d) : Decl(n) {
@@ -196,14 +196,14 @@ bool FnDecl::HasReturnVal() {
     return returnType == Type::voidType ? 0 : 1;
 }
 
-void FnDecl::BuildScope() {
+void FnDecl::MakeScope() {
     for (int i = 0, n = formals->NumElements(); i < n; ++i)
         scope->AddDecl(formals->Nth(i));
 
     for (int i = 0, n = formals->NumElements(); i < n; ++i)
-        formals->Nth(i)->BuildScope();
+        formals->Nth(i)->MakeScope();
 
-    if (body) body->BuildScope();
+    if (body) body->MakeScope();
 }
 
 Location* FnDecl::Emit(CodeGenerator *cg) {

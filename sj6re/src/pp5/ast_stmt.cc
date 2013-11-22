@@ -6,19 +6,23 @@
 #include "ast_type.h"
 #include "ast_decl.h"
 #include "ast_expr.h"
-#include "errors.h"
-#include "ast_type.h"
+//#include "errors.h"
+//#include "ast_type.h"
+#include "codegen.h"//new
+#include "hashtable.h"//new
 
-int Scope::AddDecl(Decl *d) {
-    Decl *lookup = table->Lookup(d->Name());
+Scope *Program::gScope = new Scope;
+stack<const char*> *Program::gBreakLabels = new stack<const char*>;
 
-    if (lookup != NULL) {
-            ReportError::DeclConflict(d, lookup);
-            return 1;
-    }
+Scope::Scope() : table(new Hashtable<Decl*>) {
+    // Empty
+}
 
-    table->Enter(d->Name(), d);
-    return 0;
+/* XXX: Only semantically valid programs will be tested, thus no semantic
+ * checking is performed here.
+ */
+void Scope::AddDecl(Decl *d) {
+    table->Enter(d->GetName(), d);
 }
 
 ostream& operator<<(ostream& out, Scope *s) {
@@ -30,38 +34,63 @@ ostream& operator<<(ostream& out, Scope *s) {
     return out;
 }
 
-Scope *Program::gScope = new Scope();
-
-Program::Program(List<Decl*> *d) {
+Program::Program(List<Decl*> *d) : codeGenerator(new CodeGenerator) {
     Assert(d != NULL);
     (decls=d)->SetParentAll(this);
+    scope = gScope;
 }
 
 void Program::Check() {
-    /* pp3: here is where the semantic analyzer is kicked off.
-     *      The general idea is perform a tree traversal of the
-     *      entire program, examining all constructs for compliance
-     *      with the semantic rules.  Each node can have its own way of
-     *      checking itself, which makes for a great use of inheritance
-     *      and polymorphism in the node classes.
+    /* You can use your pp3 semantic analysis or leave it out if
+     * you want to avoid the clutter.  We won't test pp4 against
+     * semantically-invalid programs.
      */
-
-    MakeScope();
-
-    for (int i = 0, n = decls->NumElements(); i < n; ++i)
-        decls->Nth(i)->Check();
-}
-
-void Program::MakeScope() {
     for (int i = 0, n = decls->NumElements(); i < n; ++i)
         gScope->AddDecl(decls->Nth(i));
 
     for (int i = 0, n = decls->NumElements(); i < n; ++i)
-        decls->Nth(i)->MakeScope(gScope);
+        decls->Nth(i)->MakeScope();
+
+    /* XXX: Only semantically valid programs will be tested, thus no
+     * semantic checking is performed here.
+     */
 }
 
-void Stmt::MakeScope(Scope *parent) {
-    scope->SetParent(parent);
+void Program::Emit() {
+    /* pp4: here is where the code generation is kicked off.
+     *      The general idea is perform a tree traversal of the
+     *      entire program, generating instructions as you go.
+     *      Each node can have its own way of translating itself,
+     *      which makes for a great use of inheritance and
+     *      polymorphism in the node classes.
+     */
+    int offset = CodeGenerator::OffsetToFirstGlobal;
+
+    for (int i = 0, n = decls->NumElements(); i < n; ++i) {
+        VarDecl *d = dynamic_cast<VarDecl*>(decls->Nth(i));
+        if (d == NULL)
+            continue;
+
+        Location *loc = new Location(gpRelative, offset, d->GetName());
+        d->SetMemLoc(loc);
+        offset += d->GetMemBytes();
+    }
+
+    for (int i = 0, n = decls->NumElements(); i < n; ++i)
+        decls->Nth(i)->PreEmit();
+
+    for (int i = 0, n = decls->NumElements(); i < n; ++i)
+        decls->Nth(i)->Emit(codeGenerator);
+
+    codeGenerator->DoFinalCodeGen();
+}
+
+Stmt::Stmt() : Node() {
+    scope = new Scope;
+}
+
+Stmt::Stmt(yyltype loc) : Node(loc) {
+    scope = new Scope;
 }
 
 StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {
@@ -70,25 +99,42 @@ StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {
     (stmts=s)->SetParentAll(this);
 }
 
-void StmtBlock::MakeScope(Scope *parent) {
-    scope->SetParent(parent);
-
+void StmtBlock::MakeScope() {
     for (int i = 0, n = decls->NumElements(); i < n; ++i)
         scope->AddDecl(decls->Nth(i));
 
     for (int i = 0, n = decls->NumElements(); i < n; ++i)
-        decls->Nth(i)->MakeScope(scope);
+        decls->Nth(i)->MakeScope();
 
     for (int i = 0, n = stmts->NumElements(); i < n; ++i)
-        stmts->Nth(i)->MakeScope(scope);
+        stmts->Nth(i)->MakeScope();
 }
 
-void StmtBlock::Check() {
-    for (int i = 0, n = decls->NumElements(); i < n; ++i)
-        decls->Nth(i)->Check();
+Location* StmtBlock::Emit(CodeGenerator *cg) {
+    for (int i = 0, n = decls->NumElements(); i < n; ++i) {
+        VarDecl *d = dynamic_cast<VarDecl*>(decls->Nth(i));
+        if (d == NULL)
+            continue;
+        Location *loc = cg->GenLocalVar(d->GetName(), d->GetMemBytes());
+        d->SetMemLoc(loc);
+    }
 
     for (int i = 0, n = stmts->NumElements(); i < n; ++i)
-        stmts->Nth(i)->Check();
+        stmts->Nth(i)->Emit(cg);
+
+    return NULL;
+}
+
+int StmtBlock::GetMemBytes() {
+    int memBytes = 0;
+
+    for (int i = 0, n = decls->NumElements(); i < n; ++i)
+        memBytes += decls->Nth(i)->GetMemBytes();
+
+    for (int i = 0, n = stmts->NumElements(); i < n; ++i)
+        memBytes += stmts->Nth(i)->GetMemBytes();
+
+    return memBytes;
 }
 
 ConditionalStmt::ConditionalStmt(Expr *t, Stmt *b) {
@@ -97,27 +143,13 @@ ConditionalStmt::ConditionalStmt(Expr *t, Stmt *b) {
     (body=b)->SetParent(this);
 }
 
-void ConditionalStmt::MakeScope(Scope *parent) {
-    scope->SetParent(parent);
-
-    test->MakeScope(scope);
-    body->MakeScope(scope);
+void ConditionalStmt::MakeScope() {
+    test->MakeScope();
+    body->MakeScope();
 }
 
-void ConditionalStmt::Check() {
-    test->Check();
-    body->Check();
-
-    if (!test->GetType()->IsEquivalentTo(Type::boolType))
-        ReportError::TestNotBoolean(test);
-}
-
-void LoopStmt::MakeScope(Scope *parent) {
-    scope->SetParent(parent);
-    scope->SetLoopStmt(this);
-
-    test->MakeScope(scope);
-    body->MakeScope(scope);
+void LoopStmt::MakeScope() {
+    ConditionalStmt::MakeScope();
 }
 
 ForStmt::ForStmt(Expr *i, Expr *t, Expr *s, Stmt *b): LoopStmt(t, b) {
@@ -126,43 +158,105 @@ ForStmt::ForStmt(Expr *i, Expr *t, Expr *s, Stmt *b): LoopStmt(t, b) {
     (step=s)->SetParent(this);
 }
 
+void ForStmt::MakeScope() {
+    LoopStmt::MakeScope();
+
+    init->MakeScope();
+    step->MakeScope();
+}
+
+Location* ForStmt::Emit(CodeGenerator *cg) {
+    const char* top = cg->NewLabel();
+    const char* bot = cg->NewLabel();
+
+    Program::gBreakLabels->push(bot);
+
+    init->Emit(cg);
+    cg->GenLabel(top);
+    Location *t = test->Emit(cg);
+    cg->GenIfZ(t, bot);
+    body->Emit(cg);
+    step->Emit(cg);
+    cg->GenGoto(top);
+    cg->GenLabel(bot);
+
+    Program::gBreakLabels->pop();
+
+    return NULL;
+
+}
+
+int ForStmt::GetMemBytes() {
+    return init->GetMemBytes() + test->GetMemBytes() +
+           body->GetMemBytes() + step->GetMemBytes();
+}
+
+void WhileStmt::MakeScope() {
+    LoopStmt::MakeScope();
+}
+
+Location* WhileStmt::Emit(CodeGenerator *cg) {
+    const char* top = cg->NewLabel();
+    const char* bot = cg->NewLabel();
+
+    Program::gBreakLabels->push(bot);
+
+    cg->GenLabel(top);
+    Location *t = test->Emit(cg);
+    cg->GenIfZ(t, bot);
+    body->Emit(cg);
+    cg->GenGoto(top);
+    cg->GenLabel(bot);
+
+    Program::gBreakLabels->pop();
+
+    return NULL;
+}
+
+int WhileStmt::GetMemBytes() {
+    return test->GetMemBytes() + body->GetMemBytes();
+}
+
 IfStmt::IfStmt(Expr *t, Stmt *tb, Stmt *eb): ConditionalStmt(t, tb) {
     Assert(t != NULL && tb != NULL); // else can be NULL
     elseBody = eb;
     if (elseBody) elseBody->SetParent(this);
 }
 
-void IfStmt::MakeScope(Scope *parent) {
-    scope->SetParent(parent);
+void IfStmt::MakeScope() {
+    ConditionalStmt::MakeScope();
 
-    test->MakeScope(scope);
-    body->MakeScope(scope);
-
-    if (elseBody != NULL)
-        elseBody->MakeScope(scope);
+    if (elseBody) elseBody->MakeScope();
 }
 
-void IfStmt::Check() {
-    test->Check();
-    body->Check();
+Location* IfStmt::Emit(CodeGenerator *cg) {
+    const char* els = cg->NewLabel();
+    const char* bot = cg->NewLabel();
 
-    if (!test->GetType()->IsEquivalentTo(Type::boolType))
-        ReportError::TestNotBoolean(test);
+    Location *t = test->Emit(cg);
+    cg->GenIfZ(t, els);
+    body->Emit(cg);
+    cg->GenGoto(bot);
+    cg->GenLabel(els);
+    if (elseBody) elseBody->Emit(cg);
+    cg->GenLabel(bot);
 
-    if (elseBody != NULL)
-        elseBody->Check();
+    return NULL;
 }
 
-void BreakStmt::Check() {
-    Scope *s = scope;
-    while (s != NULL) {
-        if (s->GetLoopStmt() != NULL)
-            return;
+int IfStmt::GetMemBytes() {
+    int memBytes = test->GetMemBytes() + body->GetMemBytes();
+    if (elseBody) memBytes += elseBody->GetMemBytes();
+    return memBytes;
+}
 
-        s = s->GetParent();
-    }
+Location* BreakStmt::Emit(CodeGenerator *cg) {
+    cg->GenGoto(Program::gBreakLabels->top());
+    return NULL;
+}
 
-    ReportError::BreakOutsideLoop(this);
+int BreakStmt::GetMemBytes() {
+    return 0;
 }
 
 ReturnStmt::ReturnStmt(yyltype loc, Expr *e) : Stmt(loc) {
@@ -170,35 +264,24 @@ ReturnStmt::ReturnStmt(yyltype loc, Expr *e) : Stmt(loc) {
     (expr=e)->SetParent(this);
 }
 
-void ReturnStmt::MakeScope(Scope *parent) {
-    scope->SetParent(parent);
-
-    expr->MakeScope(scope);
+void ReturnStmt::MakeScope() {
+    expr->MakeScope();
 }
 
-void ReturnStmt::Check() {
-    expr->Check();
+Location* ReturnStmt::Emit(CodeGenerator *cg) {
+    if (expr == NULL)
+        cg->GenReturn();
+    else
+        cg->GenReturn(expr->Emit(cg));
 
-    FnDecl *d = NULL;
-    Scope *s = scope;
-    while (s != NULL) {
-        if ((d = s->GetFnDecl()) != NULL)
-            break;
+    return NULL;
+}
 
-        s = s->GetParent();
-    }
-
-    if (d == NULL) {
-        ReportError::Formatted(location,
-                               "return is only allowed inside a function");
-        return;
-    }
-
-    Type *expected = d->GetReturnType();
-    Type *given = expr->GetType();
-
-    if (!given->IsEquivalentTo(expected))
-        ReportError::ReturnMismatch(this, given, expected);
+int ReturnStmt::GetMemBytes() {
+    if (expr == NULL)
+        return 0;
+    else
+        return expr->GetMemBytes();
 }
 
 PrintStmt::PrintStmt(List<Expr*> *a) {
@@ -206,23 +289,33 @@ PrintStmt::PrintStmt(List<Expr*> *a) {
     (args=a)->SetParentAll(this);
 }
 
-void PrintStmt::MakeScope(Scope *parent) {
-    scope->SetParent(parent);
-
+void PrintStmt::MakeScope() {
     for (int i = 0, n = args->NumElements(); i < n; ++i)
-        args->Nth(i)->MakeScope(scope);
+        args->Nth(i)->MakeScope();
 }
 
-void PrintStmt::Check() {
+Location* PrintStmt::Emit(CodeGenerator *cg) {
     for (int i = 0, n = args->NumElements(); i < n; ++i) {
-        Type *given = args->Nth(i)->GetType();
+        Expr *e = args->Nth(i);
+        BuiltIn b = e->GetType()->GetPrint();
+        /* Print can only take ints, bools, or strings as parameters
+         * (remember, doubles need not be supported for PP4). GetPrint()
+         * should only return NumBuiltIns if the type is not an int, bool,
+         * or string. This should never happen.
+         */
+        Assert(b != NumBuiltIns);
 
-        if (!(given->IsEquivalentTo(Type::intType) ||
-              given->IsEquivalentTo(Type::boolType) ||
-              given->IsEquivalentTo(Type::stringType)))
-            ReportError::PrintArgMismatch(args->Nth(i), i+1, given);
+        cg->GenBuiltInCall(b, e->Emit(cg));
     }
 
-    for (int i = 0, n = args->NumElements(); i < n; ++i)
-        args->Nth(i)->Check();
+    return NULL;
 }
+
+int PrintStmt::GetMemBytes() {
+    int memBytes = 0;
+    for (int i = 0, n = args->NumElements(); i < n; ++i)
+        memBytes += args->Nth(i)->GetMemBytes();
+   return memBytes;
+}
+
+//=============

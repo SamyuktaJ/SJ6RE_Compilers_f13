@@ -12,74 +12,59 @@
 #include "list.h"
 #include "ast.h"
 #include "hashtable.h"
-#include "ast_type.h"
+//#include "ast_type.h"
+#include <stack>//new
 
 class Decl;
 class VarDecl;
 class Expr;
-class Type;
-class ClassDecl;
-class LoopStmt;
-class FnDecl;
+class CodeGenerator;//new
+class Location;//new
+//class Type;
+//class ClassDecl;
+//class LoopStmt;
+//class FnDecl;
 
 class Scope
 {
-  private:
-    Scope *parent;
-
   public:
     Hashtable<Decl*> *table;
-    ClassDecl *classDecl;
-    LoopStmt *loopStmt;
-    FnDecl *fnDecl;
 
   public:
-    Scope() : table(new Hashtable<Decl*>), classDecl(NULL), loopStmt(NULL),
-              fnDecl(NULL) {}
+    Scope();
 
-    void SetParent(Scope *p) { parent = p; }
-    Scope* GetParent() { return parent; }
-
-    void SetClassDecl(ClassDecl *d) { classDecl = d; }
-    ClassDecl* GetClassDecl() { return classDecl; }
-
-    void SetLoopStmt(LoopStmt *s) { loopStmt = s; }
-    LoopStmt* GetLoopStmt() { return loopStmt; }
-
-    void SetFnDecl(FnDecl *d) { fnDecl = d; }
-    FnDecl* GetFnDecl() { return fnDecl; }
-
-    int AddDecl(Decl *decl);
+    void AddDecl(Decl *d);
     friend ostream& operator<<(ostream& out, Scope *s);
 };
 
 class Program : public Node
 {
   public:
-     static Scope *gScope;
+    static Scope *gScope;
+    static stack<const char*> *gBreakLabels;
 
   protected:
      List<Decl*> *decls;
+     CodeGenerator *codeGenerator;
 
   public:
      Program(List<Decl*> *declList);
      void Check();
+     void Emit();
 
   private:
-     void MakeScope();
+    void MakeScope();
 };
 
 class Stmt : public Node
 {
-  protected:
-    Scope *scope;
-
   public:
-     Stmt() : Node(), scope(new Scope) {}
-     Stmt(yyltype loc) : Node(loc), scope(new Scope) {}
+    Stmt();
+    Stmt(yyltype loc);
 
-     virtual void MakeScope(Scope *parent);
-     virtual void Check() = 0;
+    virtual void MakeScope() = 0;
+    virtual Location* Emit(CodeGenerator *cg) = 0;
+    virtual int GetMemBytes() = 0;
 };
 
 class StmtBlock : public Stmt
@@ -91,10 +76,9 @@ class StmtBlock : public Stmt
   public:
     StmtBlock(List<VarDecl*> *variableDeclarations, List<Stmt*> *statements);
 
-    void MakeScope(Scope *parent);
-    void Check();
-
-  private:
+    void MakeScope();
+    Location* Emit(CodeGenerator *cg);
+    int GetMemBytes();
 };
 
 class ConditionalStmt : public Stmt
@@ -106,8 +90,7 @@ class ConditionalStmt : public Stmt
   public:
     ConditionalStmt(Expr *testExpr, Stmt *body);
 
-    virtual void MakeScope(Scope *parent);
-    virtual void Check();
+    virtual void MakeScope() = 0;
 };
 
 class LoopStmt : public ConditionalStmt
@@ -116,7 +99,7 @@ class LoopStmt : public ConditionalStmt
     LoopStmt(Expr *testExpr, Stmt *body)
             : ConditionalStmt(testExpr, body) {}
 
-    virtual void MakeScope(Scope *parent);
+    virtual void MakeScope() = 0;
 };
 
 class ForStmt : public LoopStmt
@@ -126,12 +109,20 @@ class ForStmt : public LoopStmt
 
   public:
     ForStmt(Expr *init, Expr *test, Expr *step, Stmt *body);
+
+    void MakeScope();
+    Location* Emit(CodeGenerator *cg);
+    int GetMemBytes();
 };
 
 class WhileStmt : public LoopStmt
 {
   public:
     WhileStmt(Expr *test, Stmt *body) : LoopStmt(test, body) {}
+
+    void MakeScope();
+    Location* Emit(CodeGenerator *cg);
+    int GetMemBytes();
 };
 
 class IfStmt : public ConditionalStmt
@@ -142,8 +133,9 @@ class IfStmt : public ConditionalStmt
   public:
     IfStmt(Expr *test, Stmt *thenBody, Stmt *elseBody);
 
-    void MakeScope(Scope *parent);
-    void Check();
+    void MakeScope();
+    Location* Emit(CodeGenerator *cg);
+    int GetMemBytes();
 };
 
 class BreakStmt : public Stmt
@@ -151,7 +143,9 @@ class BreakStmt : public Stmt
   public:
     BreakStmt(yyltype loc) : Stmt(loc) {}
 
-    void Check();
+    void MakeScope() { /* Empty */ }
+    Location* Emit(CodeGenerator *cg);
+    int GetMemBytes();
 };
 
 class ReturnStmt : public Stmt
@@ -162,8 +156,9 @@ class ReturnStmt : public Stmt
   public:
     ReturnStmt(yyltype loc, Expr *expr);
 
-    void MakeScope(Scope *parent);
-    void Check();
+    void MakeScope();
+    Location* Emit(CodeGenerator *cg);
+    int GetMemBytes();
 };
 
 class PrintStmt : public Stmt
@@ -174,8 +169,10 @@ class PrintStmt : public Stmt
   public:
     PrintStmt(List<Expr*> *arguments);
 
-    void MakeScope(Scope *parent);
-    void Check();
+    void MakeScope();
+    Location* Emit(CodeGenerator *cg);
+    int GetMemBytes();
 };
 
 #endif
+

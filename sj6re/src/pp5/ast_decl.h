@@ -35,7 +35,7 @@ class Decl : public Node
 
     const char* GetName() { return id->GetName(); }
 
-    virtual void BuildScope() = 0;
+    virtual void MakeScope() = 0;
     virtual void PreEmit() = 0;
     virtual Location* Emit(CodeGenerator *cg) = 0;
     virtual int GetMemBytes() = 0;
@@ -55,7 +55,7 @@ class VarDecl : public Decl
 
     Type* GetType() { return type; }
 
-    void BuildScope() { /* Empty */ }
+    void MakeScope() { /* Empty */ }
     void PreEmit() { /* Empty */ }
     Location* Emit(CodeGenerator *cg) { return NULL; }
     int GetMemBytes();
@@ -83,7 +83,7 @@ class ClassDecl : public Decl
     NamedType* GetType();
     NamedType* GetExtends() { return extends; }
 
-    void BuildScope();
+    void MakeScope();
     void PreEmit();
     Location* Emit(CodeGenerator *cg);
     int GetMemBytes();
@@ -104,7 +104,7 @@ class InterfaceDecl : public Decl
 
     // XXX: Interfaces are not supported
 
-    void BuildScope();
+    void MakeScope();
     void PreEmit() { /* Empty */ }
     Location* Emit(CodeGenerator *cg) { return NULL; }
     int GetMemBytes() { return 0; }
@@ -130,7 +130,7 @@ class FnDecl : public Decl
     const char* GetLabel();
     bool HasReturnVal();
 
-    void BuildScope();
+    void MakeScope();
     void PreEmit() { /* Empty */ }
     Location* Emit(CodeGenerator *cg);
     int GetMemBytes() { return 0; }
