@@ -1,0 +1,12 @@
+void main()
+{
+    string x;
+    string y; 
+    x = "hello";
+    y = "hello";
+   
+    if(x == y)
+	Print("HERE!");
+   else
+    	Print(x);
+}

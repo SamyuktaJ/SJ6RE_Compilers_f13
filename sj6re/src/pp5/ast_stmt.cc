@@ -18,7 +18,7 @@ Scope::Scope() : table(new Hashtable<Decl*>) {
     // Empty
 }
 
-/* XXX: Only semantically valid programs will be tested, thus no semantic
+/* Only semantically valid programs will be tested, thus no semantic
  * checking is performed here.
  */
 void Scope::AddDecl(Decl *d) {
@@ -51,19 +51,13 @@ void Program::Check() {
     for (int i = 0, n = decls->NumElements(); i < n; ++i)
         decls->Nth(i)->MakeScope();
 
-    /* XXX: Only semantically valid programs will be tested, thus no
+    /* Assuming semantic validity of programs, thus no
      * semantic checking is performed here.
      */
 }
 
 void Program::Emit() {
-    /* pp4: here is where the code generation is kicked off.
-     *      The general idea is perform a tree traversal of the
-     *      entire program, generating instructions as you go.
-     *      Each node can have its own way of translating itself,
-     *      which makes for a great use of inheritance and
-     *      polymorphism in the node classes.
-     */
+//Prog Executions starts HERE!!
     int offset = CodeGenerator::OffsetToFirstGlobal;
 
     for (int i = 0, n = decls->NumElements(); i < n; ++i) {
@@ -298,11 +292,7 @@ Location* PrintStmt::Emit(CodeGenerator *cg) {
     for (int i = 0, n = args->NumElements(); i < n; ++i) {
         Expr *e = args->Nth(i);
         BuiltIn b = e->GetType()->GetPrint();
-        /* Print can only take ints, bools, or strings as parameters
-         * (remember, doubles need not be supported for PP4). GetPrint()
-         * should only return NumBuiltIns if the type is not an int, bool,
-         * or string. This should never happen.
-         */
+        // Print can only take ints, bools, or strings as parameters
         Assert(b != NumBuiltIns);
 
         cg->GenBuiltInCall(b, e->Emit(cg));
