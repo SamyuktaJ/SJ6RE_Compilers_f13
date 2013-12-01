@@ -1,16 +1,20 @@
-void modify(int[] a) {
-	int i;
-	for (i = 0; i < a.length(); i = i + 1)
-		a[i] = i;
-}
+void main() {
+  int[] b;
+  bool[] c;
+  int[] d;
+  string[] s;
 
-int main() {
-	int[] a;
-	int i;
-	a = NewArray(5, int);
-	for (i = 0; i < a.length(); i = i + 1)
-		a[i] = i + 10;
-	modify(a);
-	for (i = 0; i < a.length(); i = i + 1)
-		Print(a[i]);
+  b = NewArray(10, int);
+  c = NewArray(20, bool);
+  s = NewArray(3, string);
+
+  b[3] = 5;
+  c[6] = true;
+  d = b;
+  s[2] = "hello";
+
+  Print(b[3], b.length(), "\n");
+  Print(c[6], c.length(), "\n");
+  Print(d[3], d.length(), "\n");
+  Print(s[2], s.length(), "\n");
 }
