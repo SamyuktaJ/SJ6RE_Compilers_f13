@@ -32,10 +32,9 @@ Location *CodeGenerator::GenTempVar()
   char temp[10];
   Location *result = NULL;
   sprintf(temp, "_tmp%d", nextTempNum++);
-  /* pp4: need to create variable in proper location
-     in stack frame for use as temporary. Until you
-     do that, the assert below will always fail to remind
-     you this needs to be implemented  */
+  /* need to create variable in proper location
+     in stack frame for use as temporary. Until 
+     done, the assert below will always fail  */
   result = new Location(fpRelative, localOffset, temp);
   localOffset -= VarSize;
  
